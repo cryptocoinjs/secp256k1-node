@@ -186,7 +186,36 @@ NAN_METHOD(Sign_Compact_Async){
 }
 
 NAN_METHOD(Recover_Compact){
-  NanReturnUndefined();
+
+  NanScope();
+  
+  Local<Object> msg_buf = args[0].As<Object>();
+  const unsigned char *msg = (unsigned char *) node::Buffer::Data(msg_buf);
+  int msg_len = node::Buffer::Length(args[0]);
+
+  Local<Object> sig_buf = args[1].As<Object>();
+  const unsigned char *sig = (unsigned char *) node::Buffer::Data(sig_buf);
+  //todo sig len has to be 64
+  int sig_len = node::Buffer::Length(args[1]);
+
+  Local<Number> compressed = args[2].As<Number>();
+  int int_compressed = compressed->IntegerValue();
+
+  Local<Number> rec_id = args[3].As<Number>();
+  int int_rec_id = rec_id->IntegerValue();
+
+  unsigned char *pubKey;
+  if(int_compressed == 1){
+    pubKey = new unsigned char[33]; 
+  }else{
+    pubKey = new unsigned char[65]; 
+  }
+
+  int pubKeyLen;
+
+  secp256k1_ecdsa_recover_compact(msg, msg_len, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
+
+  NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
 }
 
 NAN_METHOD(Seckey_Verify){
@@ -213,6 +242,7 @@ NAN_METHOD(Pubkey_Create){
   Local<Number> l_compact = args[1].As<Number>();
   int compact = l_compact->IntegerValue();
   int pubKeyLen;
+
   unsigned char *pubKey;
   if(compact == 1){
     pubKey = new unsigned char[33]; 
@@ -237,6 +267,7 @@ void Init(Handle<Object> exports) {
   exports->Set(NanNew("signAsync"), NanNew<FunctionTemplate>(Sign_Async)->GetFunction());
   exports->Set(NanNew("signCompact"), NanNew<FunctionTemplate>(Sign_Compact)->GetFunction());
   exports->Set(NanNew("signCompactAsync"), NanNew<FunctionTemplate>(Sign_Compact_Async)->GetFunction());
+  exports->Set(NanNew("recoverCompact"), NanNew<FunctionTemplate>(Recover_Compact)->GetFunction());
   exports->Set(NanNew("verify"), NanNew<FunctionTemplate>(Verify)->GetFunction());
   exports->Set(NanNew("pubKeyCreate"), NanNew<FunctionTemplate>(Pubkey_Create)->GetFunction());
 }
