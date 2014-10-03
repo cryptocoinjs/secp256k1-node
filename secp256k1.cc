@@ -222,15 +222,21 @@ NAN_METHOD(Seckey_Verify){
   NanScope();
 
   const unsigned char *data = (const unsigned char*) node::Buffer::Data(args[0]);
-  /* Local<String> str = args[0].As<String>(); */
-  /* const unsigned char len =  reinterpret_cast<const unsigned char>( *String::Utf8Value(str)); */
   int result =  secp256k1_ecdsa_seckey_verify(data); 
-  NanReturnValue(NanNew(result)); 
+  NanReturnValue(NanNew<Number>(result)); 
 }
 
 NAN_METHOD(Pubkey_Verify){
 
-  NanReturnUndefined();
+  NanScope();
+  
+  Local<Object> pub_buf = args[0].As<Object>();
+  const unsigned char *pub_key = (unsigned char *) node::Buffer::Data(pub_buf);
+  int pub_key_len = node::Buffer::Length(args[0]);
+
+  int result = secp256k1_ecdsa_pubkey_verify(pub_key, pub_key_len);
+
+  NanReturnValue(NanNew<Number>(result)); 
 }
 
 NAN_METHOD(Pubkey_Create){
@@ -255,8 +261,51 @@ NAN_METHOD(Pubkey_Create){
 }
 
 NAN_METHOD(Pubkey_Decompress){
+  NanScope();
 
-  NanReturnUndefined();
+  //the first argument should be the private key as a buffer
+  Local<Object> pk_buf = args[0].As<Object>();
+  unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+
+  int pk_len = node::Buffer::Length(args[0]);
+
+  int results = secp256k1_ecdsa_pubkey_decompress(pk_data, &pk_len);
+
+  NanReturnValue(NanNewBufferHandle((char *)pk_data, pk_len));
+}
+
+
+NAN_METHOD(Privkey_Import){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> pk_buf = args[0].As<Object>();
+  const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+
+  int pk_len = node::Buffer::Length(args[0]);
+
+  unsigned char *sec_key;
+  int results = secp256k1_ecdsa_privkey_import(sec_key, pk_data, pk_len);
+
+  NanReturnValue(NanNewBufferHandle((char *)sec_key, 32));
+}
+
+NAN_METHOD(Privkey_Export){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> sk_buf = args[0].As<Object>();
+  const unsigned char *sk_data = (unsigned char *) node::Buffer::Data(sk_buf);
+
+  Local<Number> l_compressed = args[1].As<Number>();
+  int compressed = l_compressed->IntegerValue();
+
+  unsigned char *privKey;
+  int pk_len;
+
+  int results = secp256k1_ecdsa_privkey_export(sk_data, privKey, &pk_len, compressed);
+
+  NanReturnValue(NanNewBufferHandle((char *)privKey, pk_len));
 }
 
 void Init(Handle<Object> exports) {
@@ -269,7 +318,11 @@ void Init(Handle<Object> exports) {
   exports->Set(NanNew("signCompactAsync"), NanNew<FunctionTemplate>(Sign_Compact_Async)->GetFunction());
   exports->Set(NanNew("recoverCompact"), NanNew<FunctionTemplate>(Recover_Compact)->GetFunction());
   exports->Set(NanNew("verify"), NanNew<FunctionTemplate>(Verify)->GetFunction());
+  exports->Set(NanNew("secKeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
+  exports->Set(NanNew("puKeyVerify"), NanNew<FunctionTemplate>(Pubkey_Verify)->GetFunction());
   exports->Set(NanNew("pubKeyCreate"), NanNew<FunctionTemplate>(Pubkey_Create)->GetFunction());
+  exports->Set(NanNew("pubKeyDecompress"), NanNew<FunctionTemplate>(Pubkey_Decompress)->GetFunction());
+
 }
 
 NODE_MODULE(secp256k1, Init)
