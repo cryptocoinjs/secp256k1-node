@@ -121,6 +121,24 @@ exports.createPublicKey = function(secKey, compressed){
   return secpNode.pubKeyCreate(secKey, compressed);
 };
 
+/**
+ * @method exportPrivateKey
+ * @param {Buffer} secertKey
+ * @param {Boolean} compressed
+ * @return {Buffer} privateKey
+ */
 exports.exportPrivateKey = secpNode.privKeyExport;
+
+/**
+ * @method importPrivateKey
+ * @param {Buffer} privateKey
+ * @return {Buffer} secertKey 
+ */
 exports.importPrivateKey = secpNode.privKeyImport;
+
+/**
+ * @method decompressPublickey
+ * @param {Buffer} secretKey
+ * @return {Buffer}
+ */ 
 exports.decompressPublicKey = secpNode.pubKeyDecompress;
