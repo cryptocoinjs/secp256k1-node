@@ -39,8 +39,7 @@ Create an ECDSA signature.
 
 secp256k1.signCompact(sercetKey, msg, cb) 
 -----------------------------
-Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
-if given a callback
+Create a compact ECDSA signature (64 byte + recovery id). Runs asynchronously if given a callback
 
 **Parameters**
 
@@ -60,7 +59,7 @@ if given a callback
 
 secp256k1.verify(pubKey, mgs, sig) 
 -----------------------------
-Verify an ECDSA signature.
+Verify an ECDSA signature.  Runs asynchronously if given a callback
 
 **Parameters**
 
@@ -78,7 +77,7 @@ Verify an ECDSA signature.
 
 secp256k1.recoverCompact(msg, sig, compressed, recid, cb) 
 -----------------------------
-Recover an ECDSA public key from a compact signature. In the process also verifing it.
+Recover an ECDSA public key from a compact signature in the process also verifing it.  Runs asynchronously if given a callback
 
 **Parameters**
 
@@ -108,7 +107,6 @@ Compute the public key for a secret key.
 
 secp256k1.exportPrivateKey(secertKey, compressed) 
 -----------------------------
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Parameters**
 
@@ -120,7 +118,6 @@ This module provides native bindings to ecdsa [secp256k1](https://github.com/bit
 
 secp256k1.importPrivateKey(privateKey) 
 -----------------------------
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Parameters**
 
@@ -130,7 +127,6 @@ This module provides native bindings to ecdsa [secp256k1](https://github.com/bit
 
 secp256k1.decompressPublickey(secretKey) 
 -----------------------------
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Parameters**
 
