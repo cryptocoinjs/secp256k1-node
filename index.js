@@ -81,7 +81,8 @@ exports.signCompact = function(secretKey, msg, cb){
  * @param {Buffer} pubKey the public key
  * @param {Buffer} mgs the message
  * @param {Buffer} sig the signature
- * @return {Integer} 
+ * @return {Integer}
+ *
  *    - 1: correct signature
  *    - 0: incorrect signature
  *    - -1: invalid public key
