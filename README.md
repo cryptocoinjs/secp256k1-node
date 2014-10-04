@@ -110,9 +110,9 @@ secp256k1.exportPrivateKey(secertKey, compressed)
 
 **Parameters**
 
-**secertKey**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+**secertKey**: Buffer
 
-**compressed**: Boolean, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+**compressed**: Boolean
 
 **Returns**: Buffer, privateKey
 
