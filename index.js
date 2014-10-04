@@ -82,10 +82,10 @@ exports.signCompact = function(secretKey, msg, cb){
  * @param {Buffer} mgs the message
  * @param {Buffer} sig the signature
  * @return {Integer} 
- *    1: correct signature
- *    0: incorrect signature
- *   -1: invalid public key
- *   -2: invalid signature
+ *    - 1: correct signature
+ *    - 0: incorrect signature
+ *    - -1: invalid public key
+ *    - -2: invalid signature
  */
 exports.verify = function(pubKey, msg, sig, cb){
   if(cb){

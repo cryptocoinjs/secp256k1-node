@@ -70,10 +70,10 @@ Verify an ECDSA signature.
 
 **sig**: Buffer, the signature
 
-**Returns**: Integer, 1: correct signature
-   0: incorrect signature
-  -1: invalid public key
-  -2: invalid signature
+**Returns**: Integer, - 1: correct signature
+   - 0: incorrect signature
+   - -1: invalid public key
+   - -2: invalid signature
 
 secp256k1.recoverCompact(msg, sig, compressed, recid, cb) 
 -----------------------------
