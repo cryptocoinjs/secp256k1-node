@@ -1,9 +1,9 @@
-Global
+secp256k1
 ===
 
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
-
-verifySecetKey(sercetKey) 
+secp256k1.verifySecetKey(sercetKey) 
 -----------------------------
 Verify an ECDSA secret key.
 
@@ -13,7 +13,7 @@ Verify an ECDSA secret key.
 
 **Returns**: Boolean, `true` if sercet key is valid, `false` sercet key is invalid
 
-verifyPublicKey(publicKey) 
+secp256k1.verifyPublicKey(publicKey) 
 -----------------------------
 Verify an ECDSA public key.
 
@@ -23,7 +23,7 @@ Verify an ECDSA public key.
 
 **Returns**: Boolean, `true` if public key is valid, `false` sercet key is invalid
 
-sign(secretkey, msg, cb) 
+secp256k1.sign(secretkey, msg, cb) 
 -----------------------------
 Create an ECDSA signature.
 
@@ -37,7 +37,7 @@ Create an ECDSA signature.
 
 **Returns**: Buffer, if no callback is given a 72-byte signature is returned
 
-signCompact(sercetKey, msg, cb, sig, recid:) 
+secp256k1.signCompact(sercetKey, msg, cb, sig, recid:) 
 -----------------------------
 Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
 if given a callback
@@ -60,7 +60,7 @@ if given a callback
    result.s
    result.recoveryID
 
-verify(pubKey, mgs, sig) 
+secp256k1.verify(pubKey, mgs, sig) 
 -----------------------------
 Verify an ECDSA signature.
 
@@ -77,7 +77,7 @@ Verify an ECDSA signature.
   -1: invalid public key
   -2: invalid signature
 
-recoverCompact(msg, sig, compressed, recid, cb) 
+secp256k1.recoverCompact(msg, sig, compressed, recid, cb) 
 -----------------------------
 Recover an ECDSA public key from a compact signature. In the process also verifing it.
 
@@ -95,7 +95,7 @@ Recover an ECDSA public key from a compact signature. In the process also verifi
 
 **Returns**: Buffer, the pubkey, a 33 or 65 byte buffer
 
-createPubKey(secKey, compressed) 
+secp256k1.createPubKey(secKey, compressed) 
 -----------------------------
 Compute the public key for a secret key.
 
@@ -107,31 +107,45 @@ Compute the public key for a secret key.
 
 **Returns**: Buffer, a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
 
-exportPrivateKey(secertKey, compressed) 
+secp256k1.exportPrivateKey(secertKey, compressed) 
 -----------------------------
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+
 **Parameters**
 
-**secertKey**: Buffer, 
+**secertKey**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
-**compressed**: Boolean, 
+**compressed**: Boolean, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Returns**: Buffer, privateKey
 
-importPrivateKey(privateKey) 
+secp256k1.importPrivateKey(privateKey) 
 -----------------------------
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+
 **Parameters**
 
-**privateKey**: Buffer, 
+**privateKey**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Returns**: Buffer, secertKey
 
-decompressPublickey(secretKey) 
+secp256k1.decompressPublickey(secretKey) 
 -----------------------------
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+
 **Parameters**
 
-**secretKey**: Buffer, 
+**secretKey**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
-**Returns**: Buffer, 
+**Returns**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 
 ---
+
+
+
+
+
+
+
+

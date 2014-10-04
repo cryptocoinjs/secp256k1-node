@@ -1,3 +1,8 @@
+/**
+ * This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+ * @module secp256k1
+ */
+
 var secpNode = require('bindings')('secp256k1');
 var assert = require('assert');
 
