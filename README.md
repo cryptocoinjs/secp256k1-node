@@ -70,7 +70,8 @@ Verify an ECDSA signature.
 
 **sig**: Buffer, the signature
 
-**Returns**: Integer, - 1: correct signature
+**Returns**: Integer,  
+   - 1: correct signature
    - 0: incorrect signature
    - -1: invalid public key
    - -2: invalid signature
