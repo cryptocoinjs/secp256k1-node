@@ -49,13 +49,13 @@ exports.sign = function(secretKey, msg, cb){
  * @param {Buffer} sercetKey a 32-byte secret key (assumed to be valid)
  * @param {Buffer} msg the message being signed
  * @param {Function} [cb] the callback which is give `err`, `sig` the  
- *    @param {Buffer} sig  a 64-byte buffer repersenting the signature
- *    @param {Number} recid: an int which is the recovery id.
- * @return {Object} result only if no callback is given will the result be returned
- *    result.sigature
- *    result.r
- *    result.s
- *    result.recoveryID
+ *    - param {Buffer} sig  a 64-byte buffer repersenting the signature
+ *    - param {Number} recid an int which is the recovery id.
+ * @return {Object} result only if no callback is given will the result be returned  
+ *    - result.sigature
+ *    - result.r
+ *    - result.s
+ *    - result.recoveryID
  */
 exports.signCompact = function(secretKey, msg, cb){
 

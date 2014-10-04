@@ -37,7 +37,7 @@ Create an ECDSA signature.
 
 **Returns**: Buffer, if no callback is given a 72-byte signature is returned
 
-secp256k1.signCompact(sercetKey, msg, cb, sig, recid:) 
+secp256k1.signCompact(sercetKey, msg, cb) 
 -----------------------------
 Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
 if given a callback
@@ -48,17 +48,15 @@ if given a callback
 
 **msg**: Buffer, the message being signed
 
-**cb**: function, the callback which is give `err`, `sig` the
+**cb**: function, the callback which is give `err`, `sig` the  
+   - param {Buffer} sig  a 64-byte buffer repersenting the signature
+   - param {Number} recid an int which is the recovery id.
 
-**sig**: Buffer, a 64-byte buffer repersenting the signature
-
-**recid:**: Number, an int which is the recovery id.
-
-**Returns**: Object, result only if no callback is given will the result be returned
-   result.sigature
-   result.r
-   result.s
-   result.recoveryID
+**Returns**: Object, result only if no callback is given will the result be returned  
+   - result.sigature
+   - result.r
+   - result.s
+   - result.recoveryID
 
 secp256k1.verify(pubKey, mgs, sig) 
 -----------------------------
