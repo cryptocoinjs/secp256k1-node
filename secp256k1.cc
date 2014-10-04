@@ -55,10 +55,11 @@ class CompactSignWorker : public SignWorker {
   void HandleOKCallback () {
     NanScope();
     Handle<Value> argv[] = {
+      NanNew<Number>(this->result),
       NanNewBufferHandle((char *)this->sig, 64),
       NanNew<Number>(this->sig_len)
     };
-    callback->Call(2, argv);
+    callback->Call(3, argv);
   }
 };
 
@@ -165,7 +166,7 @@ NAN_METHOD(Verify_Async){
   const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
   int sig_len = node::Buffer::Length(args[2]);
 
-  Local<Function> callback = args[2].As<Function>();
+  Local<Function> callback = args[3].As<Function>();
   NanCallback* nanCallback = new NanCallback(callback);
 
   VerifyWorker* worker = new VerifyWorker(nanCallback, msg_data, msg_len, sig_data, sig_len, pub_data, pub_len);

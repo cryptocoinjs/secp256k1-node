@@ -106,11 +106,14 @@ exports.verify = function(pubKey, msg, sig, cb){
  * @param {Function} [cb]
  * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */
-exports.recoverCompact = function(msg, sig, compressed, recid, cb){
+exports.recoverCompact = function(msg, sig, recid, compressed, cb){
+
+  compressed = compressed ? 1 : 0;
+
   if(!cb){
     return secpNode.recoverCompact(msg, sig, compressed, recid); 
   }else{
-    secpNode.recoverCompactAsync(msg, sig, compressed, recid,  cb);
+    secpNode.recoverCompactAsync(msg, sig, compressed, recid, cb);
   }
 };
 
