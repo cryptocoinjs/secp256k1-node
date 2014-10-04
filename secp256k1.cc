@@ -19,7 +19,7 @@ class SignWorker : public NanAsyncWorker {
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute () {
-    int result = secp256k1_ecdsa_sign(this->msg, this->msg_len , this->sig , &this->sig_len, this->pk, this->pk);
+    this->result = secp256k1_ecdsa_sign(this->msg, this->msg_len , this->sig , &this->sig_len, this->pk, this->pk);
   }
 
   // Executed when the async work is complete
@@ -28,17 +28,16 @@ class SignWorker : public NanAsyncWorker {
   void HandleOKCallback () {
     NanScope();
     Handle<Value> argv[] = {
-      NanNull(),
+      NanNew<Number>(this->result),
       NanNewBufferHandle((char *)this->sig, this->sig_len)
     };
     callback->Call(2, argv);
-
-    //NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
   }
 
  protected:
   int sig_len;
   int msg_len;
+  int result;
   const unsigned char * msg;
   const unsigned char * pk;
   unsigned char sig[72];
@@ -50,33 +49,86 @@ class CompactSignWorker : public SignWorker {
     : SignWorker(callback, msg, msg_len, pk){}
 
   void Execute () {
-    int result = secp256k1_ecdsa_sign_compact(this->msg, this->msg_len , this->sig , this->pk, this->pk,  &this->sig_len);
+    this->result = secp256k1_ecdsa_sign_compact(this->msg, this->msg_len , this->sig , this->pk, this->pk,  &this->sig_len);
   }
 
   void HandleOKCallback () {
     NanScope();
     Handle<Value> argv[] = {
-      NanNull(),
-      NanNew<Number>(this->sig_len),
-      NanNewBufferHandle((char *)this->sig, 64)
+      NanNewBufferHandle((char *)this->sig, 64),
+      NanNew<Number>(this->sig_len)
     };
     callback->Call(2, argv);
   }
 };
 
-NAN_METHOD(Print) {
-  /* v8::String::Utf8Value testObj(args[0]->ToString()); */
-  /* Handle<Object> hash_buf = args[0]->ToObject(); */
-  /* const unsigned char *hash_data = (unsigned char *) node::Buffer::Data(hash_buf); */
-  /* int length = strlen((char*)hash_data); */
+class RecoverWorker : public NanAsyncWorker {
+ public:
+  // Constructor
+  RecoverWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *sig, int compressed, int rec_id)
+    : NanAsyncWorker(callback), msg(msg), msg_len(msg_len), sig(sig), compressed(compressed), rec_id(rec_id) {}
+  // Destructor
+  ~RecoverWorker() {}
 
-  /* for(int i = 0; i < length; i++) */
-  /* { */
-  /*   printf("%02x", hash_data[i]); */
-  /* } */
+  void Execute () {
+    if(this->compressed == 1){
+      this->pubkey = new unsigned char[33]; 
+    }else{
+      this->pubkey = new unsigned char[65]; 
+    }
 
-  NanReturnUndefined();
-}
+    this->result = secp256k1_ecdsa_recover_compact(this->msg, this->msg_len, this->sig, this->pubkey, &this->pubkey_len, this->compressed, this->rec_id);
+  }
+
+  void HandleOKCallback () {
+    NanScope();
+    Handle<Value> argv[] = {
+      NanNew<Number>(this->result),
+      NanNewBufferHandle((char *)this->pubkey, this->pubkey_len)
+    };
+    callback->Call(2, argv);
+  }
+
+ protected:
+  int rec_id;
+  int compressed;
+  int result;
+  unsigned char * pubkey;
+  int pubkey_len;
+  const unsigned char * msg;
+  int msg_len;
+  const unsigned char * sig; 
+};
+
+class VerifyWorker : public NanAsyncWorker {
+ public:
+  // Constructor
+  VerifyWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *sig, int sig_len, const unsigned char *pub_key, int pub_key_len)
+    : NanAsyncWorker(callback), msg(msg), msg_len(msg_len), sig(sig), sig_len(sig_len), pub_key(pub_key), pub_key_len(pub_key_len) {}
+  // Destructor
+  ~VerifyWorker() {}
+
+  void Execute () {
+    this->result = secp256k1_ecdsa_verify(this->msg, this->msg_len, this->sig, this->sig_len,  this->pub_key, this->pub_key_len);
+  }
+
+  void HandleOKCallback () {
+    NanScope();
+    Handle<Value> argv[] = {
+      NanNew<Number>(this->result),
+    };
+    callback->Call(1, argv);
+  }
+
+ protected:
+  int result;
+  const unsigned char * msg;
+  int msg_len;
+  const unsigned char * sig;
+  int sig_len; 
+  const unsigned char * pub_key;
+  int pub_key_len;
+};
 
 NAN_METHOD(Verify){
   NanScope();
@@ -98,9 +150,33 @@ NAN_METHOD(Verify){
   NanReturnValue(NanNew<Number>(result));
 }
 
-NAN_METHOD(Sign){
-
+NAN_METHOD(Verify_Async){
   NanScope();
+
+  Local<Object> pub_buf = args[0].As<Object>();
+  const unsigned char *pub_data = (unsigned char *) node::Buffer::Data(pub_buf);
+  int pub_len = node::Buffer::Length(args[0]);
+
+  Local<Object> msg_buf = args[1].As<Object>();
+  const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
+  int msg_len = node::Buffer::Length(args[1]);
+
+  Local<Object> sig_buf = args[2].As<Object>();
+  const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
+  int sig_len = node::Buffer::Length(args[2]);
+
+  Local<Function> callback = args[2].As<Function>();
+  NanCallback* nanCallback = new NanCallback(callback);
+
+  VerifyWorker* worker = new VerifyWorker(nanCallback, msg_data, msg_len, sig_data, sig_len, pub_data, pub_len);
+  NanAsyncQueueWorker(worker);
+
+  NanReturnUndefined();
+}
+
+NAN_METHOD(Sign){
+  NanScope();
+
   //the first argument should be the private key as a buffer
   Local<Object> pk_buf = args[0].As<Object>();
   const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
@@ -165,7 +241,6 @@ NAN_METHOD(Sign_Compact){
 }
 
 NAN_METHOD(Sign_Compact_Async){
-
   NanScope();
   //the first argument should be the private key as a buffer
   Local<Object> pk_buf = args[0].As<Object>();
@@ -216,6 +291,39 @@ NAN_METHOD(Recover_Compact){
   secp256k1_ecdsa_recover_compact(msg, msg_len, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
 
   NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
+}
+
+NAN_METHOD(Recover_Compact_Async){
+
+  NanScope();
+  
+  //the message
+  Local<Object> msg_buf = args[0].As<Object>();
+  const unsigned char *msg = (unsigned char *) node::Buffer::Data(msg_buf);
+  int msg_len = node::Buffer::Length(args[0]);
+
+  //the signature length
+  Local<Object> sig_buf = args[1].As<Object>();
+  const unsigned char *sig = (unsigned char *) node::Buffer::Data(sig_buf);
+  //todo sig len needs tobe 64
+  int sig_len = node::Buffer::Length(args[1]);
+
+  //to compress or not?
+  Local<Number> compressed = args[2].As<Number>();
+  int int_compressed = compressed->IntegerValue();
+
+  //the rec_id
+  Local<Number> rec_id = args[3].As<Number>();
+  int int_rec_id = rec_id->IntegerValue();
+
+  //the callback
+  Local<Function> callback = args[4].As<Function>();
+  NanCallback* nanCallback = new NanCallback(callback);
+
+  RecoverWorker* worker = new RecoverWorker(nanCallback, msg, msg_len, sig, int_compressed, int_rec_id);
+  NanAsyncQueueWorker(worker);
+
+  NanReturnUndefined();
 }
 
 NAN_METHOD(Seckey_Verify){
@@ -302,7 +410,6 @@ NAN_METHOD(Privkey_Export){
 
   unsigned char *privKey;
   int pk_len;
-
   int results = secp256k1_ecdsa_privkey_export(sk_data, privKey, &pk_len, compressed);
 
   NanReturnValue(NanNewBufferHandle((char *)privKey, pk_len));
@@ -310,19 +417,21 @@ NAN_METHOD(Privkey_Export){
 
 void Init(Handle<Object> exports) {
   secp256k1_start();
-  exports->Set(NanNew("print"), NanNew<FunctionTemplate>(Print)->GetFunction());
   exports->Set(NanNew("seckeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
   exports->Set(NanNew("sign"), NanNew<FunctionTemplate>(Sign)->GetFunction());
   exports->Set(NanNew("signAsync"), NanNew<FunctionTemplate>(Sign_Async)->GetFunction());
   exports->Set(NanNew("signCompact"), NanNew<FunctionTemplate>(Sign_Compact)->GetFunction());
   exports->Set(NanNew("signCompactAsync"), NanNew<FunctionTemplate>(Sign_Compact_Async)->GetFunction());
   exports->Set(NanNew("recoverCompact"), NanNew<FunctionTemplate>(Recover_Compact)->GetFunction());
+  exports->Set(NanNew("recoverCompactAsync"), NanNew<FunctionTemplate>(Recover_Compact_Async)->GetFunction());
   exports->Set(NanNew("verify"), NanNew<FunctionTemplate>(Verify)->GetFunction());
+  exports->Set(NanNew("verifyAsync"), NanNew<FunctionTemplate>(Verify_Async)->GetFunction());
   exports->Set(NanNew("secKeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
-  exports->Set(NanNew("puKeyVerify"), NanNew<FunctionTemplate>(Pubkey_Verify)->GetFunction());
+  exports->Set(NanNew("pubKeyVerify"), NanNew<FunctionTemplate>(Pubkey_Verify)->GetFunction());
   exports->Set(NanNew("pubKeyCreate"), NanNew<FunctionTemplate>(Pubkey_Create)->GetFunction());
   exports->Set(NanNew("pubKeyDecompress"), NanNew<FunctionTemplate>(Pubkey_Decompress)->GetFunction());
-
+  exports->Set(NanNew("privKeyExport"), NanNew<FunctionTemplate>(Privkey_Export)->GetFunction());
+  exports->Set(NanNew("privKeyImport"), NanNew<FunctionTemplate>(Privkey_Import)->GetFunction());
 }
 
 NODE_MODULE(secp256k1, Init)
