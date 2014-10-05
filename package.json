@@ -1,17 +1,16 @@
 {
   "name": "secp256k1",
-  "version": "1.0.0",
-  "description": "My Awesome Addon",
+  "version": "0.0.1",
+  "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "main": "index.js",
   "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --reporter spec ./test/",
     "install": "node-gyp rebuild"
   },
-  "license": "MIT",
   "dependencies": {
     "bindings": "^1.2.1",
     "nan": "^1.2.0"
   },
-  "gypfile": true,
   "devDependencies": {
     "bigi": "^1.3.0",
     "coinkey": "^1.3.0",
@@ -19,5 +18,22 @@
     "mocha": "^1.21.4",
     "secure-random": "^1.1.1"
   },
-  "author": ""
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wanderer/secp256k1-node.git"
+  },
+  "keywords": [
+    "secp256k1",
+    "ecdsa",
+    "ec"
+  ],
+  "author": {
+    "name": "martin becze",
+    "email": "mjbecze@gmail.com"
+  },
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/wanderer/secp256k1-node/issues"
+  },
+  "gypfile": true
 }
