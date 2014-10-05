@@ -26,7 +26,7 @@
       "./src/src/util_impl.h"
     ],
     "cflags": [
-      "--std=c11"
+      "--std=c1x"
     ],
     "include_dirs": ["<!(node -e \"require('nan')\")"],
     "defines": [
