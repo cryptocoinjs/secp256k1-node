@@ -3,6 +3,38 @@ secp256k1 [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?bra
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
+Usage
+===
+```javascript
+
+var ecdsa = require('secp256k1'),
+  sr = require('secure-random'); 
+
+var privateKey = sr.randomBuffer(32);
+
+//a random message to sign
+var msg = sr.randomBuffer(32);
+
+//get the public key in a compressed format
+var pubKey = ecdsa.createPublicKey(privateKey, true);
+
+//sign the message
+var sig = ecdsa.sign(privateKey, msg);
+
+//verify the signature
+if(ecdsa.verify(pubKey, msg, sig)){
+  console.log("valid signature");
+}
+
+```
+
+Test
+===
+run `npm test`
+ 
+API
+===
+
 secp256k1.verifySecetKey(sercetKey) 
 -----------------------------
 Verify an ECDSA secret key.
