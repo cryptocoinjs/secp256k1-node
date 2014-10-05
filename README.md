@@ -3,6 +3,10 @@ secp256k1 [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?bra
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
+Install
+===
+`npm install secp256k1`
+
 Usage
 ===
 ```javascript
