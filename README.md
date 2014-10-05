@@ -1,4 +1,4 @@
-secp256k1
+secp256k1 [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?branch=master)](https://travis-ci.org/wanderer/secp256k1-node)
 ===
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
