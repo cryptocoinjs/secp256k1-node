@@ -138,6 +138,9 @@ secp256k1.decompressPublickey(secretKey)
 ---
 
 
+# NOTES
+This will not work on node version 11 yet. Arrays need to have `isolates` for this.
+
 
 
 
