@@ -1,3 +1,4 @@
+//tests against the `ecdsa` module
 var ecdsa = require('ecdsa');
 var BigInteger = require('bigi');
 var assert = require('assert');
@@ -9,7 +10,6 @@ var privateKey = sr.randomBuffer(32);
 var msg = sr.randomBuffer(32);
 var ck;
 
-//test public key generation
 var pubKey;
 var compactSig;
 
