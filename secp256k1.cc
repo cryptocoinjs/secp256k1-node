@@ -289,9 +289,12 @@ NAN_METHOD(Recover_Compact){
 
   int pubKeyLen;
 
-  secp256k1_ecdsa_recover_compact(msg, msg_len, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
-
-  NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
+  int result = secp256k1_ecdsa_recover_compact(msg, msg_len, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
+  if(result == 1){
+    NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
+  }else{
+    NanReturnValue(NanNew<Boolean>(0));
+  }
 }
 
 NAN_METHOD(Recover_Compact_Async){

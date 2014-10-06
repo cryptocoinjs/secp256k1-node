@@ -21,7 +21,6 @@ describe('it should handle basic ecdsa ops', function () {
     assert(pubKey.toString('hex') === ck.publicKey.toString('hex'), 'incorrect public key');
   });
 
-
   it('should sign a message', function () {
     var sig = ecdsaNative.sign(privateKey, msg);
     var s = ecdsa.parseSig(sig);
