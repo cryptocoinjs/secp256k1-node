@@ -39,15 +39,15 @@ run `npm test`
 API
 ===
 
-secp256k1.verifySecetKey(sercetKey) 
+secp256k1.verifySecretKey(secretKey) 
 -----------------------------
 Verify an ECDSA secret key.
 
 **Parameters**
 
-**sercetKey**: Buffer, the sercet Key to verify
+**secretKey**: Buffer, the secret Key to verify
 
-**Returns**: Boolean, `true` if sercet key is valid, `false` sercet key is invalid
+**Returns**: Boolean, `true` if secret key is valid, `false` secret key is invalid
 
 secp256k1.verifyPublicKey(publicKey) 
 -----------------------------
@@ -57,7 +57,7 @@ Verify an ECDSA public key.
 
 **publicKey**: Buffer, the public Key to verify
 
-**Returns**: Boolean, `true` if public key is valid, `false` sercet key is invalid
+**Returns**: Boolean, `true` if public key is valid, `false` secret key is invalid
 
 secp256k1.sign(secretkey, msg, cb) 
 -----------------------------
@@ -73,13 +73,13 @@ Create an ECDSA signature.
 
 **Returns**: Buffer, if no callback is given a 72-byte signature is returned
 
-secp256k1.signCompact(sercetKey, msg, cb) 
+secp256k1.signCompact(secretKey, msg, cb) 
 -----------------------------
 Create a compact ECDSA signature (64 byte + recovery id). Runs asynchronously if given a callback
 
 **Parameters**
 
-**sercetKey**: Buffer, a 32-byte secret key (assumed to be valid)
+**secretKey**: Buffer, a 32-byte secret key (assumed to be valid)
 
 **msg**: Buffer, the message being signed
 
@@ -91,7 +91,7 @@ Create a compact ECDSA signature (64 byte + recovery id). Runs asynchronously if
    - result.sigature
    - result.r
    - result.s
-   - result.recoveryID
+   - result.recoveryId
 
 secp256k1.verify(pubKey, mgs, sig) 
 -----------------------------
