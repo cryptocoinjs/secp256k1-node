@@ -88,7 +88,7 @@ Create a compact ECDSA signature (64 byte + recovery id). Runs asynchronously if
    - param {Number} recid an int which is the recovery id.
 
 **Returns**: result only returned if no callback is given
-   - result.sigature
+   - result.signature
    - result.r
    - result.s
    - result.recoveryId
