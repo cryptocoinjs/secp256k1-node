@@ -111,7 +111,7 @@ Verify an ECDSA signature.  Runs asynchronously if given a callback
    - -1: invalid public key
    - -2: invalid signature
 
-secp256k1.recoverCompact(msg, sig, compressed, recid, cb) 
+secp256k1.recoverCompact(msg, sig, recid, compressed,  cb) 
 -----------------------------
 Recover an ECDSA public key from a compact signature in the process also verifing it.  Runs asynchronously if given a callback
 
@@ -121,9 +121,9 @@ Recover an ECDSA public key from a compact signature in the process also verifin
 
 **sig**: Buffer, the signature as 64 byte buffer
 
-**compressed**: Boolean, whether to recover a compressed or uncompressed pubkey
-
 **recid**: Integer, the recovery id (as returned by ecdsa_sign_compact)
+
+**compressed**: Boolean, whether to recover a compressed or uncompressed pubkey
 
 **cb**: function, Recover an ECDSA public key from a compact signature. In the process also verifing it.
 
@@ -176,10 +176,3 @@ secp256k1.decompressPublickey(secretKey)
 
 # NOTES
 This will not work on node version 11 yet. Arrays need to have `isolates` for this.
-
-
-
-
-
-
-

@@ -98,8 +98,8 @@ exports.verify = function(pubKey, msg, sig, cb){
  * @method recoverCompact
  * @param {Buffer} msg the message assumed to be signed
  * @param {Buffer} sig the signature as 64 byte buffer
- * @param {Boolean} compressed whether to recover a compressed or uncompressed pubkey
  * @param {Integer} recid the recovery id (as returned by ecdsa_sign_compact)
+ * @param {Boolean} compressed whether to recover a compressed or uncompressed pubkey
  * @param {Function} [cb]
  * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */

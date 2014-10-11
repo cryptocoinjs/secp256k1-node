@@ -57,6 +57,8 @@ describe('it should handle basic ecdsa ops', function () {
     //save to use to test verifyCompact
     compactSig = sig;
 
+    console.log('recover:' +  sig.recoveryId);
+
     var s = {
       r: BigInteger.fromBuffer(sig.r),
       s: BigInteger.fromBuffer(sig.s),
