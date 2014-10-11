@@ -4,7 +4,6 @@
  */
 
 var secpNode = require('bindings')('secp256k1');
-var assert = require('assert');
 
 /**
  * Verify an ECDSA secret key.
@@ -125,7 +124,6 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
  * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
  */
 exports.createPublicKey = function(secKey, compressed){
-  assert(secKey.length === 32, 'the sercet key needs to be 32 bytes');
   compressed = compressed ? 1 : 0;
   return secpNode.pubKeyCreate(secKey, compressed);
 };
