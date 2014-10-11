@@ -58,8 +58,6 @@ exports.sign = function(secretKey, msg, cb){
  */
 exports.signCompact = function(secretKey, msg, cb){
 
-  assert(secretKey.length === 32, 'the secret key needs tobe 32 bytes');
-
   if(cb){
     secpNode.signCompactAsync(secretKey, msg, cb);
   }else{
