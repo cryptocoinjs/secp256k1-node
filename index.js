@@ -8,6 +8,51 @@ var crypto = require('crypto');
 var secpNode = require('bindings')('secp256k1');
 
 /**
+ * deteministic Generation of k
+ * @method detereministicGenerateK
+ * @param {Buffer} h1 the hash of the message
+ * @param {Buffer} x the private key
+ */
+var deterministicGenerateK = exports.deterministicGenerateK  = function(h1, x){
+
+  //https://tools.ietf.org/html/rfc6979#section-3.2
+  //step b
+  var v = new Buffer(32);
+  v.fill(1);
+
+  //step c
+  var k = new Buffer(32);
+  k.fill(0);
+
+  //step d
+  var hash = crypto.createHmac('sha256', k);
+  hash.update(Buffer.concat([v, new Buffer([0]), x, h1]));
+  k = hash.digest();
+
+  //step e
+  hash = crypto.createHmac('sha256', k);
+  hash.update(v);
+  v = hash.digest();
+
+  //step f
+  hash = crypto.createHmac('sha256', k);
+  hash.update(Buffer.concat([v, new Buffer([1]), x, h1]));
+  k = hash.digest();
+
+  //step g
+  hash = crypto.createHmac('sha256', k);
+  hash.update(v);
+  v = hash.digest();
+
+  //step h
+  hash = crypto.createHmac('sha256', k);
+  hash.update(v);
+  v = hash.digest();
+
+  return v;
+};
+
+/**
  * Verify an ECDSA secret key.
  * @method verifySecetKey
  * @param {Buffer} sercetKey the sercet Key to verify
@@ -37,9 +82,9 @@ exports.verifyPublicKey = function(publicKey){
  */
 exports.sign = function(secretKey, msg, cb){
   if(cb){
-    secpNode.signAsync(secretKey, msg, msg, cb);
+    secpNode.signAsync(secretKey, msg, deterministicGenerateK(msg, secretKey), cb);
   }else{
-    return secpNode.sign(secretKey, msg, msg);
+    return secpNode.sign(secretKey, msg, deterministicGenerateK(msg, secretKey));
   }
 };
 
@@ -61,9 +106,9 @@ exports.sign = function(secretKey, msg, cb){
 exports.signCompact = function(secretKey, msg, cb){
 
   if(cb){
-    secpNode.signCompactAsync(secretKey, msg, msg, cb);
+    secpNode.signCompactAsync(secretKey, msg, deterministicGenerateK(msg, secretKey), cb);
   }else{
-    var array = secpNode.signCompact(secretKey, msg, msg);
+    var array = secpNode.signCompact(secretKey, msg, deterministicGenerateK(msg, secretKey));
     return {
       recoveryId: array[1],
       signature: array[2],
@@ -149,46 +194,3 @@ exports.importPrivateKey = secpNode.privKeyImport;
  * @return {Buffer}
  */
 exports.decompressPublicKey = secpNode.pubKeyDecompress;
-
-/**
- * deteministic Generation of k
- * @method detereministicGenerateK
- * @param {Buffer} h1 the hash of the message
- * @param {Buffer} x the private key
- */
-exports.deterministicGenerateK  = function(h1, x){
-
-  var k = new Buffer(32);
-  var v = new Buffer(32);
-  //step b
-  v.fill(1);
-  //step c
-  k.fill(0);
-
-  //step d
-  var hash = crypto.createHmac('sha256', k);
-  hash.update(Buffer.concat([v, new Buffer([0]), x, h1]));
-  k = hash.digest();
-
-  //step e
-  hash = crypto.createHmac('sha256', k);
-  hash.update(v);
-  v = hash.digest();
-
-  //step f
-  hash = crypto.createHmac('sha256', k);
-  hash.update(Buffer.concat([v, new Buffer([1]), x, h1]));
-  k = hash.digest();
-
-  //step g
-  hash = crypto.createHmac('sha256', k);
-  hash.update(v);
-  v = hash.digest();
-
-  //step h
-  hash = crypto.createHmac('sha256', k);
-  hash.update(v);
-  v = hash.digest();
-
-  return v;
-};
