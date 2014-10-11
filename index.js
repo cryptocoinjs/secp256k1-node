@@ -1,5 +1,4 @@
-var crypto = require('crypto'),
-bignum = require('bignum');
+var crypto = require('crypto');
 
 /**
  * This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
@@ -28,12 +27,12 @@ exports.verifyPublicKey = function(publicKey){
   return Boolean(secpNode.pubKeyVerify(publicKey));
 };
 
-/** 
+/**
  * Create an ECDSA signature.
  * @method sign
  * @param  {Buffer} secretkey a 32-byte secret key (assumed to be valid)
  * @param {Buffer} msg he message being signed
- * @param {Function} cb the callback given. The callback is given the signature 
+ * @param {Function} cb the callback given. The callback is given the signature
  * @returns {Buffer} if no callback is given a 72-byte signature is returned
  */
 exports.sign = function(secretKey, msg, cb){
@@ -47,13 +46,13 @@ exports.sign = function(secretKey, msg, cb){
 /**
  * Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
  * if given a callback
- * @method signCompact 
+ * @method signCompact
  * @param {Buffer} sercetKey a 32-byte secret key (assumed to be valid)
  * @param {Buffer} msg the message being signed
- * @param {Function} [cb] the callback which is give `err`, `sig` the  
+ * @param {Function} [cb] the callback which is give `err`, `sig` the
  *    - param {Buffer} sig  a 64-byte buffer repersenting the signature
  *    - param {Number} recid an int which is the recovery id.
- * @return {Object} result only if no callback is given will the result be returned  
+ * @return {Object} result only if no callback is given will the result be returned
  *    - result.sigature
  *    - result.r
  *    - result.s
@@ -111,13 +110,13 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
   compressed = compressed ? 1 : 0;
 
   if(!cb){
-    return secpNode.recoverCompact(msg, sig, compressed, recid); 
+    return secpNode.recoverCompact(msg, sig, compressed, recid);
   }else{
     secpNode.recoverCompactAsync(msg, sig, compressed, recid, cb);
   }
 };
 
-/** 
+/**
  * Compute the public key for a secret key.
  * @method createPubKey
  * @param {Buffer} secKey a 32-byte private key.
@@ -140,7 +139,7 @@ exports.exportPrivateKey = secpNode.privKeyExport;
 /**
  * @method importPrivateKey
  * @param {Buffer} privateKey
- * @return {Buffer} secertKey 
+ * @return {Buffer} secertKey
  */
 exports.importPrivateKey = secpNode.privKeyImport;
 
@@ -148,7 +147,7 @@ exports.importPrivateKey = secpNode.privKeyImport;
  * @method decompressPublickey
  * @param {Buffer} secretKey
  * @return {Buffer}
- */ 
+ */
 exports.decompressPublicKey = secpNode.pubKeyDecompress;
 
 /**
