@@ -181,14 +181,22 @@ NAN_METHOD(Sign){
   //the first argument should be the private key as a buffer
   Local<Object> pk_buf = args[0].As<Object>();
   const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  int sec_len = node::Buffer::Length(args[0]);
   //the second argument is the message that we are signing
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
 
-
   unsigned char sig[72];
   int sig_len = 72;
   int msg_len = node::Buffer::Length(args[1]);
+
+  if(sec_len != 32){
+    return NanThrowError("the secret key needs tobe 32 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
 
   int result = secp256k1_ecdsa_sign(msg_data, msg_len , sig , &sig_len, pk_data, pk_data);
   NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
@@ -198,8 +206,9 @@ NAN_METHOD(Sign_Async){
 
   NanScope();
   //the first argument should be the private key as a buffer
-  Local<Object> pk_buf = args[0].As<Object>();
-  const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  Local<Object> sec_buf = args[0].As<Object>();
+  const unsigned char *sec_data = (unsigned char *) node::Buffer::Data(sec_buf);
+  int sec_len = node::Buffer::Length(args[0]);
   //the second argument is the message that we are signing
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
@@ -209,7 +218,15 @@ NAN_METHOD(Sign_Async){
 
   int msg_len = node::Buffer::Length(args[1]);
 
-  SignWorker* worker = new SignWorker(nanCallback, msg_data, msg_len, pk_data);
+  if(sec_len != 32){
+    return NanThrowError("the secret key needs tobe 32 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
+
+  SignWorker* worker = new SignWorker(nanCallback, msg_data, msg_len, sec_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -226,6 +243,14 @@ NAN_METHOD(Sign_Compact){
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
   int msg_len = node::Buffer::Length(args[1]);
+
+  if(sec_len != 32){
+    return NanThrowError("the secret key needs tobe 32 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
 
   unsigned char sig[64];
   int rec_id;
@@ -244,8 +269,10 @@ NAN_METHOD(Sign_Compact){
 NAN_METHOD(Sign_Compact_Async){
   NanScope();
   //the first argument should be the private key as a buffer
-  Local<Object> pk_buf = args[0].As<Object>();
-  const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  Local<Object> sec_buf = args[0].As<Object>();
+  const unsigned char *sec_data = (unsigned char *) node::Buffer::Data(sec_buf);
+  int sec_len = node::Buffer::Length(args[0]);
+
   //the second argument is the message that we are signing
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
@@ -255,7 +282,15 @@ NAN_METHOD(Sign_Compact_Async){
 
   int msg_len = node::Buffer::Length(args[1]);
 
-  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, msg_len, pk_data);
+  if(sec_len != 32){
+    return NanThrowError("the secret key needs tobe 32 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
+
+  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, msg_len, sec_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -279,6 +314,14 @@ NAN_METHOD(Recover_Compact){
 
   Local<Number> rec_id = args[3].As<Number>();
   int int_rec_id = rec_id->IntegerValue();
+
+  if(sig_len != 64){
+    return NanThrowError("the signature needs to be 64 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
 
   unsigned char *pubKey;
   if(int_compressed == 1){
@@ -324,6 +367,14 @@ NAN_METHOD(Recover_Compact_Async){
   Local<Function> callback = args[4].As<Function>();
   NanCallback* nanCallback = new NanCallback(callback);
 
+  if(sig_len != 64){
+    return NanThrowError("the signature needs to be 64 bytes");
+  }
+
+  if(msg_len == 0){
+    return NanThrowError("messgae cannot be null"); 
+  }
+
   RecoverWorker* worker = new RecoverWorker(nanCallback, msg, msg_len, sig, int_compressed, int_rec_id);
   NanAsyncQueueWorker(worker);
 
@@ -356,10 +407,15 @@ NAN_METHOD(Pubkey_Create){
 
   Handle<Object> pk_buf = args[0].As<Object>();
   const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  int pk_len = node::Buffer::Length(args[0]);
 
   Local<Number> l_compact = args[1].As<Number>();
   int compact = l_compact->IntegerValue();
   int pubKeyLen;
+
+  if(pk_len != 32){
+    return NanThrowError("the secert key need to be 32 bytes");
+  }
 
   unsigned char *pubKey;
   if(compact == 1){
