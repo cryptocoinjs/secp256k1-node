@@ -9,8 +9,8 @@ using namespace v8;
 class SignWorker : public NanAsyncWorker {
  public:
   // Constructor
-  SignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk )
-    : NanAsyncWorker(callback), msg(msg), pk(pk), msg_len(msg_len), sig_len(72) {}
+  SignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk, const unsigned char *nonce )
+    : NanAsyncWorker(callback), msg(msg), pk(pk), msg_len(msg_len), nonce(nonce), sig_len(72) {}
   // Destructor
   ~SignWorker() {}
 
@@ -19,7 +19,7 @@ class SignWorker : public NanAsyncWorker {
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute () {
-    this->result = secp256k1_ecdsa_sign(this->msg, this->msg_len , this->sig , &this->sig_len, this->pk, this->pk);
+    this->result = secp256k1_ecdsa_sign(this->msg, this->msg_len , this->sig , &this->sig_len, this->pk, this->nonce);
   }
 
   // Executed when the async work is complete
@@ -39,17 +39,18 @@ class SignWorker : public NanAsyncWorker {
   int msg_len;
   int result;
   const unsigned char * msg;
+  const unsigned char * nonce;
   const unsigned char * pk;
   unsigned char sig[72];
 };
 
 class CompactSignWorker : public SignWorker {
  public:
-  CompactSignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk )
-    : SignWorker(callback, msg, msg_len, pk){}
+  CompactSignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk , const unsigned char *nonce )
+    : SignWorker(callback, msg, msg_len, pk, nonce){}
 
   void Execute () {
-    this->result = secp256k1_ecdsa_sign_compact(this->msg, this->msg_len , this->sig , this->pk, this->pk,  &this->sig_len);
+    this->result = secp256k1_ecdsa_sign_compact(this->msg, this->msg_len , this->sig , this->pk, this->nonce,  &this->sig_len);
   }
 
   void HandleOKCallback () {
@@ -186,6 +187,9 @@ NAN_METHOD(Sign){
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
 
+  Local<Object> nonce_buf = args[2].As<Object>();
+  const unsigned char *nonce_data = (unsigned char *) node::Buffer::Data(nonce_buf);
+
   unsigned char sig[72];
   int sig_len = 72;
   int msg_len = node::Buffer::Length(args[1]);
@@ -198,7 +202,7 @@ NAN_METHOD(Sign){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  int result = secp256k1_ecdsa_sign(msg_data, msg_len , sig , &sig_len, pk_data, pk_data);
+  int result = secp256k1_ecdsa_sign(msg_data, msg_len , sig , &sig_len, pk_data, nonce_data);
   NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
 }
 
@@ -213,7 +217,10 @@ NAN_METHOD(Sign_Async){
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
 
-  Local<Function> callback = args[2].As<Function>();
+  Local<Object> nonce_buf = args[2].As<Object>();
+  const unsigned char *nonce_data = (unsigned char *) node::Buffer::Data(nonce_buf);
+
+  Local<Function> callback = args[3].As<Function>();
   NanCallback* nanCallback = new NanCallback(callback);
 
   int msg_len = node::Buffer::Length(args[1]);
@@ -226,7 +233,7 @@ NAN_METHOD(Sign_Async){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  SignWorker* worker = new SignWorker(nanCallback, msg_data, msg_len, sec_data);
+  SignWorker* worker = new SignWorker(nanCallback, msg_data, msg_len, sec_data, nonce_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -244,6 +251,9 @@ NAN_METHOD(Sign_Compact){
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
   int msg_len = node::Buffer::Length(args[1]);
 
+  Local<Object> nonce_buf = args[2].As<Object>();
+  const unsigned char *nonce_data = (unsigned char *) node::Buffer::Data(nonce_buf);
+
   if(sec_len != 32){
     return NanThrowError("the secret key needs tobe 32 bytes");
   }
@@ -256,7 +266,7 @@ NAN_METHOD(Sign_Compact){
   int rec_id;
 
   //TODO: change the nonce
-  int valid_nonce = secp256k1_ecdsa_sign_compact(msg_data, msg_len, sig, seckey_data, seckey_data, &rec_id );
+  int valid_nonce = secp256k1_ecdsa_sign_compact(msg_data, msg_len, sig, seckey_data, nonce_data, &rec_id );
 
   Local<Array> array = Array::New(3);
   array->Set(0, Integer::New(valid_nonce));
@@ -277,7 +287,10 @@ NAN_METHOD(Sign_Compact_Async){
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
 
-  Local<Function> callback = args[2].As<Function>();
+  Local<Object> nonce_buf = args[2].As<Object>();
+  const unsigned char *nonce_data = (unsigned char *) node::Buffer::Data(nonce_buf);
+
+  Local<Function> callback = args[3].As<Function>();
   NanCallback* nanCallback = new NanCallback(callback);
 
   int msg_len = node::Buffer::Length(args[1]);
@@ -290,7 +303,7 @@ NAN_METHOD(Sign_Compact_Async){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, msg_len, sec_data);
+  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, msg_len, sec_data, nonce_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();

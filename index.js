@@ -37,9 +37,9 @@ exports.verifyPublicKey = function(publicKey){
  */
 exports.sign = function(secretKey, msg, cb){
   if(cb){
-    secpNode.signAsync(secretKey, msg, cb);
+    secpNode.signAsync(secretKey, msg, msg, cb);
   }else{
-    return secpNode.sign(secretKey, msg);
+    return secpNode.sign(secretKey, msg, msg);
   }
 };
 
@@ -61,9 +61,9 @@ exports.sign = function(secretKey, msg, cb){
 exports.signCompact = function(secretKey, msg, cb){
 
   if(cb){
-    secpNode.signCompactAsync(secretKey, msg, cb);
+    secpNode.signCompactAsync(secretKey, msg, msg, cb);
   }else{
-    var array = secpNode.signCompact(secretKey, msg);
+    var array = secpNode.signCompact(secretKey, msg, msg);
     return {
       recoveryId: array[1],
       signature: array[2],
