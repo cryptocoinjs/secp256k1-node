@@ -45,7 +45,8 @@
       [
         'target_arch=="x64"', {
           'defines': [
-            'USE_FIELD_10X26=1'
+            'USE_FIELD_5X52=1',
+            'USE_FIELD_5X52_INT128=1'
           ]
         }
       ],
