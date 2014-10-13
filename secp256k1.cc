@@ -488,6 +488,68 @@ NAN_METHOD(Privkey_Export){
   NanReturnValue(NanNewBufferHandle((char *)privKey, pk_len));
 }
 
+NAN_METHOD(Privkey_Tweak_Add){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> sk_buf = args[0].As<Object>();
+  unsigned char *sk = (unsigned char *) node::Buffer::Data(sk_buf);
+
+  Handle<Object> tweak_buf = args[1].As<Object>();
+  const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
+
+  int results = secp256k1_ecdsa_privkey_tweak_add(sk, tweak);
+
+  NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+}
+
+NAN_METHOD(Privkey_Tweak_Mul){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> sk_buf = args[0].As<Object>();
+  unsigned char *sk = (unsigned char *) node::Buffer::Data(sk_buf);
+
+  Handle<Object> tweak_buf = args[1].As<Object>();
+  const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
+
+  int results = secp256k1_ecdsa_privkey_tweak_mul(sk, tweak);
+
+  NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+}
+
+NAN_METHOD(Pubkey_Tweak_Add){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> pk_buf = args[0].As<Object>();
+  unsigned char *pk = (unsigned char *) node::Buffer::Data(pk_buf);
+  int pk_len = node::Buffer::Length(args[0]);
+
+  Handle<Object> tweak_buf = args[1].As<Object>();
+  const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
+
+  int results = secp256k1_ecdsa_pubkey_tweak_add(pk, pk_len, tweak);
+
+  NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+}
+
+NAN_METHOD(Pubkey_Tweak_Mul){
+  NanScope();
+
+  //the first argument should be the private key as a buffer
+  Handle<Object> pk_buf = args[0].As<Object>();
+  unsigned char *pk = (unsigned char *) node::Buffer::Data(pk_buf);
+  int pk_len = node::Buffer::Length(args[0]);
+
+  Handle<Object> tweak_buf = args[1].As<Object>();
+  const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
+
+  int results = secp256k1_ecdsa_pubkey_tweak_mul(pk, pk_len, tweak);
+
+  NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+}
+
 void Init(Handle<Object> exports) {
   secp256k1_start();
   exports->Set(NanNew("seckeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
@@ -505,6 +567,10 @@ void Init(Handle<Object> exports) {
   exports->Set(NanNew("pubKeyDecompress"), NanNew<FunctionTemplate>(Pubkey_Decompress)->GetFunction());
   exports->Set(NanNew("privKeyExport"), NanNew<FunctionTemplate>(Privkey_Export)->GetFunction());
   exports->Set(NanNew("privKeyImport"), NanNew<FunctionTemplate>(Privkey_Import)->GetFunction());
+  exports->Set(NanNew("privKeyTweakAdd"), NanNew<FunctionTemplate>(Privkey_Tweak_Add)->GetFunction());
+  exports->Set(NanNew("privKeyTweakMul"), NanNew<FunctionTemplate>(Privkey_Tweak_Mul)->GetFunction());
+  exports->Set(NanNew("pubKeyTweakAdd"), NanNew<FunctionTemplate>(Privkey_Tweak_Add)->GetFunction());
+  exports->Set(NanNew("pubKeyTweakMul"), NanNew<FunctionTemplate>(Privkey_Tweak_Mul)->GetFunction());
 }
 
 NODE_MODULE(secp256k1, Init)

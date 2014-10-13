@@ -194,3 +194,35 @@ exports.importPrivateKey = secpNode.privKeyImport;
  * @return {Buffer}
  */
 exports.decompressPublicKey = secpNode.pubKeyDecompress;
+
+/**
+ * @method privKeyTweakAdd
+ * @param {Buffer} privateKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.privKeyTweakAdd = secpNode.privKeyTweakAdd;
+
+/**
+ * @method privKeyTweakMul
+ * @param {Buffer} privateKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.privKeyTweakMul = secpNode.privKeyTweakMul;
+
+/**
+ * @method pubKeyTweakAdd
+ * @param {Buffer} publicKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.pubKeyTweakAdd = secpNode.pubKeyTweakAdd;
+
+/**
+ * @method pubKeyTweakMul
+ * @param {Buffer} publicKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.pubKeyTweakMul = secpNode.pubKeyTweakMul;
