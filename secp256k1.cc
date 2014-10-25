@@ -551,7 +551,7 @@ NAN_METHOD(Pubkey_Tweak_Mul){
 }
 
 void Init(Handle<Object> exports) {
-  secp256k1_start();
+  secp256k1_start(SECP256K1_START_SIGN | SECP256K1_START_VERIFY);
   exports->Set(NanNew("seckeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
   exports->Set(NanNew("sign"), NanNew<FunctionTemplate>(Sign)->GetFunction());
   exports->Set(NanNew("signAsync"), NanNew<FunctionTemplate>(Sign_Async)->GetFunction());
