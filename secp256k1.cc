@@ -336,12 +336,7 @@ NAN_METHOD(Recover_Compact){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  unsigned char *pubKey;
-  if(int_compressed == 1){
-    pubKey = new unsigned char[33]; 
-  }else{
-    pubKey = new unsigned char[65]; 
-  }
+  unsigned char pubKey[65]; 
 
   int pubKeyLen;
 
