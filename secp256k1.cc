@@ -344,7 +344,8 @@ NAN_METHOD(Recover_Compact){
   if(result == 1){
     NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
   }else{
-    NanReturnValue(NanNew<Boolean>(0));
+    
+    NanReturnValue(NanFalse());
   }
 }
 
