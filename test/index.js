@@ -47,7 +47,7 @@ describe('it should handle basic ecdsa ops', function () {
     var sig2 = ecdsa.sign(msg, ck.privateKey);
     sig2 = new Buffer(ecdsa.serializeSig(sig2));
     sig2[0] = 0xff;
-    assert(ecdsaNative.verify(pubKey, msg, sig2) !== 1, 'should NOT verify invalid signature');
+    assert(ecdsaNative.verify(pubKey, msg, sig2) === -2, 'should NOT verify invalid signature');
   });
 
   it('should verify a signature async', function (done) {
