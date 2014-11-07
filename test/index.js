@@ -110,8 +110,7 @@ describe('it should handle basic ecdsa ops', function () {
 
   it('should not crash when recoverId is out of bounds - async', function(done) {
     ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true, function(err, sig) {
-      assert(err);
-      assert.strictEqual(err.message, 'failed recid >= 0 && recid <= 3');
+      assert.strictEqual(err, 'failed recid >= 0 && recid <= 3');
       assert.strictEqual(sig, undefined);
       done();
     });

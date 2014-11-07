@@ -158,7 +158,7 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
     if (!cb) {
       return null;
     } else {
-      return cb(new Error('failed recid >= 0 && recid <= 3'));
+      return cb('failed recid >= 0 && recid <= 3');
     }
   }
 
