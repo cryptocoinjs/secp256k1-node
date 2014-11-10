@@ -38,7 +38,7 @@ int secp256k1_ecdsa_verify(const unsigned char *msg, int msglen, const unsigned 
     DEBUG_CHECK(pubkey != NULL);
 
     int ret = -3;
-    secp256k1_num_t m;
+    secp256k1_num_t m; 
     secp256k1_num_init(&m);
     secp256k1_ecdsa_sig_t s;
     secp256k1_ecdsa_sig_init(&s);
@@ -143,10 +143,10 @@ int secp256k1_ecdsa_recover_compact(const unsigned char *msg, int msglen, const 
     DEBUG_CHECK(sig64 != NULL);
     DEBUG_CHECK(pubkey != NULL);
     DEBUG_CHECK(pubkeylen != NULL);
-    //DEBUG_CHECK(recid >= 0 && recid <= 3);
+    DEBUG_CHECK(recid >= 0 && recid <= 3);
 
     int ret = 0;
-    secp256k1_num_t m;
+    secp256k1_num_t m; 
     secp256k1_num_init(&m);
     secp256k1_ecdsa_sig_t sig;
     secp256k1_ecdsa_sig_init(&sig);
