@@ -102,4 +102,19 @@ describe('it should handle basic ecdsa ops', function () {
       done();
     });
   });
+
+  it('should not crash when recoverId is out of bounds - sync', function() {
+    var sig = ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true);
+    assert.notStrictEqual(sig.toString('hex'), null);
+    assert.strictEqual(sig.length, 33);
+  });
+
+  it('should not crash when recoverId is out of bounds - async', function(done) {
+    ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true, function(err, sig) {
+      assert.strictEqual(err, 1);
+      assert.notStrictEqual(sig.toString('hex'), null);
+      assert.strictEqual(sig.length, 33);
+      done();
+    });
+  });
 });
