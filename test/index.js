@@ -103,15 +103,23 @@ describe('it should handle basic ecdsa ops', function () {
     });
   });
 
-  it('should not crash when recoverId is out of bounds - sync', function() {
+  it('should not crash when recoverId is out of bounds negative - sync', function() {
     var sig = ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true);
-    assert.strictEqual(sig, null);
+    assert.notStrictEqual(sig.toString('hex'), null);
+    assert.strictEqual(sig.length, 33);
+  });
+
+  it('should not crash when recoverId is out of bounds positive - sync', function() {
+    var sig = ecdsaNative.recoverCompact(msg, compactSig.signature, 2342342327, true);
+    assert.notStrictEqual(sig.toString('hex'), null);
+    assert.strictEqual(sig, false);
   });
 
   it('should not crash when recoverId is out of bounds - async', function(done) {
     ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true, function(err, sig) {
-      assert.strictEqual(err, 'failed recid >= 0 && recid <= 3');
-      assert.strictEqual(sig, undefined);
+      assert.strictEqual(err, 1);
+      assert.notStrictEqual(sig.toString('hex'), null);
+      assert.strictEqual(sig.length, 33);
       done();
     });
   });

@@ -145,22 +145,14 @@ exports.verify = function(pubKey, msg, sig, cb){
  * @method recoverCompact
  * @param {Buffer} msg the message assumed to be signed
  * @param {Buffer} sig the signature as 64 byte buffer
- * @param {Integer} recid the recovery id (as returned by ecdsa_sign_compact). should be [0,3]
+ * @param {Integer} recid the recovery id (as returned by ecdsa_sign_compact)
  * @param {Boolean} compressed whether to recover a compressed or uncompressed pubkey
  * @param {Function} [cb]
- * @return {Buffer|null} the pubkey, a 33 or 65 byte buffer, or null if invalid input
+ * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */
 exports.recoverCompact = function(msg, sig, recid, compressed, cb){
 
   compressed = compressed ? 1 : 0;
-
-  if (recid < 0 || recid > 3) {
-    if (!cb) {
-      return null;
-    } else {
-      return cb('failed recid >= 0 && recid <= 3');
-    }
-  }
 
   if(!cb){
     return secpNode.recoverCompact(msg, sig, compressed, recid);
