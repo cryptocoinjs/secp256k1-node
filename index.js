@@ -154,6 +154,14 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
 
   compressed = compressed ? 1 : 0;
 
+  if (recid < 0 || recid > 3) {
+    if (!cb) {
+      return null;
+    } else {
+      return cb('recovery id must be >= 0 && recid <= 3');
+    }
+  }
+
   if(!cb){
     return secpNode.recoverCompact(msg, sig, compressed, recid);
   }else{
