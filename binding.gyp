@@ -31,10 +31,10 @@
     "include_dirs": ["<!(node -e \"require('nan')\")"],
     "defines": [
       "USE_NUM_OPENSSL=1",
-      "USE_FIELD_INV_BUILTIN=1",
-      "NDEBUG=1"
+      "USE_FIELD_INV_BUILTIN=1"
     ],
     'conditions': [
+      
       [
         'target_arch=="ia32"', {
           'defines': [
