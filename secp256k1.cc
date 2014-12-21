@@ -268,9 +268,9 @@ NAN_METHOD(Sign_Compact){
   //TODO: change the nonce
   int valid_nonce = secp256k1_ecdsa_sign_compact(msg_data, sig, seckey_data, nonce_data, &rec_id );
 
-  Local<Array> array = Array::New(3);
-  array->Set(0, Integer::New(valid_nonce));
-  array->Set(1, Integer::New(rec_id));
+  Local<Array> array = NanNew<Array>(3);
+  array->Set(0, NanNew<Integer>(valid_nonce));
+  array->Set(1, NanNew<Integer>(rec_id));
   array->Set(2, NanNewBufferHandle((char *)sig, 64));
 
   NanReturnValue(array);
