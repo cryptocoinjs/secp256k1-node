@@ -31,7 +31,7 @@
     "name": "martin becze",
     "email": "mjbecze@gmail.com"
   },
-  "license": "GPL",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/wanderer/secp256k1-node/issues"
   },
