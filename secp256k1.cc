@@ -9,8 +9,8 @@ using namespace v8;
 class SignWorker : public NanAsyncWorker {
  public:
   // Constructor
-  SignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk, const unsigned char *nonce )
-    : NanAsyncWorker(callback), msg(msg), pk(pk), msg_len(msg_len), nonce(nonce), sig_len(72) {}
+  SignWorker(NanCallback *callback, const unsigned char *msg, const unsigned char *pk, const unsigned char *nonce )
+    : NanAsyncWorker(callback), msg(msg), pk(pk), nonce(nonce), sig_len(72) {}
   // Destructor
   ~SignWorker() {}
 
@@ -37,7 +37,6 @@ class SignWorker : public NanAsyncWorker {
  protected:
   const unsigned char * msg;
   const unsigned char * pk;
-  int msg_len;
   const unsigned char * nonce;
   int sig_len;
   int result;
@@ -46,8 +45,8 @@ class SignWorker : public NanAsyncWorker {
 
 class CompactSignWorker : public SignWorker {
  public:
-  CompactSignWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *pk , const unsigned char *nonce )
-    : SignWorker(callback, msg, msg_len, pk, nonce){}
+  CompactSignWorker(NanCallback *callback, const unsigned char *msg, const unsigned char *pk , const unsigned char *nonce )
+    : SignWorker(callback, msg, pk, nonce){}
 
   void Execute () {
     this->result = secp256k1_ecdsa_sign_compact(this->msg, this->sig , this->pk, this->nonce,  &this->sig_len);
@@ -67,8 +66,8 @@ class CompactSignWorker : public SignWorker {
 class RecoverWorker : public NanAsyncWorker {
  public:
   // Constructor
-  RecoverWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *sig, int compressed, int rec_id)
-    : NanAsyncWorker(callback), msg(msg), msg_len(msg_len), sig(sig), compressed(compressed), rec_id(rec_id) {}
+  RecoverWorker(NanCallback *callback, const unsigned char *msg, const unsigned char *sig, int compressed, int rec_id)
+    : NanAsyncWorker(callback), msg(msg), sig(sig), compressed(compressed), rec_id(rec_id) {}
   // Destructor
   ~RecoverWorker() {}
 
@@ -93,7 +92,6 @@ class RecoverWorker : public NanAsyncWorker {
 
  protected:
   const unsigned char * msg;
-  int msg_len;
   const unsigned char * sig; 
   int compressed;
   int rec_id;
@@ -105,8 +103,8 @@ class RecoverWorker : public NanAsyncWorker {
 class VerifyWorker : public NanAsyncWorker {
  public:
   // Constructor
-  VerifyWorker(NanCallback *callback, const unsigned char *msg, int msg_len, const unsigned char *sig, int sig_len, const unsigned char *pub_key, int pub_key_len)
-    : NanAsyncWorker(callback), msg(msg), msg_len(msg_len), sig(sig), sig_len(sig_len), pub_key(pub_key), pub_key_len(pub_key_len) {}
+  VerifyWorker(NanCallback *callback, const unsigned char *msg, const unsigned char *sig, int sig_len, const unsigned char *pub_key, int pub_key_len)
+    : NanAsyncWorker(callback), msg(msg), sig(sig), sig_len(sig_len), pub_key(pub_key), pub_key_len(pub_key_len) {}
   // Destructor
   ~VerifyWorker() {}
 
@@ -125,7 +123,6 @@ class VerifyWorker : public NanAsyncWorker {
  protected:
   int result;
   const unsigned char * msg;
-  int msg_len;
   const unsigned char * sig;
   int sig_len; 
   const unsigned char * pub_key;
@@ -160,7 +157,6 @@ NAN_METHOD(Verify_Async){
 
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
-  int msg_len = node::Buffer::Length(args[1]);
 
   Local<Object> sig_buf = args[2].As<Object>();
   const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
@@ -169,7 +165,7 @@ NAN_METHOD(Verify_Async){
   Local<Function> callback = args[3].As<Function>();
   NanCallback* nanCallback = new NanCallback(callback);
 
-  VerifyWorker* worker = new VerifyWorker(nanCallback, msg_data, msg_len, sig_data, sig_len, pub_data, pub_len);
+  VerifyWorker* worker = new VerifyWorker(nanCallback, msg_data, sig_data, sig_len, pub_data, pub_len);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -237,7 +233,7 @@ NAN_METHOD(Sign_Async){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  SignWorker* worker = new SignWorker(nanCallback, msg_data, msg_len, sec_data, nonce_data);
+  SignWorker* worker = new SignWorker(nanCallback, msg_data, sec_data, nonce_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -307,7 +303,7 @@ NAN_METHOD(Sign_Compact_Async){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, msg_len, sec_data, nonce_data);
+  CompactSignWorker* worker = new CompactSignWorker(nanCallback, msg_data, sec_data, nonce_data);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -382,7 +378,7 @@ NAN_METHOD(Recover_Compact_Async){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  RecoverWorker* worker = new RecoverWorker(nanCallback, msg, msg_len, sig, int_compressed, int_rec_id);
+  RecoverWorker* worker = new RecoverWorker(nanCallback, msg, sig, int_compressed, int_rec_id);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
