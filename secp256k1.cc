@@ -35,12 +35,12 @@ class SignWorker : public NanAsyncWorker {
   }
 
  protected:
-  int sig_len;
-  int msg_len;
-  int result;
   const unsigned char * msg;
-  const unsigned char * nonce;
   const unsigned char * pk;
+  int msg_len;
+  const unsigned char * nonce;
+  int sig_len;
+  int result;
   unsigned char sig[72];
 };
 
@@ -92,14 +92,14 @@ class RecoverWorker : public NanAsyncWorker {
   }
 
  protected:
-  int rec_id;
-  int compressed;
-  int result;
-  unsigned char * pubkey;
-  int pubkey_len;
   const unsigned char * msg;
   int msg_len;
   const unsigned char * sig; 
+  int compressed;
+  int rec_id;
+  int result;
+  unsigned char * pubkey;
+  int pubkey_len;
 };
 
 class VerifyWorker : public NanAsyncWorker {
@@ -141,7 +141,6 @@ NAN_METHOD(Verify){
 
   Local<Object> msg_buf = args[1].As<Object>();
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(msg_buf);
-  int msg_len = node::Buffer::Length(args[1]);
 
   Local<Object> sig_buf = args[2].As<Object>();
   const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
@@ -203,7 +202,12 @@ NAN_METHOD(Sign){
   }
 
   int result = secp256k1_ecdsa_sign(msg_data, sig , &sig_len, pk_data, nonce_data);
-  NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
+
+  if(result == 1){
+    NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
+  }else{
+    return NanThrowError("nonce invalid, try another one");
+  }
 }
 
 NAN_METHOD(Sign_Async){
@@ -427,8 +431,12 @@ NAN_METHOD(Pubkey_Create){
     pubKey = new unsigned char[65]; 
   }
 
-  secp256k1_ec_pubkey_create(pubKey,&pubKeyLen, pk_data, compact );
-  NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
+  int results = secp256k1_ec_pubkey_create(pubKey,&pubKeyLen, pk_data, compact );
+  if(results == 0){
+    return NanThrowError("secret was invalid, try again.");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
+  }
 }
 
 NAN_METHOD(Pubkey_Decompress){
@@ -442,7 +450,11 @@ NAN_METHOD(Pubkey_Decompress){
 
   int results = secp256k1_ec_pubkey_decompress(pk_data, &pk_len);
 
-  NanReturnValue(NanNewBufferHandle((char *)pk_data, pk_len));
+  if(results == 0){
+    return NanThrowError("invalid public key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)pk_data, pk_len));
+  }
 }
 
 
@@ -455,10 +467,14 @@ NAN_METHOD(Privkey_Import){
 
   int pk_len = node::Buffer::Length(args[0]);
 
-  unsigned char *sec_key;
+  unsigned char sec_key[32];
   int results = secp256k1_ec_privkey_import(sec_key, pk_data, pk_len);
 
-  NanReturnValue(NanNewBufferHandle((char *)sec_key, 32));
+  if(results == 0){
+    return NanThrowError("invalid private key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)sec_key, 32));
+  }
 }
 
 NAN_METHOD(Privkey_Export){
@@ -474,8 +490,11 @@ NAN_METHOD(Privkey_Export){
   unsigned char *privKey;
   int pk_len;
   int results = secp256k1_ec_privkey_export(sk_data, privKey, &pk_len, compressed);
-
-  NanReturnValue(NanNewBufferHandle((char *)privKey, pk_len));
+  if(results == 0){
+    return NanThrowError("invalid private key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)privKey, pk_len));
+  }
 }
 
 NAN_METHOD(Privkey_Tweak_Add){
@@ -489,8 +508,11 @@ NAN_METHOD(Privkey_Tweak_Add){
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
   int results = secp256k1_ec_privkey_tweak_add(sk, tweak);
-
-  NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+  if(results == 0){
+    return NanThrowError("invalid key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+  }
 }
 
 NAN_METHOD(Privkey_Tweak_Mul){
@@ -504,8 +526,11 @@ NAN_METHOD(Privkey_Tweak_Mul){
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
   int results = secp256k1_ec_privkey_tweak_mul(sk, tweak);
-
-  NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+  if(results == 0){
+    return NanThrowError("invalid key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)sk, 32));
+  }
 }
 
 NAN_METHOD(Pubkey_Tweak_Add){
@@ -520,8 +545,11 @@ NAN_METHOD(Pubkey_Tweak_Add){
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
   int results = secp256k1_ec_pubkey_tweak_add(pk, pk_len, tweak);
-
-  NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+  if(results == 0){
+    return NanThrowError("invalid key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+  }
 }
 
 NAN_METHOD(Pubkey_Tweak_Mul){
@@ -536,8 +564,11 @@ NAN_METHOD(Pubkey_Tweak_Mul){
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
   int results = secp256k1_ec_pubkey_tweak_mul(pk, pk_len, tweak);
-
-  NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+  if(results == 0){
+    return NanThrowError("invalid key");
+  }else{
+    NanReturnValue(NanNewBufferHandle((char *)pk, pk_len));
+  }
 }
 
 void Init(Handle<Object> exports) {

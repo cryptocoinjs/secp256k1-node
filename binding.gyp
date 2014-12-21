@@ -35,7 +35,12 @@
       "./secp256k1-src/src/util.h",
     ],
     "cflags": [
-      "--std=c1x"
+      "--std=c1x",
+	  "-Wall",
+	  "-Wno-maybe-uninitialized",
+	  "-Wno-uninitialized",
+	  "-Wno-unused-function",
+	  "-Wextra"
     ],
     "include_dirs": [
       "./secp256k1-src",
