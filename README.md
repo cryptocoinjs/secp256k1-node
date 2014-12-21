@@ -5,7 +5,17 @@ This module provides native bindings to ecdsa [secp256k1](https://github.com/bit
 
 Install
 ===
+##### from npm
+
 `npm install secp256k1`
+
+##### from git
+
+`git clone git@github.com:wanderer/secp256k1-node.git`  
+`cd secp256k1-node`  
+`git submodule init`  
+`git submodule update`  
+`npm install`  
 
 Usage
 ===
