@@ -179,10 +179,3 @@ secp256k1.decompressPublickey(secretKey)
 **secretKey**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
 
 **Returns**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
-
-
----
-
-
-# NOTES
-This will not work on node version 11 yet. Arrays need to have `isolates` for this.
