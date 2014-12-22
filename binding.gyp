@@ -27,6 +27,8 @@
       "./secp256k1-src/src/group_impl.h",
       "./secp256k1-src/src/num.h",
       "./secp256k1-src/src/num_impl.h",
+      "./secp256k1-src/src/num_gmp.h",
+      "./secp256k1-src/src/num_gmp_impl.h",
       "./secp256k1-src/src/scalar_4x64.h",
       "./secp256k1-src/src/scalar_4x64_impl.h",
       "./secp256k1-src/src/scalar_8x32.h",
@@ -49,7 +51,7 @@
     ],
     "conditions": [
       [
-        "with_gmp=='true'", {
+        "with_gmp=='tr3e'", {
           "defines": [
             "HAVE_LIBGMP=1",
             "USE_NUM_GMP=1",
@@ -58,10 +60,6 @@
           ],
           "libraries": [
             "-lgmp"
-          ],
-          "sources": [
-            "./secp256k1-src/src/num_gmp.h",
-            "./secp256k1-src/src/num_gmp_impl.h",
           ]
         }, {
           "defines": [
