@@ -5,6 +5,7 @@ This module provides native bindings to ecdsa [secp256k1](https://github.com/bit
 
 Install
 ===
+
 ##### from npm
 
 `npm install secp256k1`
@@ -15,7 +16,9 @@ Install
 `cd secp256k1-node`  
 `git submodule init`  
 `git submodule update`  
-`npm install`  
+`npm install` 
+
+NOTE: if you have the development version gmp installed secp256k1 will use it. Otherwise it should fallback to openssl. 
 
 Usage
 ===
