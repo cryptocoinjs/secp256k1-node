@@ -59,6 +59,7 @@
             "USE_SCALAR_INV_NUM=1"
           ],
           "libraries": [
+            "-lgmpxx",
             "-lgmp"
           ]
         }, {
