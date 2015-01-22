@@ -70,7 +70,7 @@ Verify an ECDSA public key.
 
 * `publicKey` - `Buffer`, the public Key to verify
 
-**Returns**: Boolean, `true` if public key is valid, `false` secret key is invalid
+**Returns**: `Boolean`, `true` if public key is valid, `false` secret key is invalid
 
 secp256k1.sign(secretkey, msg, cb) 
 -----------------------------
@@ -82,7 +82,7 @@ Create an ECDSA signature.
 * `msg` - `Buffer`,  a 32-byte message hash being signed 
 * `cb` - `function`, the callback given. The callback is given the signature  
 
-**Returns**: Buffer, if no callback is given a 72-byte signature is returned
+**Returns**: `Buffer`, if no callback is given a 72-byte signature is returned
 
 secp256k1.signCompact(secretKey, msg, cb) 
 -----------------------------
@@ -163,4 +163,36 @@ secp256k1.decompressPublickey(secretKey)
 **Parameters**
 * `secretKey` - `Buffer`
 
-**Returns**: Buffer, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+**Returns**: `Buffer`, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+
+secp256k1.privKeyTweakAdd(secretKey) 
+-----------------------------
+**Parameters**
+* `privateKey` - `Buffer`
+* `tweak` - `Buffer`
+
+** Returns**: `Buffer`
+
+secp256k1.privKeyTweakMul(privateKey, tweak) 
+-----------------------------
+**Parameters**
+* `privateKey` - `Buffer`
+* `tweak` - `Buffer`
+
+** Returns**: Buffer
+
+secp256k1.pubKeyTweakAdd(publicKey, tweak) 
+-----------------------------
+**Parameters**
+* `publicKey` - `Buffer`
+* `tweak` - `Buffer`
+
+** Returns**: `Buffer`
+
+secp256k1.pubKeyTweakMul(publicKey, tweak) 
+-----------------------------
+**Parameters**
+* `publicKey` - `Buffer`
+* `tweak` - `Buffer`
+
+** Returns**: `Buffer`
