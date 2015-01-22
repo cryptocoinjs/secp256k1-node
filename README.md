@@ -171,7 +171,7 @@ secp256k1.privKeyTweakAdd(secretKey)
 * `privateKey` - `Buffer`
 * `tweak` - `Buffer`
 
-** Returns**: `Buffer`
+**Returns**: `Buffer`
 
 secp256k1.privKeyTweakMul(privateKey, tweak) 
 -----------------------------
@@ -179,7 +179,7 @@ secp256k1.privKeyTweakMul(privateKey, tweak)
 * `privateKey` - `Buffer`
 * `tweak` - `Buffer`
 
-** Returns**: Buffer
+**Returns**: Buffer
 
 secp256k1.pubKeyTweakAdd(publicKey, tweak) 
 -----------------------------
@@ -187,7 +187,7 @@ secp256k1.pubKeyTweakAdd(publicKey, tweak)
 * `publicKey` - `Buffer`
 * `tweak` - `Buffer`
 
-** Returns**: `Buffer`
+**Returns**: `Buffer`
 
 secp256k1.pubKeyTweakMul(publicKey, tweak) 
 -----------------------------
@@ -195,4 +195,4 @@ secp256k1.pubKeyTweakMul(publicKey, tweak)
 * `publicKey` - `Buffer`
 * `tweak` - `Buffer`
 
-** Returns**: `Buffer`
+**Returns**: `Buffer`
