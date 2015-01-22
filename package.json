@@ -31,6 +31,10 @@
     "name": "martin becze",
     "email": "mjbecze@gmail.com"
   },
+  "contributors": [
+    "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
+    "ethers (https://github.com/ethers)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wanderer/secp256k1-node/issues"
