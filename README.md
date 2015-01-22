@@ -1,7 +1,8 @@
 SYNOPSIS [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?branch=master)](https://travis-ci.org/wanderer/secp256k1-node)
 ===
 
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.   
+This library is experimental, so use at your own risk.
 
 INSTALL
 ===
@@ -196,3 +197,7 @@ secp256k1.pubKeyTweakMul(publicKey, tweak)
 * tweak - `Buffer`
 
 **Returns**: `Buffer`
+
+LISCENCE
+-----------------------------
+MIT
