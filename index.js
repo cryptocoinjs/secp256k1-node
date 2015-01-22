@@ -59,7 +59,6 @@ exports.sign = function(secretKey, msg, cb){
  *    - result.recoveryID
  */
 exports.signCompact = function(secretKey, msg, cb){
-
   if(cb){
     secpNode.signCompactAsync(secretKey, msg, cb);
   }else{
@@ -113,7 +112,7 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
     if (!cb) {
       return null;
     } else {
-      return cb('recovery id must be >= 0 && recid <= 3');
+      return cb(new Error('recovery id must be >= 0 && recid <= 3'));
     }
   }
 
