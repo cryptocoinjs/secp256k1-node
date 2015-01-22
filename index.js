@@ -1,18 +1,15 @@
 var crypto = require('crypto');
 
 function pad32(msg){
-  var buf = new Buffer(32);
-
-  if (msg.length !== 32) {
+  var buf;
+  if (msg.length < 32) {
+    buf = new Buffer(32);
     buf.fill(0);
-    for (var i = 0; i < msg.length; i++) {
-      buf[32 - msg.length + i] = msg[i];
-    }
+    msg.copy(buf, 32 - msg.length);
+    return buf;
   } else {
-    buf = msg;
+    return msg;
   }
-
-  return buf;
 }
 
 /**
