@@ -1,5 +1,20 @@
 var crypto = require('crypto');
 
+function pad32(msg){
+  var buf = new Buffer(32);
+
+  if (msg.length !== 32) {
+    buf.fill(0);
+    for (var i = 0; i < msg.length; i++) {
+      buf[32 - msg.length + i] = msg[i];
+    }
+  } else {
+    buf = msg;
+  }
+
+  return buf;
+}
+
 /**
  * This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
  * @module secp256k1
@@ -37,9 +52,9 @@ exports.verifyPublicKey = function(publicKey){
  */
 exports.sign = function(secretKey, msg, cb){
   if(cb){
-    secpNode.signAsync(secretKey, msg, cb);
+    secpNode.signAsync(secretKey, pad32(msg), cb);
   }else{
-    return secpNode.sign(secretKey, msg);
+    return secpNode.sign(secretKey, pad32(msg));
   }
 };
 
@@ -60,9 +75,9 @@ exports.sign = function(secretKey, msg, cb){
  */
 exports.signCompact = function(secretKey, msg, cb){
   if(cb){
-    secpNode.signCompactAsync(secretKey, msg, cb);
+    secpNode.signCompactAsync(secretKey, pad32(msg), cb);
   }else{
-    var array = secpNode.signCompact(secretKey, msg);
+    var array = secpNode.signCompact(secretKey, pad32(msg));
     return {
       recoveryId: array[1],
       signature: array[2],
@@ -88,9 +103,9 @@ exports.signCompact = function(secretKey, msg, cb){
  */
 exports.verify = function(pubKey, msg, sig, cb){
   if(cb){
-    secpNode.verifyAsync(pubKey, msg, sig, cb);
+    secpNode.verifyAsync(pubKey, pad32(msg), sig, cb);
   }else{
-    return secpNode.verify(pubKey, msg, sig);
+    return secpNode.verify(pubKey, pad32(msg), sig);
   }
 };
 
@@ -117,9 +132,9 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
   }
 
   if(!cb){
-    return secpNode.recoverCompact(msg, sig, compressed, recid);
+    return secpNode.recoverCompact(pad32(msg), sig, compressed, recid);
   }else{
-    secpNode.recoverCompactAsync(msg, sig, compressed, recid, cb);
+    secpNode.recoverCompactAsync(pad32(msg), sig, compressed, recid, cb);
   }
 };
 
