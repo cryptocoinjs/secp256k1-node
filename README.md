@@ -131,7 +131,7 @@ Recover an ECDSA public key from a compact signature in the process also verifin
 
 **Returns**: Buffer, the pubkey, a 33 or 65 byte buffer
 
-secp256k1.createPubKey(secKey, compressed) 
+secp256k1.createPublicKey(secKey, compressed) 
 -----------------------------
 Compute the public key for a secret key.
 
