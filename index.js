@@ -143,6 +143,9 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
  * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
  */
 exports.createPublicKey = function(secKey, compressed){
+  if(!secKey){
+    throw 'invalid private key';
+  }
   compressed = compressed ? 1 : 0;
   return secpNode.pubKeyCreate(secKey, compressed);
 };

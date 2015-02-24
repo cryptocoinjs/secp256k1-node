@@ -110,6 +110,10 @@ describe('it should handle basic ecdsa ops', function() {
     });
   });
 
+});
+
+
+describe('invalid inputs', function() {
   it('should not crash when recoverId is out of bounds - sync', function() {
     var sig = ecdsaNative.recoverCompact(msg, compactSig.signature, -27, true);
     assert.strictEqual(sig, null);
@@ -122,4 +126,12 @@ describe('it should handle basic ecdsa ops', function() {
       done();
     });
   });
-});
+
+  it('should not crash when given an undefined privateKey in createPublicKey', function(done){
+    try{
+      ecdsaNative.createPublicKey();
+    }catch(e){
+      done();
+    }
+  });
+})
