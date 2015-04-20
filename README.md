@@ -141,11 +141,11 @@ Compute the public key for a secret key.
 
 **Returns**: Buffer, a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
 
-secp256k1.exportPrivateKey(secertKey, compressed) 
+secp256k1.exportPrivateKey(secretKey, compressed) 
 -----------------------------
 
 **Parameters**
-* secertKey - `Buffer`
+* secretKey - `Buffer`
 * compressed - `Boolean`
 
 ** Returns**: Buffer, privateKey
@@ -156,7 +156,7 @@ secp256k1.importPrivateKey(privateKey)
 **Parameters**
 * privateKey - `Buffer`
 
-**Returns**: `Buffer`, secertKey
+**Returns**: `Buffer`, secretKey
 
 secp256k1.decompressPublickey(secretKey) 
 -----------------------------
@@ -198,6 +198,6 @@ secp256k1.pubKeyTweakMul(publicKey, tweak)
 
 **Returns**: `Buffer`
 
-LISCENCE
+LICENSE
 -----------------------------
 MIT
