@@ -9,7 +9,8 @@ INSTALL
 
 ##### from npm
 
-`npm install secp256k1`
+`npm install secp256k1`   
+Note: you will need to have gcc installed first   
 
 ##### from git
 
