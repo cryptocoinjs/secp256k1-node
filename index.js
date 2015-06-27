@@ -1,15 +1,14 @@
-var crypto = require('crypto');
+var crypto = require('crypto')
 
 function pad32(msg){
-  var buf;
+  var buf
   if (msg.length < 32) {
-    buf = new Buffer(32);
-    buf.fill(0);
-    msg.copy(buf, 32 - msg.length);
-    return buf;
-  } else {
-    return msg;
-  }
+    buf = new Buffer(32)
+    buf.fill(0)
+    msg.copy(buf, 32 - msg.length)
+    return buf
+  } else 
+    return msg
 }
 
 /**
@@ -17,7 +16,7 @@ function pad32(msg){
  * @module secp256k1
  */
 
-var secpNode = require('bindings')('secp256k1');
+var secpNode = require('bindings')('secp256k1')
 
 /**
  * Verify an ECDSA secret key.
@@ -26,8 +25,8 @@ var secpNode = require('bindings')('secp256k1');
  * @return {Boolean}  `true` if sercet key is valid, `false` sercet key is invalid
  */
 exports.verifySecretKey = function(sercetKey){
-  return Boolean(secpNode.secKeyVerify(sercetKey));
-};
+  return Boolean(secpNode.secKeyVerify(sercetKey))
+}
 
 /**
  * Verify an ECDSA public key.
@@ -36,8 +35,8 @@ exports.verifySecretKey = function(sercetKey){
  * @return {Boolean} `true` if public key is valid, `false` sercet key is invalid
  */
 exports.verifyPublicKey = function(publicKey){
-  return Boolean(secpNode.pubKeyVerify(publicKey));
-};
+  return Boolean(secpNode.pubKeyVerify(publicKey))
+}
 
 /**
  * Create an ECDSA signature.
@@ -48,12 +47,11 @@ exports.verifyPublicKey = function(publicKey){
  * @returns {Buffer} if no callback is given a 72-byte signature is returned
  */
 exports.sign = function(secretKey, msg, cb){
-  if(cb){
-    secpNode.signAsync(secretKey, pad32(msg), cb);
-  }else{
-    return secpNode.sign(secretKey, pad32(msg));
-  }
-};
+  if(cb)
+    secpNode.signAsync(secretKey, pad32(msg), cb)
+  else
+    return secpNode.sign(secretKey, pad32(msg))
+}
 
 /**
  * Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
@@ -71,18 +69,19 @@ exports.sign = function(secretKey, msg, cb){
  *    - result.recoveryID
  */
 exports.signCompact = function(secretKey, msg, cb){
-  if(cb){
-    secpNode.signCompactAsync(secretKey, pad32(msg), cb);
-  }else{
-    var array = secpNode.signCompact(secretKey, pad32(msg));
+
+  if(cb)
+    secpNode.signCompactAsync(pad32(secretKey), pad32(msg), cb)
+  else{
+    var array = secpNode.signCompact(pad32(secretKey), pad32(msg))
     return {
       recoveryId: array[1],
       signature: array[2],
       r: array[2].slice(0, 32),
       s: array[2].slice(32, 64)
-    };
+    }
   }
-};
+}
 
 
 /**
@@ -99,12 +98,11 @@ exports.signCompact = function(secretKey, msg, cb){
  *    - -2: invalid signature
  */
 exports.verify = function(pubKey, msg, sig, cb){
-  if(cb){
-    secpNode.verifyAsync(pubKey, pad32(msg), sig, cb);
-  }else{
-    return secpNode.verify(pubKey, pad32(msg), sig);
-  }
-};
+  if(cb)
+    secpNode.verifyAsync(pubKey, pad32(msg), sig, cb)
+  else
+    return secpNode.verify(pubKey, pad32(msg), sig)
+}
 
 /**
  * Recover an ECDSA public key from a compact signature. In the process also verifing it.
@@ -118,22 +116,20 @@ exports.verify = function(pubKey, msg, sig, cb){
  */
 exports.recoverCompact = function(msg, sig, recid, compressed, cb){
 
-  compressed = compressed ? 1 : 0;
+  compressed = compressed ? 1 : 0
 
   if (recid < 0 || recid > 3) {
-    if (!cb) {
-      return null;
-    } else {
-      return cb(new Error('recovery id must be >= 0 && recid <= 3'));
-    }
+    if (!cb)
+      return null
+    else
+      return cb(new Error('recovery id must be >= 0 && recid <= 3'))
   }
 
-  if(!cb){
-    return secpNode.recoverCompact(pad32(msg), sig, compressed, recid);
-  }else{
-    secpNode.recoverCompactAsync(pad32(msg), sig, compressed, recid, cb);
-  }
-};
+  if(!cb)
+    return secpNode.recoverCompact(pad32(msg), sig, compressed, recid)
+  else
+    secpNode.recoverCompactAsync(pad32(msg), sig, compressed, recid, cb)
+}
 
 /**
  * Compute the public key for a secret key.
@@ -143,12 +139,12 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
  * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
  */
 exports.createPublicKey = function(secKey, compressed){
-  if(!secKey){
-    throw 'invalid private key';
-  }
-  compressed = compressed ? 1 : 0;
-  return secpNode.pubKeyCreate(secKey, compressed);
-};
+  if(!secKey)
+    throw new Error('invalid private key')
+
+  compressed = compressed ? 1 : 0
+  return secpNode.pubKeyCreate(secKey, compressed)
+}
 
 /**
  * @method exportPrivateKey
@@ -156,21 +152,21 @@ exports.createPublicKey = function(secKey, compressed){
  * @param {Boolean} compressed
  * @return {Buffer} privateKey
  */
-exports.exportPrivateKey = secpNode.privKeyExport;
+exports.exportPrivateKey = secpNode.privKeyExport
 
 /**
  * @method importPrivateKey
  * @param {Buffer} privateKey
  * @return {Buffer} secertKey
  */
-exports.importPrivateKey = secpNode.privKeyImport;
+exports.importPrivateKey = secpNode.privKeyImport
 
 /**
  * @method decompressPublickey
  * @param {Buffer} secretKey
  * @return {Buffer}
  */
-exports.decompressPublicKey = secpNode.pubKeyDecompress;
+exports.decompressPublicKey = secpNode.pubKeyDecompress
 
 /**
  * @method privKeyTweakAdd
@@ -178,7 +174,7 @@ exports.decompressPublicKey = secpNode.pubKeyDecompress;
  * @param {Buffer} tweak
  * @return {Buffer}
  */
-exports.privKeyTweakAdd = secpNode.privKeyTweakAdd;
+exports.privKeyTweakAdd = secpNode.privKeyTweakAdd
 
 /**
  * @method privKeyTweakMul
@@ -186,7 +182,7 @@ exports.privKeyTweakAdd = secpNode.privKeyTweakAdd;
  * @param {Buffer} tweak
  * @return {Buffer}
  */
-exports.privKeyTweakMul = secpNode.privKeyTweakMul;
+exports.privKeyTweakMul = secpNode.privKeyTweakMul
 
 /**
  * @method pubKeyTweakAdd
@@ -194,7 +190,7 @@ exports.privKeyTweakMul = secpNode.privKeyTweakMul;
  * @param {Buffer} tweak
  * @return {Buffer}
  */
-exports.pubKeyTweakAdd = secpNode.pubKeyTweakAdd;
+exports.pubKeyTweakAdd = secpNode.pubKeyTweakAdd
 
 /**
  * @method pubKeyTweakMul
@@ -202,4 +198,4 @@ exports.pubKeyTweakAdd = secpNode.pubKeyTweakAdd;
  * @param {Buffer} tweak
  * @return {Buffer}
  */
-exports.pubKeyTweakMul = secpNode.pubKeyTweakMul;
+exports.pubKeyTweakMul = secpNode.pubKeyTweakMul
