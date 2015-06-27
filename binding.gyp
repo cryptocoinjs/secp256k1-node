@@ -38,7 +38,7 @@
       "./secp256k1-src/src/util.h"
     ],
     "cflags": [
-      "--std=c1x",
+      "-DHAVE___INT128",
       "-Wall",
       "-Wno-maybe-uninitialized",
       "-Wno-uninitialized",
