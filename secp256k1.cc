@@ -4,6 +4,9 @@
 
 #include "./secp256k1-src/include/secp256k1.h"
 
+//secp256k1ctx context to be used for calling secp256k1ctx functions
+secp256k1_context_t * secp256k1ctx;
+
 using namespace v8;
 
 class SignWorker : public NanAsyncWorker {
@@ -19,7 +22,7 @@ class SignWorker : public NanAsyncWorker {
   // here, so everything we need for input and output
   // should go on `this`.
   void Execute () {
-    this->result = secp256k1_ecdsa_sign(this->msg, this->sig , &this->sig_len, this->pk, NULL, NULL);
+    this->result = secp256k1_ecdsa_sign(secp256k1ctx, this->msg, this->sig , &this->sig_len, this->pk, NULL, NULL);
   }
 
   // Executed when the async work is complete
@@ -48,7 +51,7 @@ class CompactSignWorker : public SignWorker {
     : SignWorker(callback, msg, pk){}
 
   void Execute () {
-    this->result = secp256k1_ecdsa_sign_compact(this->msg, this->sig , this->pk, NULL, NULL,  &this->sig_len);
+    this->result = secp256k1_ecdsa_sign_compact(secp256k1ctx, this->msg, this->sig , this->pk, NULL, NULL,  &this->sig_len);
   }
 
   void HandleOKCallback () {
@@ -77,7 +80,7 @@ class RecoverWorker : public NanAsyncWorker {
       this->pubkey = new unsigned char[65]; 
     }
 
-    this->result = secp256k1_ecdsa_recover_compact(this->msg, this->sig, this->pubkey, &this->pubkey_len, this->compressed, this->rec_id);
+    this->result = secp256k1_ecdsa_recover_compact(secp256k1ctx, this->msg, this->sig, this->pubkey, &this->pubkey_len, this->compressed, this->rec_id);
   }
 
   void HandleOKCallback () {
@@ -108,7 +111,7 @@ class VerifyWorker : public NanAsyncWorker {
   ~VerifyWorker() {}
 
   void Execute () {
-    this->result = secp256k1_ecdsa_verify(this->msg, this->sig, this->sig_len,  this->pub_key, this->pub_key_len);
+    this->result = secp256k1_ecdsa_verify(secp256k1ctx, this->msg, this->sig, this->sig_len,  this->pub_key, this->pub_key_len);
   }
 
   void HandleOKCallback () {
@@ -142,7 +145,7 @@ NAN_METHOD(Verify){
   const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
   int sig_len = node::Buffer::Length(args[2]);
 
-  int result = secp256k1_ecdsa_verify(msg_data, sig_data, sig_len, pub_data, pub_len ); 
+  int result = secp256k1_ecdsa_verify(secp256k1ctx, msg_data, sig_data, sig_len, pub_data, pub_len ); 
 
   NanReturnValue(NanNew<Number>(result));
 }
@@ -193,7 +196,7 @@ NAN_METHOD(Sign){
     return NanThrowError("messgae cannot be null"); 
   }
 
-  int result = secp256k1_ecdsa_sign(msg_data, sig , &sig_len, pk_data, NULL, NULL);
+  int result = secp256k1_ecdsa_sign(secp256k1ctx, msg_data, sig , &sig_len, pk_data, NULL, NULL);
 
   if(result == 1){
     NanReturnValue(NanNewBufferHandle((char *)sig, sig_len));
@@ -256,7 +259,7 @@ NAN_METHOD(Sign_Compact){
   int rec_id;
 
   //TODO: change the nonce
-  int valid_nonce = secp256k1_ecdsa_sign_compact(msg_data, sig, seckey_data, NULL, NULL, &rec_id );
+  int valid_nonce = secp256k1_ecdsa_sign_compact(secp256k1ctx, msg_data, sig, seckey_data, NULL, NULL, &rec_id );
 
   Local<Array> array = NanNew<Array>(3);
   array->Set(0, NanNew<Integer>(valid_nonce));
@@ -322,7 +325,7 @@ NAN_METHOD(Recover_Compact){
 
   int pubKeyLen;
 
-  int result = secp256k1_ecdsa_recover_compact(msg, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
+  int result = secp256k1_ecdsa_recover_compact(secp256k1ctx, msg, sig, pubKey, &pubKeyLen, int_compressed, int_rec_id);
   if(result == 1){
     NanReturnValue(NanNewBufferHandle((char *)pubKey, pubKeyLen));
   }else{
@@ -376,7 +379,7 @@ NAN_METHOD(Seckey_Verify){
   NanScope();
 
   const unsigned char *data = (const unsigned char*) node::Buffer::Data(args[0]);
-  int result =  secp256k1_ec_seckey_verify(data); 
+  int result =  secp256k1_ec_seckey_verify(secp256k1ctx, data); 
   NanReturnValue(NanNew<Number>(result)); 
 }
 
@@ -388,7 +391,7 @@ NAN_METHOD(Pubkey_Verify){
   const unsigned char *pub_key = (unsigned char *) node::Buffer::Data(pub_buf);
   int pub_key_len = node::Buffer::Length(args[0]);
 
-  int result = secp256k1_ec_pubkey_verify(pub_key, pub_key_len);
+  int result = secp256k1_ec_pubkey_verify(secp256k1ctx, pub_key, pub_key_len);
 
   NanReturnValue(NanNew<Number>(result)); 
 }
@@ -415,7 +418,7 @@ NAN_METHOD(Pubkey_Create){
     pubKey = new unsigned char[65]; 
   }
 
-  int results = secp256k1_ec_pubkey_create(pubKey,&pubKeyLen, pk_data, compact );
+  int results = secp256k1_ec_pubkey_create(secp256k1ctx, pubKey,&pubKeyLen, pk_data, compact );
   if(results == 0){
     return NanThrowError("secret was invalid, try again.");
   }else{
@@ -432,7 +435,7 @@ NAN_METHOD(Pubkey_Decompress){
 
   int pk_len = node::Buffer::Length(args[0]);
 
-  int results = secp256k1_ec_pubkey_decompress(pk_data, &pk_len);
+  int results = secp256k1_ec_pubkey_decompress(secp256k1ctx, pk_data, pk_data, &pk_len);
 
   if(results == 0){
     return NanThrowError("invalid public key");
@@ -452,7 +455,7 @@ NAN_METHOD(Privkey_Import){
   int pk_len = node::Buffer::Length(args[0]);
 
   unsigned char sec_key[32];
-  int results = secp256k1_ec_privkey_import(sec_key, pk_data, pk_len);
+  int results = secp256k1_ec_privkey_import(secp256k1ctx, sec_key, pk_data, pk_len);
 
   if(results == 0){
     return NanThrowError("invalid private key");
@@ -473,7 +476,7 @@ NAN_METHOD(Privkey_Export){
 
   unsigned char *privKey;
   int pk_len;
-  int results = secp256k1_ec_privkey_export(sk_data, privKey, &pk_len, compressed);
+  int results = secp256k1_ec_privkey_export(secp256k1ctx, sk_data, privKey, &pk_len, compressed);
   if(results == 0){
     return NanThrowError("invalid private key");
   }else{
@@ -491,7 +494,7 @@ NAN_METHOD(Privkey_Tweak_Add){
   Handle<Object> tweak_buf = args[1].As<Object>();
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
-  int results = secp256k1_ec_privkey_tweak_add(sk, tweak);
+  int results = secp256k1_ec_privkey_tweak_add(secp256k1ctx, sk, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{
@@ -509,7 +512,7 @@ NAN_METHOD(Privkey_Tweak_Mul){
   Handle<Object> tweak_buf = args[1].As<Object>();
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
-  int results = secp256k1_ec_privkey_tweak_mul(sk, tweak);
+  int results = secp256k1_ec_privkey_tweak_mul(secp256k1ctx, sk, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{
@@ -528,7 +531,7 @@ NAN_METHOD(Pubkey_Tweak_Add){
   Handle<Object> tweak_buf = args[1].As<Object>();
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
-  int results = secp256k1_ec_pubkey_tweak_add(pk, pk_len, tweak);
+  int results = secp256k1_ec_pubkey_tweak_add(secp256k1ctx, pk, pk_len, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{
@@ -547,7 +550,7 @@ NAN_METHOD(Pubkey_Tweak_Mul){
   Handle<Object> tweak_buf = args[1].As<Object>();
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(tweak_buf);
 
-  int results = secp256k1_ec_pubkey_tweak_mul(pk, pk_len, tweak);
+  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, pk, pk_len, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{
@@ -557,7 +560,7 @@ NAN_METHOD(Pubkey_Tweak_Mul){
 
 void Init(Handle<Object> exports) {
 
-  secp256k1_start(SECP256K1_START_SIGN | SECP256K1_START_VERIFY);
+  secp256k1ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
   exports->Set(NanNew("seckeyVerify"), NanNew<FunctionTemplate>(Seckey_Verify)->GetFunction());
   exports->Set(NanNew("sign"), NanNew<FunctionTemplate>(Sign)->GetFunction());
   exports->Set(NanNew("signAsync"), NanNew<FunctionTemplate>(Sign_Async)->GetFunction());
