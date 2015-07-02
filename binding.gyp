@@ -38,7 +38,6 @@
       "./secp256k1-src/src/util.h"
     ],
     "cflags": [
-      "-DHAVE___INT128",
       "-Wall",
       "-Wno-maybe-uninitialized",
       "-Wno-uninitialized",
@@ -81,6 +80,7 @@
       [
         "target_arch=='x64'", {
           "defines": [
+            "HAVE___INT128=1"
             "USE_ASM_X86_64=1",
             "USE_FIELD_5X52=1",
             "USE_FIELD_5X52_INT128=1",
