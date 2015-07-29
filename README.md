@@ -26,23 +26,23 @@ USAGE
 ===
 ```javascript
 
-var ecdsa = require('secp256k1'),
-  sr = require('secure-random'); 
+var ecdsa = require('secp256k1')
+var sr = require('secure-random')
 
-var privateKey = sr.randomBuffer(32);
+var privateKey = sr.randomBuffer(32)
 
 //a random message to sign
-var msg = sr.randomBuffer(32);
+var msg = sr.randomBuffer(32)
 
 //get the public key in a compressed format
-var pubKey = ecdsa.createPublicKey(privateKey, true);
+var pubKey = ecdsa.createPublicKey(privateKey, true)
 
 //sign the message
-var sig = ecdsa.sign(privateKey, msg);
+var sig = ecdsa.sign(privateKey, msg)
 
 //verify the signature
 if(ecdsa.verify(pubKey, msg, sig)){
-  console.log("valid signature");
+  console.log("valid signature")
 }
 
 ```
