@@ -140,7 +140,7 @@ Compute the public key for a secret key.
 * secKey - `Buffer`, a 32-byte private key.
 * compressed - `Boolean`, whether the computed public key should be compressed
 
-**Returns**: Buffer, a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
+**Returns**: Buffer, a 33-byte (if compressed) or 65-byte (if uncompressed).
 
 secp256k1.exportPrivateKey(secretKey, compressed) 
 -----------------------------
