@@ -96,7 +96,9 @@ class RecoverWorker : public NanAsyncWorker {
   RecoverWorker(NanCallback *callback, const unsigned char *msg32, secp256k1_ecdsa_signature_t *sig, int compressed=true)
     : NanAsyncWorker(callback), msg32(msg32), sig(sig), compressed(compressed) {}
   // Destructor
-  ~RecoverWorker() {}
+  ~RecoverWorker() {
+    delete sig;
+  }
 
   void Execute () {
     this->result = secp256k1_ecdsa_recover(secp256k1ctx, msg32, sig, &pubkey);
@@ -245,6 +247,7 @@ NAN_METHOD(Recover){
   if(args.Length() == 5){
     secp256k1_pubkey_t pubkey;
     int result = secp256k1_ecdsa_recover(secp256k1ctx, msg, sig, &pubkey);
+    delete sig;
  
     if(result == 1){
       unsigned char output[65];
@@ -380,15 +383,15 @@ NAN_METHOD(Pubkey_Tweak_Mul){
 
   //the first argument should be the private key as a buffer
   Handle<Object> pk_buf = args[0].As<Object>();
-  unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(args[1].As<Object>());
 
   //parse the public key
   int pub_len = node::Buffer::Length(pk_buf);
-  secp256k1_pubkey_t *pub_key;
-  secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
+  secp256k1_pubkey_t pub_key;
+  secp256k1_ec_pubkey_parse(secp256k1ctx, &pub_key, pk_data, pub_len);
 
-  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, pub_key, tweak);
+  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, &pub_key, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{

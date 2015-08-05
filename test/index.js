@@ -126,7 +126,7 @@ describe('invalid inputs', function() {
     try{
       ecdsaNative.sign(undefined, new Buffer('test'))
     }catch(e){
-      done() 
+      done()
     }
   })
 
