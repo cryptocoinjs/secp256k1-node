@@ -383,15 +383,15 @@ NAN_METHOD(Pubkey_Tweak_Mul){
 
   //the first argument should be the private key as a buffer
   Handle<Object> pk_buf = args[0].As<Object>();
-  const unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
+  unsigned char *pk_data = (unsigned char *) node::Buffer::Data(pk_buf);
   const unsigned char *tweak= (unsigned char *) node::Buffer::Data(args[1].As<Object>());
 
   //parse the public key
   int pub_len = node::Buffer::Length(pk_buf);
-  secp256k1_pubkey_t pub_key;
-  secp256k1_ec_pubkey_parse(secp256k1ctx, &pub_key, pk_data, pub_len);
+  secp256k1_pubkey_t *pub_key;
+  secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
 
-  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, &pub_key, tweak);
+  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, pub_key, tweak);
   if(results == 0){
     return NanThrowError("invalid key");
   }else{
