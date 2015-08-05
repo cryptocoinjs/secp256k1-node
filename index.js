@@ -1,13 +1,13 @@
 var crypto = require('crypto')
 
-function pad32(msg){
+function pad32(msg) {
   var buf
   if (msg.length < 32) {
     buf = new Buffer(32)
     buf.fill(0)
     msg.copy(buf, 32 - msg.length)
     return buf
-  } else 
+  } else
     return msg
 }
 
@@ -24,7 +24,7 @@ var secpNode = require('bindings')('secp256k1')
  * @param {Buffer} sercetKey the sercet Key to verify
  * @return {Boolean}  `true` if sercet key is valid, `false` sercet key is invalid
  */
-exports.verifySecretKey = function(sercetKey){
+exports.verifySecretKey = function (sercetKey) {
   return Boolean(secpNode.secKeyVerify(sercetKey))
 }
 
@@ -34,7 +34,7 @@ exports.verifySecretKey = function(sercetKey){
  * @param {Buffer} publicKey the public Key to verify
  * @return {Boolean} `true` if public key is valid, `false` sercet key is invalid
  */
-exports.verifyPublicKey = function(publicKey){
+exports.verifyPublicKey = function (publicKey) {
   return Boolean(secpNode.pubKeyVerify(publicKey))
 }
 
@@ -46,62 +46,59 @@ exports.verifyPublicKey = function(publicKey){
  * @param {Function} cb the callback given. The callback is given the signature
  * @returns {Buffer} if no callback is given a 72-byte signature is returned
  */
-exports.sign = function(secretKey, msg, cb){
-  if(cb)
-    secpNode.signAsync(secretKey, pad32(msg), cb)
-  else
-    return secpNode.sign(secretKey, pad32(msg))
-}
+exports.sign = function (msg, secretKey, DER, cb) {
+  if (typeof DER === 'function') {
+    cb = DER
+    DER = false
+  }
 
-/**
- * Create a compact ECDSA signature (64 byte + recovery id). Runs asyncously
- * if given a callback
- * @method signCompact
- * @param {Buffer} sercetKey a 32-byte secret key (assumed to be valid)
- * @param {Buffer} msg the message being signed
- * @param {Function} [cb] the callback which is give `err`, `sig` the
- *    - param {Buffer} sig  a 64-byte buffer repersenting the signature
- *    - param {Number} recid an int which is the recovery id.
- * @return {Object} result only if no callback is given will the result be returned
- *    - result.sigature
- *    - result.r
- *    - result.s
- *    - result.recoveryID
- */
-exports.signCompact = function(secretKey, msg, cb){
+  if (!DER) {
+    DER = false
+  }
 
-  if(cb)
-    secpNode.signCompactAsync(pad32(secretKey), pad32(msg), cb)
-  else{
-    var array = secpNode.signCompact(pad32(secretKey), pad32(msg))
-    return {
-      recoveryId: array[1],
-      signature: array[2],
-      r: array[2].slice(0, 32),
-      s: array[2].slice(32, 64)
+  var result
+  if (typeof cb === 'function')
+    secpNode.sign(pad32(msg), secretKey, DER, cb)
+  else {
+    var result = secpNode.sign(pad32(msg), secretKey, DER)
+    if (DER)
+      return result[0]
+    else {
+      return {
+        signature: result[0],
+        recovery: result[1]
+      }
     }
   }
 }
 
-
 /**
  * Verify an ECDSA signature.
  * @method verify
- * @param {Buffer} pubKey the public key
  * @param {Buffer} mgs the message
  * @param {Buffer} sig the signature
+ * @param {Buffer} pubKey the public key
+ * @param {Interger} [recid] the recovery if the signature is compact
  * @return {Integer}
  *
  *    - 1: correct signature
  *    - 0: incorrect signature
- *    - -1: invalid public key
- *    - -2: invalid signature
  */
-exports.verify = function(pubKey, msg, sig, cb){
-  if(cb)
-    secpNode.verifyAsync(pubKey, pad32(msg), sig, cb)
-  else
-    return secpNode.verify(pubKey, pad32(msg), sig)
+exports.verify = function (msg, sig, pubKey, recid, cb) {
+
+  var DER = true
+  if (sig.length === 64)
+    DER = false
+
+  if (typeof recid === 'function') {
+    cb = recid
+    recid = -1
+  }
+
+  if (cb) {
+    secpNode.verify(pubKey, pad32(msg), sig, recid, DER, cb)
+  } else
+    return secpNode.verify(pubKey, pad32(msg), sig, recid, DER)
 }
 
 /**
@@ -114,21 +111,48 @@ exports.verify = function(pubKey, msg, sig, cb){
  * @param {Function} [cb]
  * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */
-exports.recoverCompact = function(msg, sig, recid, compressed, cb){
+exports.recover = function (msg, sig, recid, compressed, cb) {
 
-  compressed = compressed ? 1 : 0
+  var DER = true
+  if (sig.length === 64)
+    DER = false
 
-  if (recid < 0 || recid > 3) {
+  if (typeof recid === 'function') {
+    cb = recid
+    compressed = true
+    recid = -1
+  }
+
+  if (typeof recid === 'boolean') {
+    compressed = recid
+    recid = -1
+  }
+
+  if (typeof compressed === 'function'){
+    cb = compressed
+    compressed = true
+  }
+
+
+  if(!Number.isInteger(recid)){
+    recid = -1
+  }
+
+  if(compressed === undefined){
+    compressed = true
+  }
+
+  if (recid < -1 || recid > 3) {
     if (!cb)
       return null
     else
       return cb(new Error('recovery id must be >= 0 && recid <= 3'))
   }
 
-  if(!cb)
-    return secpNode.recoverCompact(pad32(msg), sig, compressed, recid)
+  if (!cb)
+    return secpNode.recover(pad32(msg), sig, recid, compressed, DER)
   else
-    secpNode.recoverCompactAsync(pad32(msg), sig, compressed, recid, cb)
+    secpNode.recover(pad32(msg), sig, recid, compressed, DER, cb)
 }
 
 /**
@@ -138,8 +162,8 @@ exports.recoverCompact = function(msg, sig, recid, compressed, cb){
  * @param {Boolean} [compressed=0] whether the computed public key should be compressed
  * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
  */
-exports.createPublicKey = function(secKey, compressed){
-  if(!secKey)
+exports.createPublicKey = function (secKey, compressed) {
+  if (!secKey)
     throw new Error('invalid private key')
 
   compressed = compressed ? 1 : 0
