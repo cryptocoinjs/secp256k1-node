@@ -95,12 +95,12 @@ describe('it should handle basic ecdsa ops', function () {
   })
 
   it('should recover a compact signature and return the public key', function() {
-    var sig = ecdsaNative.recover(msg, compactSig.signature, compactSig.recovery)
+    var sig = ecdsaNative.recover(msg, compactSig)
     assert(sig.toString('hex') === pubKey.toString('hex'))
   })
 
   it('should recover a compact signature and return the public key, async', function(done) {
-    ecdsaNative.recover(msg, compactSig.signature, compactSig.recovery, function(result, sig) {
+    ecdsaNative.recover(msg, compactSig, function(result, sig) {
       assert(sig.toString('hex') === pubKey.toString('hex'))
       done()
     })
@@ -110,15 +110,17 @@ describe('it should handle basic ecdsa ops', function () {
 
 describe('invalid inputs', function() {
   it('should not crash when recoverId is out of bounds - sync', function() {
-    var sig = ecdsaNative.recover(msg, compactSig.signature, -27, true)
-    assert.strictEqual(sig, null)
+    assert.throws(function(){
+      var sig = ecdsaNative.recover(msg, compactSig.signature, -27, true)
+    })
   })
 
-  it('should not crash when recoverId is out of bounds - async', function(done) {
-    ecdsaNative.recover(msg, compactSig.signature, -27, true, function(err, sig) {
-      assert(err)
-      assert.strictEqual(sig, undefined)
-      done()
+  it('should not crash when recoverId is out of bounds - async', function() {
+    assert.throws(function(){
+      ecdsaNative.recover(msg, compactSig.signature, -27, true, function(err, sig) {
+        assert(err)
+        assert.strictEqual(sig, undefined)
+      })
     })
   })
 

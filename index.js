@@ -76,24 +76,23 @@ exports.sign = function (msg, secretKey, DER, cb) {
  * Verify an ECDSA signature.
  * @method verify
  * @param {Buffer} mgs the message
- * @param {Buffer} sig the signature
+ * @param {Buffer|Object} sig the signature
  * @param {Buffer} pubKey the public key
- * @param {Interger} [recid] the recovery if the signature is compact
  * @return {Integer}
  *
  *    - 1: correct signature
  *    - 0: incorrect signature
  */
-exports.verify = function (msg, sig, pubKey, recid, cb) {
+exports.verify = function (msg, sig, pubKey, cb) {
+
+  var recid = recid ? sig.recovery : -1
+
+  if(sig.signature)
+    sig = sig.signature
 
   var DER = true
   if (sig.length === 64)
     DER = false
-
-  if (typeof recid === 'function') {
-    cb = recid
-    recid = -1
-  }
 
   if (cb) {
     secpNode.verify(pubKey, pad32(msg), sig, recid, DER, cb)
@@ -111,42 +110,33 @@ exports.verify = function (msg, sig, pubKey, recid, cb) {
  * @param {Function} [cb]
  * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */
-exports.recover = function (msg, sig, recid, compressed, cb) {
+exports.recover = function (msg, sig, compressed, cb) {
+
+  var recid = sig.recovery !== undefined ? sig.recovery : -1
+
+  if(sig.signature)
+    sig = sig.signature
 
   var DER = true
   if (sig.length === 64)
     DER = false
 
-  if (typeof recid === 'function') {
-    cb = recid
-    compressed = true
-    recid = -1
-  }
-
-  if (typeof recid === 'boolean') {
-    compressed = recid
-    recid = -1
-  }
 
   if (typeof compressed === 'function'){
     cb = compressed
     compressed = true
   }
 
-
-  if(!Number.isInteger(recid)){
-    recid = -1
-  }
-
   if(compressed === undefined){
     compressed = true
   }
 
-  if (recid < -1 || recid > 3) {
-    if (!cb)
-      return null
+  if (!DER &&( recid < 0 || recid > 3)) {
+    var error = new Error('recovery id must be >= 0 && recid <= 3')
+    if (typeof cb !== 'function')
+      throw error
     else
-      return cb(new Error('recovery id must be >= 0 && recid <= 3'))
+      return cb(error)
   }
 
   if (!cb)
