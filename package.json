@@ -1,6 +1,6 @@
 {
   "name": "secp256k1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "bindings": "^1.2.1",
-    "nan": "^2.0.0"
+    "nan": "2.0.0"
   },
   "devDependencies": {
     "bigi": "^1.3.0",
