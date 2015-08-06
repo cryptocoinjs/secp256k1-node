@@ -87,7 +87,7 @@ exports.verify = function (msg, sig, pubKey, cb) {
 
   var recid = recid ? sig.recovery : -1
 
-  if(sig.signature)
+  if (sig.signature)
     sig = sig.signature
 
   var DER = true
@@ -114,7 +114,7 @@ exports.recover = function (msg, sig, compressed, cb) {
 
   var recid = sig.recovery !== undefined ? sig.recovery : -1
 
-  if(sig.signature)
+  if (sig.signature)
     sig = sig.signature
 
   var DER = true
@@ -122,16 +122,16 @@ exports.recover = function (msg, sig, compressed, cb) {
     DER = false
 
 
-  if (typeof compressed === 'function'){
+  if (typeof compressed === 'function') {
     cb = compressed
     compressed = true
   }
 
-  if(compressed === undefined){
+  if (compressed === undefined) {
     compressed = true
   }
 
-  if (!DER &&( recid < 0 || recid > 3)) {
+  if (!DER && (recid < 0 || recid > 3)) {
     var error = new Error('recovery id must be >= 0 && recid <= 3')
     if (typeof cb !== 'function')
       throw error
