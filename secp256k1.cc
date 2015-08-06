@@ -164,7 +164,6 @@ NAN_METHOD(Verify){
   const unsigned char *pubkey_data = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(info[1].As<Object>());
   Local<Object> sig_buf = info[2].As<Object>();
-  const unsigned char *sig_data = (unsigned char *) node::Buffer::Data(sig_buf);
   int recid = info[3]->IntegerValue();
   bool DER = info[4]->BooleanValue();
 
@@ -175,7 +174,11 @@ NAN_METHOD(Verify){
   //parse the public key
   int pubkey_len = node::Buffer::Length(info[0]);
   secp256k1_pubkey_t * pubkey = new secp256k1_pubkey_t();
-  secp256k1_ec_pubkey_parse(secp256k1ctx, pubkey, pubkey_data, pubkey_len);
+  int result = secp256k1_ec_pubkey_parse(secp256k1ctx, pubkey, pubkey_data, pubkey_len);
+
+  if(result == 0){
+    return Nan::ThrowError("the public key could not be parsed or is invalid");
+  }
 
   //if there is no callback then run sync
   if(info.Length() == 5){
@@ -242,7 +245,7 @@ NAN_METHOD(Recover){
 
   //parse the signature
   secp256k1_ecdsa_signature_t * sig = new secp256k1_ecdsa_signature_t();
-  parse_sig(false, sig, sig_buf, recid);
+  parse_sig(DER, sig, sig_buf, recid);
 
   if(info.Length() == 5){
     secp256k1_pubkey_t pubkey;
@@ -252,7 +255,7 @@ NAN_METHOD(Recover){
     if(result == 1){
       unsigned char output[65];
       int outputlen;
-      secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, true);
+      secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, compressed);
       info.GetReturnValue().Set(node::Buffer::New((char *)output, outputlen));
     }else{
       info.GetReturnValue().Set(Nan::False());
@@ -287,7 +290,7 @@ NAN_METHOD(Pubkey_Create){
   }else{
     unsigned char output[65]; 
     int outputlen;
-    secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, 1);
+    secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, compressed);
     info.GetReturnValue().Set(node::Buffer::New((char *)output, outputlen));
   }
 }
@@ -338,7 +341,7 @@ NAN_METHOD(Privkey_Tweak_Add){
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New(((char *)seckey, 32)));
+    info.GetReturnValue().Set(node::Buffer::New((char *)seckey, 32));
   }
 }
 
@@ -368,9 +371,12 @@ NAN_METHOD(Pubkey_Tweak_Add){
   //parse the public key
   int pub_len = node::Buffer::Length(pk_buf);
   secp256k1_pubkey_t *pub_key;
-  secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
+  int results = secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
+  if(results == 0){
+    return Nan::ThrowError("the public key could not be parsed or is invalid");
+  }
 
-  int results = secp256k1_ec_pubkey_tweak_add(secp256k1ctx, pub_key, tweak);
+  results = secp256k1_ec_pubkey_tweak_add(secp256k1ctx, pub_key, tweak);
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
@@ -389,9 +395,12 @@ NAN_METHOD(Pubkey_Tweak_Mul){
   //parse the public key
   int pub_len = node::Buffer::Length(pk_buf);
   secp256k1_pubkey_t *pub_key;
-  secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
+  int results= secp256k1_ec_pubkey_parse(secp256k1ctx, pub_key, pk_data, pub_len);
+  if(results == 0){
+    return Nan::ThrowError("the public key could not be parsed or is invalid");
+  }
 
-  int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, pub_key, tweak);
+  results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, pub_key, tweak);
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
