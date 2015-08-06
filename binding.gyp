@@ -5,6 +5,8 @@
       "with_gmp%": "<!(./utils/has_lib.sh gmpxx)"
     },
     "sources": [
+      "./functions.cc",
+      "./util.cc",
       "./secp256k1.cc",
       "./secp256k1-src/src/secp256k1.c",
       "./secp256k1-src/src/ecdsa.h",
