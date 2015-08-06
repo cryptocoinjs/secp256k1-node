@@ -3,16 +3,7 @@
 #include <node.h>
 
 #include "./secp256k1-src/include/secp256k1.h"
-using v8::Function;
-using v8::Local;
-using v8::Number;
-using v8::Boolean;
-using v8::Value;
-using v8::Object;
-using Nan::AsyncWorker;
-using Nan::Callback;
-using Nan::HandleScope;
-using Nan::New;
+using namespace v8;
 
 /* secp256k1ctx context to be used for calling secp256k1 functions; it is safe
  * to use same context across all of the calls in this wrapper, as per comment
@@ -52,11 +43,11 @@ int parse_sig(bool DER,  secp256k1_ecdsa_signature_t *sig, Local<Object> sig_buf
 
 
 //Create a async Signature
-class SignWorker : public AsyncWorker {
+class SignWorker : public Nan::AsyncWorker {
  public:
   // Constructor
-  SignWorker(Callback *callback, const unsigned char *msg32, const unsigned char *seckey, bool DER=false)
-    : AsyncWorker(callback), msg32(msg32), seckey(seckey), DER(DER) {}
+  SignWorker(Nan::Callback *callback, const unsigned char *msg32, const unsigned char *seckey, bool DER=false)
+    : Nan::AsyncWorker(callback), msg32(msg32), seckey(seckey), DER(DER) {}
   // Destructor
   ~SignWorker() {}
 
@@ -72,7 +63,7 @@ class SignWorker : public AsyncWorker {
   // this function will be run inside the main event loop
   // so it is safe to use V8 again
   void HandleOKCallback () {
-    HandleScope scope;
+    Nan::HandleScope scope;
 
     char* output;
     int outputlen;
@@ -81,9 +72,9 @@ class SignWorker : public AsyncWorker {
     serialize_sig(DER, output, &outputlen, &recid, &sig);
 
     Local<Value> argv[3] = {
-      New<Number>(result),
+      Nan::New<Number>(result),
       node::Buffer::New(output, outputlen),
-      New<Number>(recid)
+      Nan::New<Number>(recid)
     };
 
     delete output;
@@ -99,11 +90,11 @@ class SignWorker : public AsyncWorker {
 };
 
 //recover's the public key from a signature
-class RecoverWorker : public AsyncWorker {
+class RecoverWorker : public Nan::AsyncWorker {
  public:
   // Constructor
-  RecoverWorker(Callback *callback, const unsigned char *msg32, secp256k1_ecdsa_signature_t *sig, int compressed=true)
-    : AsyncWorker(callback), msg32(msg32), sig(sig), compressed(compressed) {}
+  RecoverWorker(Nan::Callback *callback, const unsigned char *msg32, secp256k1_ecdsa_signature_t *sig, int compressed=true)
+    : Nan::AsyncWorker(callback), msg32(msg32), sig(sig), compressed(compressed) {}
   // Destructor
   ~RecoverWorker() {
     delete sig;
@@ -114,7 +105,7 @@ class RecoverWorker : public AsyncWorker {
   }
 
   void HandleOKCallback () {
-    HandleScope scope;
+    Nan::HandleScope scope;
 
     unsigned char output[65];
     int outputlen;
@@ -122,7 +113,7 @@ class RecoverWorker : public AsyncWorker {
     secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, compressed);
 
     Local<Value> argv[] = {
-      New<Number>(result),
+      Nan::New<Number>(result),
       node::Buffer::New((char *)output, outputlen)
     };
     callback->Call(2, argv);
@@ -136,11 +127,11 @@ class RecoverWorker : public AsyncWorker {
   int result;
 };
 
-class VerifyWorker : public AsyncWorker {
+class VerifyWorker : public Nan::AsyncWorker {
  public:
   // Constructor
-  VerifyWorker(Callback *callback, const unsigned char *msg32, secp256k1_ecdsa_signature_t *sig, secp256k1_pubkey_t *pubkey)
-    : AsyncWorker(callback), msg32(msg32), sig(sig), pubkey(pubkey) {}
+  VerifyWorker(Nan::Callback *callback, const unsigned char *msg32, secp256k1_ecdsa_signature_t *sig, secp256k1_pubkey_t *pubkey)
+    : Nan::AsyncWorker(callback), msg32(msg32), sig(sig), pubkey(pubkey) {}
   // Destructor
   ~VerifyWorker() {
     delete sig;
@@ -152,9 +143,9 @@ class VerifyWorker : public AsyncWorker {
   }
 
   void HandleOKCallback () {
-    HandleScope scope;
+    Nan::HandleScope scope;
     Local<Value> argv[] = {
-      New<Number>(result),
+      Nan::New<Number>(result),
     };
     callback->Call(1, argv);
   }
@@ -167,7 +158,7 @@ class VerifyWorker : public AsyncWorker {
 };
 
 NAN_METHOD(Verify){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //parse the argments
   const unsigned char *pubkey_data = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
@@ -191,10 +182,10 @@ NAN_METHOD(Verify){
     int result = secp256k1_ecdsa_verify(secp256k1ctx, msg_data, sig, pubkey); 
     delete sig;
     delete pubkey;
-    info.GetReturnValue().Set(New<Boolean>(result));
+    info.GetReturnValue().Set(Nan::New<Boolean>(result));
   }else{
     //if there is a callback run asyc version
-    Callback *nanCallback = new Callback(info[5].As<Function>());
+    Nan::Callback *nanCallback = new Nan::Callback(info[5].As<Function>());
     VerifyWorker *worker = new VerifyWorker(nanCallback, msg_data, sig, pubkey);
     Nan::AsyncQueueWorker(worker);
     info.GetReturnValue().SetUndefined();
@@ -202,7 +193,7 @@ NAN_METHOD(Verify){
 }
 
 NAN_METHOD(Sign){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the message that we are signing
   const unsigned char *msg_data = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
@@ -221,9 +212,9 @@ NAN_METHOD(Sign){
 
       serialize_sig(DER, output, &outputlen, &recid, &sig);
 
-      Local<v8::Array> results = New<v8::Array>();
+      Local<Array> results = Nan::New<Array>();
       results->Set(0, node::Buffer::New(output, outputlen));
-      results->Set(1, New<Number>(recid));
+      results->Set(1, Nan::New<Number>(recid));
 
       delete output; //output was allocated by serialize_sig
 
@@ -233,7 +224,7 @@ NAN_METHOD(Sign){
     }
   }else{
     //if there is a callback run asyc version
-    Callback *nanCallback = new Callback(info[3].As<Function>());
+    Nan::Callback *nanCallback = new Nan::Callback(info[3].As<Function>());
     SignWorker* worker = new SignWorker(nanCallback, msg_data, seckey_data, DER);
     Nan::AsyncQueueWorker(worker);
     info.GetReturnValue().SetUndefined();
@@ -241,7 +232,7 @@ NAN_METHOD(Sign){
 }
 
 NAN_METHOD(Recover){
-  HandleScope scope;
+  Nan::HandleScope scope;
   
   const unsigned char *msg = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
   Local<Object> sig_buf = info[1].As<Object>();
@@ -268,7 +259,7 @@ NAN_METHOD(Recover){
     }
   }else{
     //the callback
-    Callback* nanCallback = new Callback(info[5].As<Function>());
+    Nan::Callback* nanCallback = new Nan::Callback(info[5].As<Function>());
     RecoverWorker* worker = new RecoverWorker(nanCallback, msg, sig);
     Nan::AsyncQueueWorker(worker);
     info.GetReturnValue().SetUndefined();
@@ -276,15 +267,15 @@ NAN_METHOD(Recover){
 }
 
 NAN_METHOD(Seckey_Verify){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   const unsigned char *data = (const unsigned char*) node::Buffer::Data(info[0]);
   int result =  secp256k1_ec_seckey_verify(secp256k1ctx, data); 
-  info.GetReturnValue().Set(New<Number>(result)); 
+  info.GetReturnValue().Set(Nan::New<Number>(result)); 
 }
 
 NAN_METHOD(Pubkey_Create){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   const unsigned char *seckey = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
   int compressed = info[1]->IntegerValue();
@@ -302,7 +293,7 @@ NAN_METHOD(Pubkey_Create){
 }
 
 NAN_METHOD(Privkey_Import){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the first argument should be the private key as a buffer
   Local<Object> privkey_buf = info[0].As<Object>();
@@ -321,7 +312,7 @@ NAN_METHOD(Privkey_Import){
 }
 
 NAN_METHOD(Privkey_Export){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   const unsigned char *seckey = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
   const int compressed = info[1]->IntegerValue();
@@ -337,7 +328,7 @@ NAN_METHOD(Privkey_Export){
 }
 
 NAN_METHOD(Privkey_Tweak_Add){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the first argument should be the private key as a buffer
   unsigned char *seckey = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
@@ -352,7 +343,7 @@ NAN_METHOD(Privkey_Tweak_Add){
 }
 
 NAN_METHOD(Privkey_Tweak_Mul){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the first argument should be the private key as a buffer
   unsigned char *seckey = (unsigned char *) node::Buffer::Data(info[0].As<Object>());
@@ -367,7 +358,7 @@ NAN_METHOD(Privkey_Tweak_Mul){
 }
 
 NAN_METHOD(Pubkey_Tweak_Add){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the first argument should be the private key as a buffer
   Local<Object> pk_buf = info[0].As<Object>();
@@ -388,7 +379,7 @@ NAN_METHOD(Pubkey_Tweak_Add){
 }
 
 NAN_METHOD(Pubkey_Tweak_Mul){
-  HandleScope scope;
+  Nan::HandleScope scope;
 
   //the first argument should be the private key as a buffer
   Local<Object> pk_buf = info[0].As<Object>();
@@ -411,16 +402,16 @@ NAN_METHOD(Pubkey_Tweak_Mul){
 NAN_MODULE_INIT(Init){ 
   secp256k1ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
-  Nan::Set(target, New<v8::String>("sign").ToLocalChecked(), New<v8::FunctionTemplate>(Sign)->GetFunction());
-  Nan::Set(target, New<v8::String>("recover").ToLocalChecked(), New<v8::FunctionTemplate>(Recover)->GetFunction());
-  Nan::Set(target, New<v8::String>("verify").ToLocalChecked(), New<v8::FunctionTemplate>(Verify)->GetFunction());
-  Nan::Set(target, New<v8::String>("secKeyVerify").ToLocalChecked(), New<v8::FunctionTemplate>(Seckey_Verify)->GetFunction());
-  Nan::Set(target, New<v8::String>("pubKeyCreate").ToLocalChecked(), New<v8::FunctionTemplate>(Pubkey_Create)->GetFunction());
-  Nan::Set(target, New<v8::String>("privKeyExport").ToLocalChecked(), New<v8::FunctionTemplate>(Privkey_Export)->GetFunction());
-  Nan::Set(target, New<v8::String>("privKeyImport").ToLocalChecked(), New<v8::FunctionTemplate>(Privkey_Import)->GetFunction());
-  Nan::Set(target, New<v8::String>("privKeyTweakAdd").ToLocalChecked(), New<v8::FunctionTemplate>(Privkey_Tweak_Add)->GetFunction());
-  Nan::Set(target, New<v8::String>("privKeyTweakMul").ToLocalChecked(), New<v8::FunctionTemplate>(Privkey_Tweak_Mul)->GetFunction());
-  Nan::Set(target, New<v8::String>("pubKeyTweakAdd").ToLocalChecked(), New<v8::FunctionTemplate>(Pubkey_Tweak_Add)->GetFunction());
-  Nan::Set(target, New<v8::String>("pubKeyTweakMul").ToLocalChecked(), New<v8::FunctionTemplate>(Pubkey_Tweak_Mul)->GetFunction());
+  Nan::Set(target, Nan::New<String>("sign").ToLocalChecked(), Nan::New<FunctionTemplate>(Sign)->GetFunction());
+  Nan::Set(target, Nan::New<String>("recover").ToLocalChecked(), Nan::New<FunctionTemplate>(Recover)->GetFunction());
+  Nan::Set(target, Nan::New<String>("verify").ToLocalChecked(), Nan::New<FunctionTemplate>(Verify)->GetFunction());
+  Nan::Set(target, Nan::New<String>("secKeyVerify").ToLocalChecked(), Nan::New<FunctionTemplate>(Seckey_Verify)->GetFunction());
+  Nan::Set(target, Nan::New<String>("pubKeyCreate").ToLocalChecked(), Nan::New<FunctionTemplate>(Pubkey_Create)->GetFunction());
+  Nan::Set(target, Nan::New<String>("privKeyExport").ToLocalChecked(), Nan::New<FunctionTemplate>(Privkey_Export)->GetFunction());
+  Nan::Set(target, Nan::New<String>("privKeyImport").ToLocalChecked(), Nan::New<FunctionTemplate>(Privkey_Import)->GetFunction());
+  Nan::Set(target, Nan::New<String>("privKeyTweakAdd").ToLocalChecked(), Nan::New<FunctionTemplate>(Privkey_Tweak_Add)->GetFunction());
+  Nan::Set(target, Nan::New<String>("privKeyTweakMul").ToLocalChecked(), Nan::New<FunctionTemplate>(Privkey_Tweak_Mul)->GetFunction());
+  Nan::Set(target, Nan::New<String>("pubKeyTweakAdd").ToLocalChecked(), Nan::New<FunctionTemplate>(Pubkey_Tweak_Add)->GetFunction());
+  Nan::Set(target, Nan::New<String>("pubKeyTweakMul").ToLocalChecked(), Nan::New<FunctionTemplate>(Pubkey_Tweak_Mul)->GetFunction());
 }
 NODE_MODULE(secp256k1, Init)
