@@ -6,11 +6,13 @@ This library is experimental, so use at your own risk.
 
 INSTALL
 ===
+If you have gmp installed secp256k1 will use it. Otherwise it should fallback to openssl.
+* arch `pacman -S gmp`
+* ubuntu `sudo apt-get install libgmp-dev`
 
 ##### from npm
 
 `npm install secp256k1`   
-Note: you will need to have g++ installed first   
 
 ##### from git
 
@@ -20,28 +22,27 @@ Note: you will need to have g++ installed first
 `git submodule update`  
 `npm install` 
 
-NOTE: if you have the development version gmp installed secp256k1 will use it. Otherwise it should fallback to openssl. 
+
 
 USAGE
 ===
 ```javascript
 
 var ecdsa = require('secp256k1')
-var sr = require('secure-random')
+var crypto = require('crypto')
 
-var privateKey = sr.randomBuffer(32)
-
+var privateKey = crypto.randomBytes(32)
 //a random message to sign
-var msg = sr.randomBuffer(32)
+var msg = crypto.randomBytes(32)
 
 //get the public key in a compressed format
 var pubKey = ecdsa.createPublicKey(privateKey, true)
 
 //sign the message
-var sig = ecdsa.sign(privateKey, msg)
+var sig = ecdsa.sign(msg, privateKey)
 
 //verify the signature
-if(ecdsa.verify(pubKey, msg, sig)){
+if(ecdsa.verify(msg, sig, pubKey)){
   console.log("valid signature")
 }
 
@@ -53,6 +54,12 @@ run `npm test`
  
 API
 ===
+**Signature**
+All functions that take signatures can take two formats
+* DER - which should be a repersented as an `Buffer`
+* Compact - which should be an `Object` with the following
+  - `signature` - a `Buffer`
+  - `recovery` - an `Integer` for the recovery id
 
 secp256k1.verifySecretKey(secretKey) 
 -----------------------------
@@ -74,60 +81,44 @@ Verify an ECDSA public key.
 
 **Returns**: `Boolean`, `true` if public key is valid, `false` secret key is invalid
 
-secp256k1.sign(secretkey, msg, cb) 
+secp256k1.sign(msg, secretkey, [DER], [cb]) 
 -----------------------------
 Create an ECDSA signature.
 
 **Parameters**
 
-* secretkey - `Buffer`, a 32-byte secret key (assumed to be valid)  
 * msg - `Buffer`,  a 32-byte message hash being signed 
-* cb - `function`, the callback given. The callback is given the signature  
+* secretkey - `Buffer`, a 32-byte secret key (assumed to be valid)
+* DER - `Boolean`, **Optional**  if `true` the signature produced will be in DER format. Defaults to `false`
+* cb - `function`, **Optional** the callback. The callback is given the signature. If no callback is given the function will run sync.
 
-**Returns**: `Buffer`, if no callback is given a 72-byte signature is returned
+**Returns**:
 
-secp256k1.signCompact(secretKey, msg, cb) 
------------------------------
-Create a compact ECDSA signature (64 byte + recovery id). Runs asynchronously if given a callback
+* if `DER` a `Buffer`, if no callback is given a 72-byte signature is returned  
+* else an compact siganture `Object`
 
-**Parameters**
-* secretKey - `Buffer`, a 32-byte secret key (assumed to be valid)  
-* msg - `Buffer`, 32-byte message hash being signed  
-
-**cb**: function, the callback which is give `err`, `sig` the  
-* sig - `Buffer`   a 64-byte buffer repersenting the signature  
-* recid - `Buffer` an int which is the recovery id.  
-
-**Returns**: result only returned if no callback is given
-* result.signature
-* result.r
-* result.s
-* result.recoveryId
-
-secp256k1.verify(pubKey, mgs, sig) 
+secp256k1.verify(mgs, sig, pubKey, [cb]) 
 -----------------------------
 Verify an ECDSA signature.  Runs asynchronously if given a callback
 
 **Parameters**
-* pubKey - `Buffer`, the public key
 * mgs - `Buffer`, the 32-byte message hash being verified
 * sig - `Buffer`, the signature being verified
-
+* pubKey - `Buffer`, the public key
+* cb - a callback if you want to run async
+ 
 **Returns**: Integer,  
-   - 1: correct signature
-   - 0: incorrect signature
-   - -1: invalid public key
-   - -2: invalid signature
+   - true correct signature
+   - false incorrect signature
 
-secp256k1.recoverCompact(msg, sig, recid, compressed,  cb) 
+secp256k1.recover(msg, sig, compressed, [cb]) 
 -----------------------------
 Recover an ECDSA public key from a compact signature in the process also verifing it.  Runs asynchronously if given a callback
 
 **Parameters**
 * msg - `Buffer`, the message assumed to be signed
-* sig - `Buffer`, the signature as 64 byte buffer
-* recid - `Integer`, the recovery id (as returned by ecdsa_sign_compact)
-* compressed - `Boolean`, whether to recover a compressed or uncompressed pubkey
+* sig - `Buffer`, the signature
+* compressed - `Boolean`, whether to recover a compressed or uncompressed pubkey. Defaults to `true`
 * cb - `function`, Recover an ECDSA public key from a compact signature. In the process also verifing it.
 
 **Returns**: Buffer, the pubkey, a 33 or 65 byte buffer
@@ -183,21 +174,6 @@ secp256k1.privKeyTweakMul(privateKey, tweak)
 
 **Returns**: Buffer
 
-secp256k1.pubKeyTweakAdd(publicKey, tweak) 
------------------------------
-**Parameters**
-* publicKey - `Buffer`
-* tweak - `Buffer`
-
-**Returns**: `Buffer`
-
-secp256k1.pubKeyTweakMul(publicKey, tweak) 
------------------------------
-**Parameters**
-* publicKey - `Buffer`
-* tweak - `Buffer`
-
-**Returns**: `Buffer`
 
 LICENSE
 -----------------------------
