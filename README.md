@@ -22,7 +22,9 @@ If you have gmp installed secp256k1 will use it. Otherwise it should fallback to
 `git submodule update`  
 `npm install` 
 
-
+BROWSER
+===
+If you want an compatiable API use [secp256k1-browserify](https://github.com/wanderer/secp256k1-browserify). Or use [elliptic](https://github.com/indutny/elliptic) directly
 
 USAGE
 ===
