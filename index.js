@@ -57,9 +57,18 @@ exports.sign = function (msg, secretKey, DER, cb) {
   }
 
   var result
-  if (typeof cb === 'function')
-    secpNode.sign(pad32(msg), secretKey, DER, cb)
-  else {
+  if (typeof cb === 'function'){
+    secpNode.sign(pad32(msg), secretKey, DER, function(err, sig, recid){
+      if(!DER){
+        cb(err, {
+          signature: sig,
+          recovery: recid
+        })
+      }else{
+        cb(err, sig)
+      }
+    })
+  } else {
     var result = secpNode.sign(pad32(msg), secretKey, DER)
     if (DER)
       return result[0]

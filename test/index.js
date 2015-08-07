@@ -23,6 +23,7 @@ describe('it should handle basic ecdsa ops', function () {
 
   it('should sign a message with a DER sig', function () {
     var sig = ecdsaNative.sign(msg, privateKey, true)
+    console.log(sig);
     var s = ecdsa.parseSig(sig)
     assert(ecdsa.verify(msg, s, ck.publicKey), 'the message should verify')
   })
@@ -55,9 +56,7 @@ describe('it should handle basic ecdsa ops', function () {
     var sig2 = ecdsa.sign(msg, ck.privateKey)
     sig2 = new Buffer(ecdsa.serializeSig(sig2))
     var r = ecdsaNative.verify(msg, sig2, pubKey)
-    console.log(r)
     ecdsaNative.verify(msg, sig2, pubKey, function (result) {
-      console.log(result)
       assert(result, 'the result should equal one')
       done()
     })
@@ -80,11 +79,11 @@ describe('it should handle basic ecdsa ops', function () {
   })
 
   it('should create a compact signature async', function(done) {
-    ecdsaNative.sign(msg, privateKey, function(result, sig, recoveryId) {
+    ecdsaNative.sign(msg, privateKey, function(err, sig) {
       var s = {
-          r: BigInteger.fromBuffer(sig.slice(0, 32)),
-          s: BigInteger.fromBuffer(sig.slice(32, 64)),
-          v: recoveryId
+          r: BigInteger.fromBuffer(sig.signature.slice(0, 32)),
+          s: BigInteger.fromBuffer(sig.signature.slice(32, 64)),
+          v: sig.recovery
         },
         e = BigInteger.fromBuffer(msg),
         key = ecdsa.recoverPubKey(e, s, s.v)
