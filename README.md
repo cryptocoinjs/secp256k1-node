@@ -2,7 +2,7 @@ SYNOPSIS [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?bran
 ===
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.   
-This library is experimental, so use at your own risk.
+This library is experimental, so use at your own risk. Works on node version 0.11 or greater.
 
 INSTALL
 ===
