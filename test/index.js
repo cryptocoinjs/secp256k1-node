@@ -23,7 +23,6 @@ describe('it should handle basic ecdsa ops', function () {
 
   it('should sign a message with a DER sig', function () {
     var sig = ecdsaNative.sign(msg, privateKey, true)
-    console.log(sig);
     var s = ecdsa.parseSig(sig)
     assert(ecdsa.verify(msg, s, ck.publicKey), 'the message should verify')
   })
@@ -139,4 +138,13 @@ describe('invalid inputs', function() {
       done()
     }
   })
+
+  it('should not crash when given an undefined publickeys in verify', function(done){
+    try{
+      ecdsaNative.verify(msg, false)
+    }catch(e){
+      done()
+    }
+  })
+
 })

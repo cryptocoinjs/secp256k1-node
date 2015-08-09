@@ -103,6 +103,9 @@ exports.verify = function (msg, sig, pubKey, cb) {
   if (sig.length === 64)
     DER = false
 
+  if(!Buffer.isBuffer(pubKey))
+    throw new Error('the Public Key needs to be a buffer')
+
   if (cb) {
     secpNode.verify(pubKey, pad32(msg), sig, recid, DER, cb)
   } else
