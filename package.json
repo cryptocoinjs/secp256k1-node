@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "bindings": "^1.2.1",
-    "nan": "2.0.0"
+    "nan": "2.0.4"
   },
   "devDependencies": {
     "bigi": "^1.3.0",
