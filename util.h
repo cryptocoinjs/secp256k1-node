@@ -18,5 +18,6 @@ extern secp256k1_context_t * secp256k1ctx;
 
 void serialize_sig(bool DER, char *& output, int *outputlen, int *recid, secp256k1_ecdsa_signature_t *sig);
 int parse_sig(bool DER,  secp256k1_ecdsa_signature_t *sig, Local<Object> sig_buf, int recid=-1);
+Local<Object> localBuffer(char* data, int dataLen);
 
 #endif

@@ -34,10 +34,10 @@ class SignWorker : public Nan::AsyncWorker {
     int recid;
 
     serialize_sig(DER, output, &outputlen, &recid, &sig);
-
+      
     Local<Value> argv[3] = {
       Nan::New<Number>(result),
-      node::Buffer::New(output, outputlen),
+      localBuffer(output, size_t(outputlen)),
       Nan::New<Number>(recid)
     };
 
@@ -78,7 +78,7 @@ class RecoverWorker : public Nan::AsyncWorker {
 
     Local<Value> argv[] = {
       Nan::New<Number>(result),
-      node::Buffer::New((char *)output, outputlen)
+      localBuffer((char*)output, size_t(outputlen))
     };
     callback->Call(2, argv);
   }

@@ -32,3 +32,8 @@ int parse_sig(bool DER,  secp256k1_ecdsa_signature_t *sig, Local<Object> sig_buf
     return secp256k1_ecdsa_signature_parse_compact(secp256k1ctx, sig, sig_data, recid);
   }
 };
+
+Local<Object> localBuffer(char* data, int dataLen){
+   return Nan::CopyBuffer(data, size_t(dataLen)).ToLocalChecked();
+}
+

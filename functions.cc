@@ -1,3 +1,4 @@
+#include <iostream>
 #include <nan.h>
 #include <node.h>
 #include "./util.h"
@@ -61,9 +62,9 @@ NAN_METHOD(Sign){
       int recid;
 
       serialize_sig(DER, output, &outputlen, &recid, &sig);
-
+      
       Local<Array> results = Nan::New<Array>();
-      results->Set(0, node::Buffer::New(output, outputlen));
+      results->Set(0, localBuffer(output, size_t(outputlen)));
       results->Set(1, Nan::New<Number>(recid));
 
       delete output; //output was allocated by serialize_sig
@@ -103,7 +104,8 @@ NAN_METHOD(Recover){
       unsigned char output[65];
       int outputlen;
       secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, compressed);
-      info.GetReturnValue().Set(node::Buffer::New((char *)output, outputlen));
+
+      info.GetReturnValue().Set(localBuffer((char *)output, size_t(outputlen)));
     }else{
       info.GetReturnValue().Set(Nan::False());
     }
@@ -138,7 +140,8 @@ NAN_METHOD(Pubkey_Create){
     unsigned char output[65]; 
     int outputlen;
     secp256k1_ec_pubkey_serialize(secp256k1ctx, output, &outputlen, &pubkey, compressed);
-    info.GetReturnValue().Set(node::Buffer::New((char *)output, outputlen));
+
+    info.GetReturnValue().Set(localBuffer((char *)output, size_t(outputlen)));
   }
 }
 
@@ -157,7 +160,7 @@ NAN_METHOD(Privkey_Import){
   if(results == 0){
     return Nan::ThrowError("invalid private key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)outkey, 32));
+    info.GetReturnValue().Set(localBuffer((char *)outkey, 32));
   }
 }
 
@@ -173,7 +176,7 @@ NAN_METHOD(Privkey_Export){
   if(results == 0){
     return Nan::ThrowError("invalid private key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)outkey, outkey_len));
+    info.GetReturnValue().Set(localBuffer((char *)outkey, size_t(outkey_len)));
   }
 }
 
@@ -188,7 +191,7 @@ NAN_METHOD(Privkey_Tweak_Add){
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)seckey, 32));
+    info.GetReturnValue().Set(localBuffer((char *)seckey, 32));
   }
 }
 
@@ -203,7 +206,7 @@ NAN_METHOD(Privkey_Tweak_Mul){
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)seckey, 32));
+    info.GetReturnValue().Set(localBuffer((char *)seckey, 32));
   }
 }
 
@@ -227,7 +230,7 @@ NAN_METHOD(Pubkey_Tweak_Add){
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)pub_key, pub_len));
+    info.GetReturnValue().Set(localBuffer((char *)pub_key, pub_len));
   }
 }
 
@@ -251,6 +254,6 @@ NAN_METHOD(Pubkey_Tweak_Mul){
   if(results == 0){
     return Nan::ThrowError("invalid key");
   }else{
-    info.GetReturnValue().Set(node::Buffer::New((char *)pub_key, pub_len));
+    info.GetReturnValue().Set(localBuffer((char *)pub_key, pub_len));
   }
 }
