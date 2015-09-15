@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --reporter spec ./test/",
-    "install": "node-gyp rebuild"
+    "install": "git submodule update --init --recursive && node-gyp rebuild"
   },
   "dependencies": {
     "bindings": "^1.2.1",
