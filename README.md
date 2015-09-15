@@ -18,8 +18,6 @@ If you have gmp installed secp256k1 will use it. Otherwise it should fallback to
 
 `git clone git@github.com:wanderer/secp256k1-node.git`  
 `cd secp256k1-node`  
-`git submodule init`  
-`git submodule update`  
 `npm install` 
 
 BROWSER
