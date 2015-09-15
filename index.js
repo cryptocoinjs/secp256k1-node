@@ -1,14 +1,13 @@
-var crypto = require('crypto')
-
-function pad32(msg) {
+function pad32 (msg) {
   var buf
   if (msg.length < 32) {
     buf = new Buffer(32)
     buf.fill(0)
     msg.copy(buf, 32 - msg.length)
     return buf
-  } else
+  } else {
     return msg
+  }
 }
 
 /**
@@ -57,22 +56,22 @@ exports.sign = function (msg, secretKey, DER, cb) {
   }
 
   var result
-  if (typeof cb === 'function'){
-    secpNode.sign(pad32(msg), secretKey, DER, function(err, sig, recid){
-      if(!DER){
+  if (typeof cb === 'function') {
+    secpNode.sign(pad32(msg), secretKey, DER, function (err, sig, recid) {
+      if (!DER) {
         cb(err, {
           signature: sig,
           recovery: recid
         })
-      }else{
+      } else {
         cb(err, sig)
       }
     })
   } else {
-    var result = secpNode.sign(pad32(msg), secretKey, DER)
-    if (DER)
+    result = secpNode.sign(pad32(msg), secretKey, DER)
+    if (DER) {
       return result[0]
-    else {
+    } else {
       return {
         signature: result[0],
         recovery: result[1]
@@ -93,23 +92,26 @@ exports.sign = function (msg, secretKey, DER, cb) {
  *    - 0: incorrect signature
  */
 exports.verify = function (msg, sig, pubKey, cb) {
-
   var recid = recid ? sig.recovery : -1
 
-  if (sig.signature)
+  if (sig.signature) {
     sig = sig.signature
+  }
 
   var DER = true
-  if (sig.length === 64)
+  if (sig.length === 64) {
     DER = false
+  }
 
-  if(!Buffer.isBuffer(pubKey))
+  if (!Buffer.isBuffer(pubKey)) {
     throw new Error('the Public Key needs to be a buffer')
+  }
 
   if (cb) {
     secpNode.verify(pubKey, pad32(msg), sig, recid, DER, cb)
-  } else
+  } else {
     return secpNode.verify(pubKey, pad32(msg), sig, recid, DER)
+  }
 }
 
 /**
@@ -123,16 +125,16 @@ exports.verify = function (msg, sig, pubKey, cb) {
  * @return {Buffer} the pubkey, a 33 or 65 byte buffer
  */
 exports.recover = function (msg, sig, compressed, cb) {
-
   var recid = sig.recovery !== undefined ? sig.recovery : -1
 
-  if (sig.signature)
+  if (sig.signature) {
     sig = sig.signature
+  }
 
   var DER = true
-  if (sig.length === 64)
+  if (sig.length === 64) {
     DER = false
-
+  }
 
   if (typeof compressed === 'function') {
     cb = compressed
@@ -145,16 +147,18 @@ exports.recover = function (msg, sig, compressed, cb) {
 
   if (!DER && (recid < 0 || recid > 3)) {
     var error = new Error('recovery id must be >= 0 && recid <= 3')
-    if (typeof cb !== 'function')
+    if (typeof cb !== 'function') {
       throw error
-    else
+    } else {
       return cb(error)
+    }
   }
 
-  if (!cb)
+  if (!cb) {
     return secpNode.recover(pad32(msg), sig, recid, compressed, DER)
-  else
+  } else {
     secpNode.recover(pad32(msg), sig, recid, compressed, DER, cb)
+  }
 }
 
 /**
@@ -165,8 +169,9 @@ exports.recover = function (msg, sig, compressed, cb) {
  * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
  */
 exports.createPublicKey = function (secKey, compressed) {
-  if (!secKey)
+  if (!secKey) {
     throw new Error('invalid private key')
+  }
 
   compressed = compressed ? 1 : 0
   return secpNode.pubKeyCreate(secKey, compressed)
