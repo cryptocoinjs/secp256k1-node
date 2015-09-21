@@ -7,9 +7,9 @@ has_lib() {
   PATH="$PATH:/sbin"
   export PATH
   # Try using ldconfig on linux systems
-  for LINE in `which ldconfig > /dev/null && ldconfig -p 2>/dev/null | grep -E $regex`; do
-    return 0
-  done
+  # for LINE in `which ldconfig > /dev/null && ldconfig -p 2>/dev/null | grep -E $regex`; do
+  #   return 0
+  # done
 
   # Try just checking common library locations
   for dir in /lib /usr/lib /usr/local/lib /opt/local/lib /usr/lib/x86_64-linux-gnu /usr/lib/i386-linux-gnu; do
