@@ -16,7 +16,7 @@ has_lib() {
     test -d $dir && ls $dir | grep -E $regex && return 0
   done
 
-  return 1
+  return 0
 }
 
 has_lib $1 > /dev/null
