@@ -2,7 +2,7 @@
   "targets": [{
     "target_name": "secp256k1",
     "variables": {
-      "with_gmp%": "false"
+      "with_gmp%": "<!(./utils/has_lib.sh gmpxx)"
     },
     "sources": [
       "./functions.cc",
