@@ -2,7 +2,7 @@
   "targets": [{
     "target_name": "secp256k1",
     "variables": {
-      "with_gmp%": "<!(./utils/has_lib.sh gmpxx)"
+      "with_gmp%": "<!(./utils/has_lib.sh gmpxx && ./utils/has_lib.sh gmp)"
     },
     "sources": [
       "./functions.cc",
@@ -90,7 +90,15 @@
           ]
         }
       ],
-
+      [
+       'OS=="mac"', {
+          "defines": [
+            "HAVE_LIBGMP=0",
+            "USE_NUM_GMP=0",
+            "USE_FIELD_INV_NUM=0",
+            "USE_SCALAR_INV_NUM=0"
+          ]
+      }],
       [
         "OS=='win'", {
           "conditions": [
