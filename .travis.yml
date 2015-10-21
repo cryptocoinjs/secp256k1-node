@@ -1,7 +1,7 @@
 sudo: false
 os:
   - linux
-  - osx
+
 language: node_js
 node_js:
   - "0.11"
@@ -16,9 +16,3 @@ addons:
     packages:
     - g++-4.8
 
-before_install:
-  # nvm is not yet supported on osx, manually install
-  - git clone https://github.com/creationix/nvm.git /tmp/.nvm
-  - source /tmp/.nvm/nvm.sh
-  - nvm install $NODE_VERSION
-  - nvm use $NODE_VERSION
