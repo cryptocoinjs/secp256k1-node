@@ -47,6 +47,7 @@
       "-Wextra"
     ],
     "include_dirs": [
+      "/usr/local/include",
       "./secp256k1-src",
       "<!(node -e \"require('nan')\")"
     ],
@@ -92,11 +93,8 @@
       ],
       [
        'OS=="mac"', {
-          "defines": [
-            "HAVE_LIBGMP=0",
-            "USE_NUM_GMP=0",
-            "USE_FIELD_INV_NUM=0",
-            "USE_SCALAR_INV_NUM=0"
+          "libraries": [
+            "-L/usr/local/lib"
           ]
       }],
       [
