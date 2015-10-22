@@ -13,6 +13,8 @@
       "./secp256k1-src/src/ecdsa_impl.h",
       "./secp256k1-src/src/eckey.h",
       "./secp256k1-src/src/eckey_impl.h",
+      "./secp256k1-src/src/ecmult_const.h",
+      "./secp256k1-src/src/ecmult_const_impl.h",
       "./secp256k1-src/src/ecmult_gen.h",
       "./secp256k1-src/src/ecmult_gen_impl.h",
       "./secp256k1-src/src/ecmult.h",
@@ -37,7 +39,12 @@
       "./secp256k1-src/src/scalar_8x32_impl.h",
       "./secp256k1-src/src/scalar.h",
       "./secp256k1-src/src/scalar_impl.h",
-      "./secp256k1-src/src/util.h"
+      "./secp256k1-src/src/util.h",
+      "./secp256k1-src/src/modules/schnorr/main_impl.h",
+      "./secp256k1-src/src/modules/schnorr/schnorr_impl.h",
+      "./secp256k1-src/src/modules/schnorr/schnorr.h",
+      "./secp256k1-src/src/modules/ecdh/main_impl.h",
+      "./secp256k1-src/src/modules/recovery/main_impl.h"
     ],
     "cflags": [
       "-Wall",
@@ -49,6 +56,7 @@
     "include_dirs": [
       "/usr/local/include",
       "./secp256k1-src",
+      "./secp256k1-src/src",
       "<!(node -e \"require('nan')\")"
     ],
     "conditions": [
@@ -68,7 +76,8 @@
           "defines": [
             "USE_NUM_NONE=1",
             "USE_SCALAR_INV_BUILTIN=1",
-            "USE_FIELD_INV_BUILTIN=1"
+            "USE_FIELD_INV_BUILTIN=1",
+            "ENABLE_MODULE_RECOVERY=1"
           ]
         }
       ],
