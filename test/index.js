@@ -76,6 +76,10 @@ describe('it should handle basic ecdsa ops', function () {
     assert(key.getEncoded().toString('hex') === pubKey.toString('hex'), 'the recovered Key should be the same as the public key')
   })
 
+  it('should verify', function () {
+    assert(ecdsaNative.verify(msg, compactSig, pubKey))
+  })
+
   it('should create a compact signature async', function (done) {
     ecdsaNative.sign(msg, privateKey, function (err, sig) {
       var s = {
@@ -87,6 +91,13 @@ describe('it should handle basic ecdsa ops', function () {
         key = ecdsa.recoverPubKey(e, s, s.v)
 
       assert(key.getEncoded().toString('hex') === pubKey.toString('hex'), 'the recovered Key should be the same as the public key')
+      done()
+    })
+  })
+
+  it('should verify async', function (done) {
+    ecdsaNative.verify(msg, compactSig, pubKey, function (valid) {
+      assert(valid)
       done()
     })
   })
@@ -147,6 +158,15 @@ describe('invalid inputs', function () {
   it('should not crash when sign tx with undefined', function (done) {
     try {
       ecdsaNative.sign(null, null)
+    } catch(e) {
+      done()
+    }
+  })
+
+  it('should not crash when verifing a invalid siganature', function (done) {
+    try {
+      compactSig.recovery = -1
+      ecdsaNative.verify(msg, compactSig, pubKey)
     } catch(e) {
       done()
     }

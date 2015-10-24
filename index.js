@@ -92,7 +92,7 @@ exports.sign = function (msg, secretKey, DER, cb) {
  *    - 0: incorrect signature
  */
 exports.verify = function (msg, sig, pubKey, cb) {
-  var recid = recid ? sig.recovery : -1
+  var recid = sig.recovery
 
   if (sig.signature) {
     sig = sig.signature
@@ -101,6 +101,10 @@ exports.verify = function (msg, sig, pubKey, cb) {
   var DER = true
   if (sig.length === 64) {
     DER = false
+  }
+
+  if (!DER && (recid < 0 || recid > 3)) {
+    throw new Error('The recovery id is invalid. recid >= 0 && recid <= 3')
   }
 
   if (!Buffer.isBuffer(pubKey)) {
