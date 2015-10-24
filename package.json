@@ -1,6 +1,6 @@
 {
   "name": "secp256k1",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "main": "index.js",
   "scripts": {
@@ -37,8 +37,9 @@
   "contributors": [
     "Aaron Davis (https://github.com/kumavis)",
     "Ian Matyssik (https://github.com/phpb-com)",
-    "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
-    "ethers (https://github.com/ethers)"
+    "Kagami Hiiragi (http://kagami.genshiken.org/)",
+    "ethers (https://github.com/ethers)",
+    "Kirill Fomichev (https://github.com/fanatid)"
   ],
   "license": "MIT",
   "bugs": {
