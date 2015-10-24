@@ -5,6 +5,7 @@
 using namespace v8;
 
 #include "./secp256k1-src/include/secp256k1.h"
+#include "./secp256k1-src/include/secp256k1_recovery.h"
 
 /* secp256k1ctx context to be used for calling secp256k1 functions; it is safe
  * to use same context across all of the calls in this wrapper, as per comment
@@ -14,10 +15,10 @@ using namespace v8;
  * run simultaneously."""
  * Since all of the below functions accept const pointer of the CTX.
  */
-extern secp256k1_context_t * secp256k1ctx;
+extern secp256k1_context * secp256k1ctx;
 
-void serialize_sig(bool DER, char *& output, int *outputlen, int *recid, secp256k1_ecdsa_signature_t *sig);
-int parse_sig(bool DER,  secp256k1_ecdsa_signature_t *sig, Local<Object> sig_buf, int recid=-1);
+void serialize_sig(bool DER, char *& output, size_t *outputlen, int *recid, unsigned char *sig);
+int parse_sig(bool DER, secp256k1_ecdsa_signature *sig, Local<Object> sig_buf, int recid=-1);
 Local<Object> localBuffer(char* data, int dataLen);
 
 #endif

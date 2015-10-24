@@ -3,7 +3,6 @@
 
 #include "./util.h"
 #include "./functions.h"
-#include "./secp256k1-src/include/secp256k1.h"
 using namespace v8;
 
 
