@@ -2,11 +2,36 @@
   "name": "secp256k1",
   "version": "1.1.5",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
-  "main": "index.js",
+  "keywords": [
+    "secp256k1",
+    "ecdsa",
+    "ec"
+  ],
+  "bugs": {
+    "url": "https://github.com/wanderer/secp256k1-node/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "martin becze",
+    "email": "mjbecze@gmail.com"
+  },
+  "contributors": [
+    "Aaron Davis (https://github.com/kumavis)",
+    "Ian Matyssik (https://github.com/phpb-com)",
+    "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
+    "ethers (https://github.com/ethers)"
+  ],
+  "main": "./addon/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wanderer/secp256k1-node.git"
+  },
   "scripts": {
-    "test": "standard ./index.js && ./node_modules/mocha/bin/mocha --reporter spec ./test/",
+    "clean": "node-gyp clean",
     "install": "node-gyp rebuild",
-    "rebuild": "node-gyp rebuild"
+    "lint": "standard addon test",
+    "rebuild": "node-gyp rebuild",
+    "test": "mocha --reporter spec test"
   },
   "dependencies": {
     "bindings": "^1.2.1",
@@ -20,29 +45,6 @@
     "node-gyp": "^3.0.3",
     "secure-random": "^1.1.1",
     "standard": "^5.2.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wanderer/secp256k1-node.git"
-  },
-  "keywords": [
-    "secp256k1",
-    "ecdsa",
-    "ec"
-  ],
-  "author": {
-    "name": "martin becze",
-    "email": "mjbecze@gmail.com"
-  },
-  "contributors": [
-    "Aaron Davis (https://github.com/kumavis)",
-    "Ian Matyssik (https://github.com/phpb-com)",
-    "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
-    "ethers (https://github.com/ethers)"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wanderer/secp256k1-node/issues"
   },
   "gypfile": true
 }

@@ -1,26 +1,27 @@
 # API Reference (v0.2.x)
 
 - [`.secretKeyVerify(Buffer secretKey)`](#secretkeyverifybuffer-secretkey---boolean)
-- [`.secretKeyExport(Buffer secretKey)`](#secretkeyexportbuffer-secretkey---buffer)
-- [`.secretKeyImport(Buffer secretKey [, Boolean compressed = true])`](#secretkeyimportbuffer-secretkey--boolean-compressed--true---buffer)
+- [`.secretKeyExport(Buffer secretKey [, Boolean compressed = true])`](#secretkeyexportbuffer-secretkey--boolean-compressed--true---buffer)
+- [`.secretKeyImport(Buffer secretKey)`](#secretkeyimportbuffer-secretkey---buffer)
 - [`.secretKeyTweakAdd(Buffer secretKey, Buffer tweak)`](#secretkeytweakaddbuffer-secretkey-buffer-tweak---buffer)
 - [`.secretKeyTweakMul(Buffer secretKey, Buffer tweak)`](#secretkeytweakmulbuffer-secretkey-buffer-tweak---buffer)
-- [`.publicKeyCreate(Buffer secretKey [, Boolean compressed = true])`](#publickeycreatebuffer-secretkey--boolean-compressed--true---buffer)
+- [`.publicKeyCreate(Buffer secretKey)`](#publickeycreatebuffer-secretkey---buffer)
 - [`.publicKeyConvert(Buffer publicKey [, Boolean compressed = true])`](#publickeyconvertbuffer-publickey--boolean-compressed--true---buffer)
 - [`.publicKeyVerify(Buffer publicKey)`](#publickeyverifybuffer-publickey---boolean)
 - [`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak)`](#publickeytweakaddbuffer-publickey-buffer-tweak---buffer)
 - [`.publicKeyTweakMul(Buffer publicKey, Buffer tweak)`](#publickeytweakmulbuffer-publickey-buffer-tweak---buffer)
+- [`.publicKeyCombine(Array<Buffer> publicKeys)`](#publickeycombinearraybuffer-publickeys---buffer)
 - [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
 - [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
 - [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
-- [`.sign(Buffer msg, Buffer secretKey [, Function callback])`](#signbuffer-msg-buffer-secretkey--function-callback---promisebuffer)
-- [`.signSync(Buffer msg, Buffer secretKey)`](#signsyncbuffer-msg-buffer-secretkey---buffer)
+- [`.sign(Buffer msg, Buffer secretKey [, Function callback])`](#signbuffer-msg-buffer-secretkey--function-callback---promisesignature-buffer-recovery-number)
+- [`.signSync(Buffer msg, Buffer secretKey)`](#signsyncbuffer-msg-buffer-secretkey---signature-buffer-recovery-number)
 - [`.verify(Buffer msg, Buffer signature, Buffer publicKey [, Function callback])`](#verifybuffer-msg-buffer-signature-buffer-publickey--function-callback---promiseboolean)
 - [`.verifySync(Buffer msg, Buffer signature, Buffer publicKey)`](#verifysyncbuffer-msg-buffer-signature-buffer-publickey---boolean)
-- [`.recover(Buffer msg, Buffer signature [, Function callback])`](#recoverbuffer-msg-buffer-signature--function-callback---promisebuffer)
-- [`.recoverSync(Buffer msg, Buffer signature)`](#recoversyncbuffer-msg-buffer-signature---buffer)
-- [`.ecdh(Buffer secretKey, Buffer publicKey [, Function callback])`](#ecdhbuffer-secretkey-buffer-publickey--function-callback---promisebuffer)
-- [`.ecdhSync(Buffer secretKey, Buffer publicKey)`](#ecdhsyncbuffer-secretkey-buffer-publickey---buffer)
+- [`.recover(Buffer msg, Buffer signature, Number recovery [, Function callback])`](#recoverbuffer-msg-buffer-signature-number-recovery--function-callback---promisebuffer)
+- [`.recoverSync(Buffer msg, Buffer signature, Number recovery)`](#recoversyncbuffer-msg-buffer-signature-number-recovery---buffer)
+- [`.ecdh(Buffer publicKey, Buffer secretKey [, Function callback])`](#ecdhbuffer-publickey-buffer-secretkey--function-callback---promisebuffer)
+- [`.ecdhSync(Buffer publicKey, Buffer secretKey)`](#ecdhsyncbuffer-publickey-buffer-secretkey---buffer)
 
 #####`.secretKeyVerify(Buffer secretKey)` -> `Boolean`
 
@@ -28,13 +29,13 @@ Verify an ECDSA *secretKey*.
 
 <hr>
 
-#####`.secretKeyExport(Buffer secretKey)` -> `Buffer`
+#####`.secretKeyExport(Buffer secretKey [, Boolean compressed = true])` -> `Buffer`
 
 Export a *secretKey* in DER format.
 
 <hr>
 
-#####`.secretKeyImport(Buffer secretKey [, Boolean compressed = true])` -> `Buffer`
+#####`.secretKeyImport(Buffer secretKey)` -> `Buffer`
 
 Import a *secretKey* in DER format.
 
@@ -52,7 +53,7 @@ Tweak a *secretKey* by multiplying it by a *tweak*.
 
 <hr>
 
-#####`.publicKeyCreate(Buffer secretKey [, Boolean compressed = true])` -> `Buffer`
+#####`.publicKeyCreate(Buffer secretKey)` -> `Buffer`
 
 Compute the public key for a *secretKey*.
 
@@ -82,6 +83,12 @@ Tweak a *publicKey* by multiplying it by a *tweak* value.
 
 <hr>
 
+#####`.publicKeyCombine(Array<Buffer> publicKeys)` -> `Buffer`
+
+Add a given *publicKeys* together.
+
+<hr>
+
 #####`.signatureNormalize(Buffer signature)` -> `Buffer`
 
 Convert a *signature* to a normalized lower-S form.
@@ -100,15 +107,15 @@ Parse a DER ECDSA *signature*.
 
 <hr>
 
-#####`.sign(Buffer msg, Buffer secretKey [, Function callback])` -> `Promise<Buffer>`
+#####`.sign(Buffer msg, Buffer secretKey [, Function callback])` -> `Promise<{signature: Buffer, recovery: number}>`
 
 Create an ECDSA signature.
 
 <hr>
 
-#####`.signSync(Buffer msg, Buffer secretKey)` -> `Buffer`
+#####`.signSync(Buffer msg, Buffer secretKey)` -> `{signature: Buffer, recovery: number}`
 
-Synchronous [.sign](#signbuffer-msg-buffer-secretkey--function-callback---promisebuffer). Returns an instance of `Buffer`. 
+Synchronous [.sign](#signbuffer-msg-buffer-secretkey--function-callback---promisesignature-buffer-recovery-number). Returns an object `{signature: Buffer, recovery: number}`.
 
 <hr>
 
@@ -120,28 +127,28 @@ Verify an ECDSA signature.
 
 #####`.verifySync(Buffer msg, Buffer signature, Buffer publicKey` -> `Boolean`
 
-Synchronous [.verify](#verifybuffer-msg-buffer-signature-buffer-publickey--function-callback---promiseboolean). Returns a `Boolean`. 
+Synchronous [.verify](#verifybuffer-msg-buffer-signature-buffer-publickey--function-callback---promiseboolean). Returns a `Boolean`.
 
 <hr>
 
-#####`.recover(Buffer msg, Buffer signature [, Function callback]` -> `Promise<Buffer>`
+#####`.recover(Buffer msg, Buffer signature, Number recovery [, Function callback]` -> `Promise<Buffer>`
 
 Recover an ECDSA public key from a signature.
 
 <hr>
 
-#####`.recoverSync(Buffer msg, Buffer signature)` -> `Buffer`
+#####`.recoverSync(Buffer msg, Buffer signature, Number recovery)` -> `Buffer`
 
-Synchronous [.recover](#recoverbuffer-msg-buffer-signature--function-callback---promisebuffer). Returns an instance of `Buffer`. 
+Synchronous [.recover](#recoverbuffer-msg-buffer-signature-number-recovery--function-callback---promisebuffer). Returns an instance of `Buffer`.
 
 <hr>
 
-#####`.ecdh(Buffer secretKey, Buffer publicKey [, Function callback])` -> `Promise<Buffer>`
+#####`.ecdh(Buffer publicKey, Buffer secretKey [, Function callback])` -> `Promise<Buffer>`
 
 Compute an EC Diffie-Hellman secret.
 
 <hr>
 
-#####`.ecdhSync(Buffer secretKey, Buffer publicKey)` -> `Buffer`
+#####`.ecdhSync(Buffer publicKey, Buffer secretKey)` -> `Buffer`
 
-Synchronous [.ecdh](#ecdhbuffer-secretkey-buffer-publickey--function-callback---promisebuffer). Returns an instance of `Buffer`. 
+Synchronous [.ecdh](#ecdhbuffer-publickey-buffer-secretkey--function-callback---promisebuffer). Returns an instance of `Buffer`.
