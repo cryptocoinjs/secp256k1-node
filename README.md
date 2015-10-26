@@ -150,14 +150,6 @@ secp256k1.importPrivateKey(privateKey)
 
 **Returns**: `Buffer`, secretKey
 
-secp256k1.decompressPublickey(secretKey) 
------------------------------
-
-**Parameters**
-* secretKey - `Buffer`
-
-**Returns**: `Buffer`, This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
-
 secp256k1.privKeyTweakAdd(secretKey) 
 -----------------------------
 **Parameters**
