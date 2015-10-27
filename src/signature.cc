@@ -49,9 +49,9 @@ NAN_METHOD(signatureImport) {
 
   secp256k1_ecdsa_signature sig;
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
+  const unsigned char* input = (const unsigned char*) node::Buffer::Data(sig_buffer);
   size_t inputlen = node::Buffer::Length(sig_buffer);
-  if (secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, &input[0], inputlen) == 0) {
+  if (secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, inputlen) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_DER_FAIL);
   }
 

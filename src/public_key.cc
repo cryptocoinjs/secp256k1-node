@@ -10,8 +10,13 @@ extern secp256k1_context* secp256k1ctx;
 NAN_METHOD(publicKeyCreate) {
   Nan::HandleScope scope;
 
+  v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
+  if (node::Buffer::Length(seckey_buffer) != 32) {
+    return Nan::ThrowError(PRIVKEY_LENGTH_INVALID);
+  }
+
   secp256k1_pubkey pubkey;
-  const unsigned char* seckey = (unsigned char*) node::Buffer::Data(info[0].As<v8::Object>());
+  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
   int results = secp256k1_ec_pubkey_create(secp256k1ctx, &pubkey, seckey);
   if(results == 0) {
     return Nan::ThrowError(EC_PUBKEY_CREATE_FAIL);
@@ -57,7 +62,12 @@ NAN_METHOD(publicKeyTweakAdd) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
 
-  const unsigned char* tweak = (unsigned char *) node::Buffer::Data(info[1].As<v8::Object>());
+  v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
+  if (node::Buffer::Length(tweak_buffer) != 32) {
+    return Nan::ThrowError(TWEAK_LENGTH_INVALID);
+  }
+
+  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
   int results = secp256k1_ec_pubkey_tweak_add(secp256k1ctx, &pubkey, tweak);
   if (results == 0) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_ADD_FAIL);
@@ -78,7 +88,12 @@ NAN_METHOD(publicKeyTweakMul) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
 
-  const unsigned char* tweak = (unsigned char *) node::Buffer::Data(info[1].As<v8::Object>());
+  v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
+  if (node::Buffer::Length(tweak_buffer) != 32) {
+    return Nan::ThrowError(TWEAK_LENGTH_INVALID);
+  }
+
+  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
   int results = secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, &pubkey, tweak);
   if (results == 0) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_MUL_FAIL);

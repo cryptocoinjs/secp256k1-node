@@ -1,6 +1,10 @@
 #ifndef _SECP256K1_NODE_MESSAGES_
 # define _SECP256K1_NODE_MESSAGES_
 
+#define PRIVKEY_LENGTH_INVALID "seckey length is invalid"
+#define MSG32_LENGTH_INVALID "message length is invalid"
+#define TWEAK_LENGTH_INVALID "tweak length is invalid"
+
 #define EC_PRIVKEY_TWEAK_ADD_FAIL "tweak out of range or resulting secret key is invalid"
 #define EC_PRIVKEY_TWEAK_MUL_FAIL "tweak out of range"
 
