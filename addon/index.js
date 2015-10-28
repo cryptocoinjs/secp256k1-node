@@ -1,236 +1,291 @@
-function pad32 (msg) {
-  var buf
-  if (msg.length < 32) {
-    buf = new Buffer(32)
-    buf.fill(0)
-    msg.copy(buf, 32 - msg.length)
-    return buf
-  } else {
-    return msg
-  }
-}
+var setImmediate = require('timers').setImmediate
+
+exports.Promise = require('../js/promise')
 
 /**
  * This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions
  * @module secp256k1
  */
-
-var secpNode = require('bindings')('secp256k1')
+var secp256k1 = require('bindings')('secp256k1')
 
 /**
  * Verify an ECDSA secret key.
  * @method verifySecetKey
  * @param {Buffer} sercetKey the sercet Key to verify
- * @return {Boolean}  `true` if sercet key is valid, `false` sercet key is invalid
+ * @return {boolean} `true` if sercet key is valid, `false` otherwise
  */
-exports.verifySecretKey = function (sercetKey) {
-  return Boolean(secpNode.secKeyVerify(sercetKey))
-}
+exports.secretKeyVerify = secp256k1.secretKeyVerify
 
 /**
- * Verify an ECDSA public key.
- * @method verifyPublicKey
- * @param {Buffer} publicKey the public Key to verify
- * @return {Boolean} `true` if public key is valid, `false` sercet key is invalid
+ * Export a secret key in DER format.
+ * @method secretKeyExport
+ * @param {Buffer} sercetKey the sercet key to export
+ * @param {boolean} [compressed=true]
+ * @return {Buffer}
  */
-exports.verifyPublicKey = function (publicKey) {
-  return Boolean(secpNode.pubKeyVerify(publicKey))
-}
-
-/**
- * Create an ECDSA signature.
- * @method sign
- * @param  {Buffer} secretkey a 32-byte secret key (assumed to be valid)
- * @param {Buffer} msg he message being signed
- * @param {Function} cb the callback given. The callback is given the signature
- * @returns {Buffer} if no callback is given a 72-byte signature is returned
- */
-exports.sign = function (msg, secretKey, DER, cb) {
-  if (typeof DER === 'function') {
-    cb = DER
-    DER = false
-  }
-
-  if (!DER) {
-    DER = false
-  }
-
-  var result
-  if (typeof cb === 'function') {
-    secpNode.sign(pad32(msg), secretKey, DER, function (err, sig, recid) {
-      if (!DER) {
-        cb(err, {
-          signature: sig,
-          recovery: recid
-        })
-      } else {
-        cb(err, sig)
-      }
-    })
-  } else {
-    result = secpNode.sign(pad32(msg), secretKey, DER)
-    if (DER) {
-      return result[0]
-    } else {
-      return {
-        signature: result[0],
-        recovery: result[1]
-      }
-    }
-  }
-}
-
-/**
- * Verify an ECDSA signature.
- * @method verify
- * @param {Buffer} mgs the message
- * @param {Buffer|Object} sig the signature
- * @param {Buffer} pubKey the public key
- * @return {Integer}
- *
- *    - 1: correct signature
- *    - 0: incorrect signature
- */
-exports.verify = function (msg, sig, pubKey, cb) {
-  var recid = sig.recovery
-
-  if (sig.signature) {
-    sig = sig.signature
-  }
-
-  var DER = true
-  if (sig.length === 64) {
-    DER = false
-  }
-
-  if (!DER && (recid < 0 || recid > 3)) {
-    throw new Error('The recovery id is invalid. recid >= 0 && recid <= 3')
-  }
-
-  if (!Buffer.isBuffer(pubKey)) {
-    throw new Error('the Public Key needs to be a buffer')
-  }
-
-  if (cb) {
-    secpNode.verify(pubKey, pad32(msg), sig, recid, DER, cb)
-  } else {
-    return secpNode.verify(pubKey, pad32(msg), sig, recid, DER)
-  }
-}
-
-/**
- * Recover an ECDSA public key from a compact signature. In the process also verifing it.
- * @method recoverCompact
- * @param {Buffer} msg the message assumed to be signed
- * @param {Buffer} sig the signature as 64 byte buffer
- * @param {Integer} recid the recovery id (as returned by ecdsa_sign_compact)
- * @param {Boolean} compressed whether to recover a compressed or uncompressed pubkey
- * @param {Function} [cb]
- * @return {Buffer} the pubkey, a 33 or 65 byte buffer
- */
-exports.recover = function (msg, sig, compressed, cb) {
-  var recid = sig.recovery !== undefined ? sig.recovery : -1
-
-  if (sig.signature) {
-    sig = sig.signature
-  }
-
-  var DER = true
-  if (sig.length === 64) {
-    DER = false
-  }
-
-  if (typeof compressed === 'function') {
-    cb = compressed
-    compressed = true
-  }
-
+exports.secretKeyExport = function (secretKey, compressed) {
   if (compressed === undefined) {
     compressed = true
   }
 
-  if (!DER && (recid < 0 || recid > 3)) {
-    var error = new Error('recovery id must be >= 0 && recid <= 3')
-    if (typeof cb !== 'function') {
-      throw error
-    } else {
-      return cb(error)
-    }
-  }
-
-  if (!cb) {
-    return secpNode.recover(pad32(msg), sig, recid, compressed, DER)
-  } else {
-    secpNode.recover(pad32(msg), sig, recid, compressed, DER, cb)
-  }
+  return secp256k1.secretKeyExport(secertKey, compressed)
 }
+
+/**
+ * Import a secret key in DER format.
+ * @method secretKeyImport
+ * @param {Buffer} sercetKey the sercet key to import
+ * @return {Buffer}
+ */
+exports.secretKeyImport = secp256k1.secretKeyImport
+
+/**
+ * Tweak a secret key by adding tweak to it.
+ * @method secretKeyTweakAdd
+ * @param {Buffer} sercetKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.secretKeyTweakAdd = secp256k1.secretKeyTweakAdd
+
+/**
+ * Tweak a secret key by multiplying tweak to it.
+ * @method secretKeyTweakMul
+ * @param {Buffer} sercetKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.secretKeyTweakMul = secp256k1.secretKeyTweakMul
 
 /**
  * Compute the public key for a secret key.
- * @method createPubKey
- * @param {Buffer} secKey a 32-byte private key.
- * @param {Boolean} [compressed=0] whether the computed public key should be compressed
- * @return {Buffer} a 33-byte (if compressed) or 65-byte (if uncompressed) area to store the public key.
+ * @method publicKeyCreate
+ * @param {Buffer} secretKey a 32-byte private key
+ * @return {Buffer} a 33-byte public key
  */
-exports.createPublicKey = function (secKey, compressed) {
-  if (!secKey) {
-    throw new Error('invalid private key')
+exports.publicKeyCreate = secp256k1.publicKeyCreate
+
+/**
+ * Convert a publicKey to compressed or uncompressed form.
+ * @method publicKeyConvert
+ * @param {Buffer} secretKey a 32-byte private key
+ * @param {boolean} [compressed=true]
+ * @return {Buffer} a 33-byte or 65-byte public key
+ */
+exports.publicKeyConvert = function (secretKey, compressed) {
+  if (compressed === undefined) {
+    compressed = true
   }
 
-  compressed = compressed ? 1 : 0
-  return secpNode.pubKeyCreate(secKey, compressed)
+  return secp256k1.publicKeyConvert(secertKey, compressed)
 }
 
 /**
- * @method exportPrivateKey
- * @param {Buffer} secertKey
- * @param {Boolean} compressed
- * @return {Buffer} privateKey
+ * Verify an ECDSA public key.
+ * @method publicKeyVerify
+ * @param {Buffer} publicKey the public key to verify
+ * @return {Boolean}
  */
-exports.exportPrivateKey = secpNode.privKeyExport
+exports.publicKeyVerify = secp256k1.publicKeyVerify
 
 /**
- * @method importPrivateKey
- * @param {Buffer} privateKey
- * @return {Buffer} secertKey
+ * Tweak a public key by adding tweak times the generator to it.
+ * @method publicKeyTweakAdd
+ * @param {Buffer} publicKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
  */
-exports.importPrivateKey = secpNode.privKeyImport
+exports.publicKeyTweakAdd = secp256k1.publicKeyTweakAdd
 
 /**
- * @method decompressPublickey
+ * Tweak a public key by multiplying tweak to it.
+ * @method publicKeyTweakMul
+ * @param {Buffer} publicKey
+ * @param {Buffer} tweak
+ * @return {Buffer}
+ */
+exports.publicKeyTweakMul = secp256k1.publicKeyTweakMul
+
+/**
+ * Add a given public keys together.
+ * @method publicKeyCombine
+ * @param {Buffer[]} publicKeys
+ * @return {Buffer}
+ */
+exports.publicKeyCombine = secp256k1.publicKeyCombine
+
+/**
+ * Convert a signature to a normalized lower-S form.
+ * @method signatureNormalize
+ * @param {Buffer} signature
+ * @return {Buffer}
+ */
+exports.signatureNormalize = secp256k1.signatureNormalize
+
+/**
+ * Serialize an ECDSA signature in DER format.
+ * @method signatureExport
+ * @param {Buffer} signature
+ * @return {Buffer}
+ */
+exports.signatureExport = secp256k1.signatureExport
+
+/**
+ * Parse a DER ECDSA signature.
+ * @method signatureImport
+ * @param {Buffer} signature
+ * @return {Buffer}
+ */
+exports.signatureImport = secp256k1.signatureImport
+
+/**
+ * Create an ECDSA signature.
+ * @method sign
+ * @param {Buffer} msg
+ * @param {Buffer} secretKey
+ * @param {function} [callback]
+ * @return {Promise<{signature: Buffer, recovery: number}>}
+ */
+exports.sign = function (msg, secertKey, callback) {
+  if (callback !== undefined && typeof callback !== 'function') {
+    throw new TypeError('callback must be a function')
+  }
+
+  return new exports.Promise(function (resolve, reject) {
+    secp256k1.sign(msg, secertKey, function (err, signature) {
+      if (callback !== undefined) {
+        setImmediate(callback, err, signature)
+      }
+
+      if (err === null) {
+        resolve(signature)
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
+/**
+ * Synchronous .sign
+ * @method signSync
+ * @param {Buffer} msg
+ * @param {Buffer} secretKey
+ * @return {{signature: Buffer, recovery: number}}
+ */
+exports.signSync = secp256k1.signSync
+
+/**
+ * Verify an ECDSA signature.
+ * @method verify
+ * @param {Buffer} msg
+ * @param {Buffer} signature
+ * @param {Buffer} publicKey
+ * @param {function} [callback]
+ * @return {Promise<boolean>}
+ */
+exports.verify = function (msg, signature, publicKey, callback) {
+  if (callback !== undefined && typeof callback !== 'function') {
+    throw new TypeError('callback must be a function')
+  }
+
+  return new exports.Promise(function (resolve, reject) {
+    secp256k1.verify(msg, signature, publicKey, function (err, result) {
+      if (callback !== undefined) {
+        setImmediate(callback, err, result)
+      }
+
+      if (err === null) {
+        resolve(result)
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
+/**
+ * Synchronous .verify
+ * @method verifySync
+ * @param {Buffer} msg
+ * @param {Buffer} signature
+ * @param {Buffer} publicKey
+ * @return {boolean}
+ */
+exports.verifySync = secp256k1.verifySync
+
+/**
+ * Recover an ECDSA public key from a signature.
+ * @method recover
+ * @param {Buffer} msg
+ * @param {Buffer} signature
+ * @param {number} recovery
+ * @param {function} [callback]
+ * @return {Promise<Buffer>}
+ */
+exports.recover = function (msg, signature, recovery, callback) {
+  if (callback !== undefined && typeof callback !== 'function') {
+    throw new TypeError('callback must be a function')
+  }
+
+  return new exports.Promise(function (resolve, reject) {
+    secp256k1.recover(msg, signature, recovery, function (err, publicKey) {
+      if (callback !== undefined) {
+        setImmediate(callback, err, publicKey)
+      }
+
+      if (err === null) {
+        resolve(publicKey)
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
+/**
+ * Synchronous .recover
+ * @method recoverSync
+ * @param {Buffer} msg
+ * @param {Buffer} signature
+ * @param {number} recovery
+ * @return {Buffer}
+ */
+exports.recoverSync = secp256k1.recoverSync
+
+/**
+ * Compute an EC Diffie-Hellman secret.
+ * @method ecdh
+ * @param {Buffer} publicKey
+ * @param {Buffer} secretKey
+ * @param {function} [callback]
+ * @return {Promise<Buffer>}
+ */
+exports.ecdh = function (publicKey, secretKey, callback) {
+  if (callback !== undefined && typeof callback !== 'function') {
+    throw new TypeError('callback must be a function')
+  }
+
+  return new exports.Promise(function (resolve, reject) {
+    secp256k1.ecdh(publicKey, secretKey, function (err, result) {
+      if (callback !== undefined) {
+        setImmediate(callback, err, result)
+      }
+
+      if (err === null) {
+        resolve(result)
+      } else {
+        reject(err)
+      }
+    })
+  })
+}
+
+/**
+ * Synchronous .ecdh
+ * @method recoverSync
+ * @param {Buffer} publicKey
  * @param {Buffer} secretKey
  * @return {Buffer}
  */
-exports.decompressPublicKey = secpNode.pubKeyDecompress
-
-/**
- * @method privKeyTweakAdd
- * @param {Buffer} privateKey
- * @param {Buffer} tweak
- * @return {Buffer}
- */
-exports.privKeyTweakAdd = secpNode.privKeyTweakAdd
-
-/**
- * @method privKeyTweakMul
- * @param {Buffer} privateKey
- * @param {Buffer} tweak
- * @return {Buffer}
- */
-exports.privKeyTweakMul = secpNode.privKeyTweakMul
-
-/**
- * @method pubKeyTweakAdd
- * @param {Buffer} publicKey
- * @param {Buffer} tweak
- * @return {Buffer}
- */
-exports.pubKeyTweakAdd = secpNode.pubKeyTweakAdd
-
-/**
- * @method pubKeyTweakMul
- * @param {Buffer} publicKey
- * @param {Buffer} tweak
- * @return {Buffer}
- */
-exports.pubKeyTweakMul = secpNode.pubKeyTweakMul
+exports.ecdhSync = secp256k1.ecdhSync
