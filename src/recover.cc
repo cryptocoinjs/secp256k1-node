@@ -11,16 +11,21 @@ extern secp256k1_context* secp256k1ctx;
 
 class RecoverWorker : public Nan::AsyncWorker {
   public:
-    RecoverWorker(v8::Local<v8::Object> msg32_buffer, v8::Local<v8::Object> sig_buffer, int recid, Nan::Callback* callback)
+    RecoverWorker(v8::Local<v8::Object> msg32_buffer, v8::Local<v8::Object> sig_buffer, v8::Local<v8::Object> recid, Nan::Callback* callback)
       : Nan::AsyncWorker(callback), msg32_buffer(msg32_buffer), sig_buffer(sig_buffer), recid(recid) {}
 
     void Execute () {
-      if (node::Buffer::Length(msg32_buffer) != 32) {
-        return SetErrorMessage(MSG32_LENGTH_INVALID);
-      }
+      CHECK_ASYNC(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
+
+      CHECK_ASYNC(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+
+      CHECK_ASYNC(sig_buffer->IsNumber(), ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
 
       secp256k1_ecdsa_recoverable_signature sig;
-      if (recoverable_signature_buffer_parse(sig_buffer, recid, &sig) == 0) {
+      const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
+      if (secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1ctx, &sig, input, recid->Int32Value()) == 0) {
         return SetErrorMessage(ECDSA_SIGNATURE_PARSE_FAIL);
       }
 
@@ -40,7 +45,7 @@ class RecoverWorker : public Nan::AsyncWorker {
 
       v8::Local<v8::Value> argv[] = {
         Nan::Null(),
-        copyBuffer((const char*) &output[0], 33)
+        Nan::CopyBuffer((const char*) &output[0], 33).ToLocalChecked()
       };
 
       callback->Call(2, argv);
@@ -49,18 +54,21 @@ class RecoverWorker : public Nan::AsyncWorker {
   protected:
     v8::Local<v8::Object> msg32_buffer;
     v8::Local<v8::Object> sig_buffer;
-    int recid;
+    v8::Local<v8::Object> recid;
     unsigned char output[33];
 };
 
 NAN_METHOD(recover) {
   Nan::HandleScope scope;
 
+  v8::Local<v8::Function> callback = info[2].As<v8::Function>();
+  CHECK(callback->IsFunction(), CALLBACK_TYPE_INVALID);
+
   RecoverWorker* worker = new RecoverWorker(
     info[0].As<v8::Object>(),
     info[1].As<v8::Object>(),
-    info[2]->IntegerValue(),
-    new Nan::Callback(info[3].As<v8::Function>()));
+    info[2].As<v8::Object>(),
+    new Nan::Callback(callback));
 
   Nan::AsyncQueueWorker(worker);
 }
@@ -69,12 +77,19 @@ NAN_METHOD(recoverSync) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
-  if (node::Buffer::Length(msg32_buffer) != 32) {
-    return Nan::ThrowError(MSG32_LENGTH_INVALID);
-  }
+  CHECK(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+  CHECK(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
+
+  v8::Local<v8::Object> sig_buffer = info[1].As<v8::Object>();
+  CHECK(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+
+  v8::Local<v8::Object> recid = info[2].As<v8::Object>();
+  CHECK(sig_buffer->IsNumber(), ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
 
   secp256k1_ecdsa_recoverable_signature sig;
-  if (recoverable_signature_buffer_parse(info[1].As<v8::Object>(), info[2]->IntegerValue(), &sig) == 0) {
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
+  if (secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1ctx, &sig, input, recid->Int32Value()) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_FAIL);
   }
 
@@ -87,5 +102,5 @@ NAN_METHOD(recoverSync) {
   unsigned char output[33];
   size_t outputlen;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
-  info.GetReturnValue().Set(copyBuffer((const char* ) &output[0], 33));
+  info.GetReturnValue().Set(Nan::CopyBuffer((const char*) &output[0], 33).ToLocalChecked());
 }

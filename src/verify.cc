@@ -10,21 +10,29 @@ extern secp256k1_context* secp256k1ctx;
 
 class VerifyWorker : public Nan::AsyncWorker {
   public:
-    VerifyWorker(v8::Local<v8::Object> sig_buffer, v8::Local<v8::Object> msg32_buffer, v8::Local<v8::Object> pubkey_buffer, Nan::Callback* callback)
-      : Nan::AsyncWorker(callback), sig_buffer(sig_buffer), msg32_buffer(msg32_buffer), pubkey_buffer(pubkey_buffer) {}
+    VerifyWorker(v8::Local<v8::Object> msg32_buffer, v8::Local<v8::Object> sig_buffer, v8::Local<v8::Object> pubkey_buffer, Nan::Callback* callback)
+      : Nan::AsyncWorker(callback), msg32_buffer(msg32_buffer), sig_buffer(sig_buffer), pubkey_buffer(pubkey_buffer) {}
 
     void Execute () {
+      CHECK_ASYNC(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
+
+      CHECK_ASYNC(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+
       secp256k1_ecdsa_signature sig;
-      if (signature_buffer_parse(sig_buffer, &sig) == 0) {
+      const unsigned char* sig_input = (unsigned char*) node::Buffer::Data(sig_buffer);
+      if (secp256k1_ecdsa_signature_parse_compact(secp256k1ctx, &sig, sig_input) == 0) {
         return SetErrorMessage(ECDSA_SIGNATURE_PARSE_FAIL);
       }
 
-      if (node::Buffer::Length(msg32_buffer) != 32) {
-        return SetErrorMessage(MSG32_LENGTH_INVALID);
-      }
+      CHECK_ASYNC(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
       secp256k1_pubkey pubkey;
-      if (pubkey_buffer_parse(pubkey_buffer, &pubkey) == 0) {
+      const unsigned char* pubkey_input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+      size_t pubkey_inputlen = node::Buffer::Length(pubkey_buffer);
+      if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, pubkey_input, pubkey_inputlen) == 0) {
         return SetErrorMessage(EC_PUBKEY_PARSE_FAIL);
       }
 
@@ -44,8 +52,8 @@ class VerifyWorker : public Nan::AsyncWorker {
     }
 
   protected:
-    v8::Local<v8::Object> sig_buffer;
     v8::Local<v8::Object> msg32_buffer;
+    v8::Local<v8::Object> sig_buffer;
     v8::Local<v8::Object> pubkey_buffer;
     int result;
 };
@@ -54,11 +62,14 @@ class VerifyWorker : public Nan::AsyncWorker {
 NAN_METHOD(verify) {
   Nan::HandleScope scope;
 
+  v8::Local<v8::Function> callback = info[2].As<v8::Function>();
+  CHECK(callback->IsFunction(), CALLBACK_TYPE_INVALID);
+
   VerifyWorker* worker = new VerifyWorker(
     info[0].As<v8::Object>(),
     info[1].As<v8::Object>(),
     info[2].As<v8::Object>(),
-    new Nan::Callback(info[3].As<v8::Function>()));
+    new Nan::Callback(callback));
 
   Nan::AsyncQueueWorker(worker);
 }
@@ -66,18 +77,28 @@ NAN_METHOD(verify) {
 NAN_METHOD(verifySync) {
   Nan::HandleScope scope;
 
+  v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
+  CHECK(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+  CHECK(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
+
+  v8::Local<v8::Object> sig_buffer = info[1].As<v8::Object>();
+  CHECK(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+
   secp256k1_ecdsa_signature sig;
-  if (signature_buffer_parse(info[1].As<v8::Object>(), &sig) == 0) {
+  const unsigned char* sig_input = (unsigned char*) node::Buffer::Data(sig_buffer);
+  if (secp256k1_ecdsa_signature_parse_compact(secp256k1ctx, &sig, sig_input) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_FAIL);
   }
 
-  v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
-  if (node::Buffer::Length(msg32_buffer) != 32) {
-    return Nan::ThrowError(MSG32_LENGTH_INVALID);
-  }
+  v8::Local<v8::Object> pubkey_buffer = info[2].As<v8::Object>();
+  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
-  if (pubkey_buffer_parse(info[2].As<v8::Object>(), &pubkey) == 0) {
+  const unsigned char* pubkey_input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+  size_t pubkey_inputlen = node::Buffer::Length(pubkey_buffer);
+  if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, pubkey_input, pubkey_inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
 
