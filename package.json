@@ -21,31 +21,49 @@
     "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
     "ethers (https://github.com/ethers)"
   ],
-  "main": "./addon/index.js",
+  "main": "./lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/wanderer/secp256k1-node.git"
   },
   "scripts": {
     "clean": "node-gyp clean",
-    "install": "node-gyp rebuild",
-    "lint": "standard addon test",
+    "install": "npm run rebuild",
+    "lint": "eslint src test",
     "rebuild": "node-gyp rebuild",
-    "test": "mocha --reporter spec test"
+    "test": "npm run test:node && npm run test:browser",
+    "test:browser": "karma start karma.conf.js",
+    "test:node": "istanbul test mocha -- --reporter spec"
   },
   "dependencies": {
     "bindings": "^1.2.1",
-    "bluebird": "^3.0.1",
+    "bluebird": "^3.0.2",
+    "elliptic": "^6.0.0",
     "nan": "^2.0.9"
   },
   "devDependencies": {
     "bigi": "^1.3.0",
+    "bn.js": "^4.1.0",
+    "chai": "^3.4.0",
     "coinkey": "^1.3.0",
+    "coveralls": "^2.11.4",
     "ecdsa": "^0.6.0",
-    "mocha": "^2.2.5",
+    "eslint": "^1.7.3",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
+    "istanbul": "^0.4.0",
+    "karma": "^0.13.14",
+    "karma-browserify": "^4.4.0",
+    "karma-chrome-launcher": "^0.2.1",
+    "karma-detect-browsers": "^2.0.2",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-mocha": "^0.2.0",
+    "mocha": "^2.3.3",
     "node-gyp": "^3.0.3",
-    "secure-random": "^1.1.1",
-    "standard": "^5.2.2"
+    "secure-random": "^1.1.1"
   },
-  "gypfile": true
+  "gypfile": true,
+  "browser": {
+    "./lib/index.js": "./lib/index-browser.js"
+  }
 }
