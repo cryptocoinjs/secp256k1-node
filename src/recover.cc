@@ -15,10 +15,10 @@ class RecoverWorker : public Nan::AsyncWorker {
       : Nan::AsyncWorker(callback), msg32_buffer(msg32_buffer), sig_buffer(sig_buffer), recid(recid) {}
 
     void Execute () {
-      CHECK_ASYNC(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(msg32_buffer), MSG32_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
 
-      CHECK_ASYNC(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
       CHECK_ASYNC(sig_buffer->IsNumber(), ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
@@ -77,11 +77,11 @@ NAN_METHOD(recoverSync) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
-  CHECK(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(msg32_buffer), MSG32_TYPE_INVALID);
   CHECK(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
 
   v8::Local<v8::Object> sig_buffer = info[1].As<v8::Object>();
-  CHECK(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
   CHECK(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
   v8::Local<v8::Object> recid = info[2].As<v8::Object>();

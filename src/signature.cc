@@ -12,7 +12,7 @@ NAN_METHOD(signatureNormalize) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sigin_buffer = info[0].As<v8::Object>();
-  CHECK(sigin_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(sigin_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
   CHECK(node::Buffer::Length(sigin_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
   secp256k1_ecdsa_signature sigin;
@@ -36,7 +36,7 @@ NAN_METHOD(signatureExport) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
-  CHECK(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
   CHECK(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
   secp256k1_ecdsa_signature sig;
@@ -58,7 +58,7 @@ NAN_METHOD(signatureImport) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
-  CHECK(sig_buffer->IsUint8Array(), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
 
   secp256k1_ecdsa_signature sig;
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(sig_buffer);

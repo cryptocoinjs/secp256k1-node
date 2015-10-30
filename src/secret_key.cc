@@ -13,8 +13,7 @@ NAN_METHOD(secretKeyVerify) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
-  // TODO: Buffer, SlowBuffer, ArrayBuffer?
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
 
   if (node::Buffer::Length(seckey_buffer) != 32) {
     return info.GetReturnValue().Set(Nan::New<v8::Boolean>(false));
@@ -40,11 +39,11 @@ NAN_METHOD(secretKeyTweakAdd) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK(tweak_buffer->IsUint8Array(), TWEAK_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(tweak_buffer), TWEAK_TYPE_INVALID);
   CHECK(node::Buffer::Length(tweak_buffer) == 32, TWEAK_LENGTH_INVALID);
 
   unsigned char* seckey = (unsigned char *) node::Buffer::Data(seckey_buffer);
@@ -60,11 +59,11 @@ NAN_METHOD(secretKeyTweakMul) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK(tweak_buffer->IsUint8Array(), TWEAK_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(tweak_buffer), TWEAK_TYPE_INVALID);
   CHECK(node::Buffer::Length(tweak_buffer) == 32, TWEAK_LENGTH_INVALID);
 
   unsigned char* seckey = (unsigned char *) node::Buffer::Data(seckey_buffer);

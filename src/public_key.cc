@@ -12,7 +12,7 @@ NAN_METHOD(publicKeyCreate) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
@@ -32,7 +32,7 @@ NAN_METHOD(publicKeyConvert) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
@@ -54,7 +54,7 @@ NAN_METHOD(publicKeyVerify) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
 
   secp256k1_pubkey pubkey;
   const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
@@ -68,7 +68,7 @@ NAN_METHOD(publicKeyTweakAdd) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
@@ -79,7 +79,7 @@ NAN_METHOD(publicKeyTweakAdd) {
   }
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK(tweak_buffer->IsUint8Array(), TWEAK_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(tweak_buffer), TWEAK_TYPE_INVALID);
   CHECK(node::Buffer::Length(tweak_buffer) == 32, TWEAK_LENGTH_INVALID);
 
   const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
@@ -98,7 +98,7 @@ NAN_METHOD(publicKeyTweakMul) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
@@ -109,7 +109,7 @@ NAN_METHOD(publicKeyTweakMul) {
   }
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK(tweak_buffer->IsUint8Array(), TWEAK_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(tweak_buffer), TWEAK_TYPE_INVALID);
   CHECK(node::Buffer::Length(tweak_buffer) == 32, TWEAK_LENGTH_INVALID);
 
   const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
@@ -136,7 +136,7 @@ NAN_METHOD(publicKeyCombine) {
   std::unique_ptr<secp256k1_pubkey*[]> ins(new secp256k1_pubkey*[buffers->Length()]);
   for (unsigned int i = 0; i < buffers->Length(); ++i) {
     v8::Local<v8::Object> pubkey_buffer = v8::Local<v8::Object>::Cast(buffers->Get(i));
-    CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+    CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
     CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
     const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);

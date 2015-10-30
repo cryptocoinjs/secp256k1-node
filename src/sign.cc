@@ -15,10 +15,10 @@ class SignWorker : public Nan::AsyncWorker {
       : Nan::AsyncWorker(callback), msg32_buffer(msg32_buffer), seckey_buffer(seckey_buffer) {}
 
     void Execute () {
-      CHECK_ASYNC(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(msg32_buffer), MSG32_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
 
-      CHECK_ASYNC(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
       secp256k1_ecdsa_recoverable_signature sig;
@@ -68,11 +68,11 @@ NAN_METHOD(signSync) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
-  CHECK(msg32_buffer->IsUint8Array(), MSG32_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(msg32_buffer), MSG32_TYPE_INVALID);
   CHECK(node::Buffer::Length(msg32_buffer) == 32, MSG32_LENGTH_INVALID);
 
   v8::Local<v8::Object> seckey_buffer = info[1].As<v8::Object>();
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
   secp256k1_ecdsa_recoverable_signature sig;

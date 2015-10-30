@@ -15,7 +15,7 @@ class ECDHWorker : public Nan::AsyncWorker {
       : Nan::AsyncWorker(callback), pubkey_buffer(pubkey_buffer), seckey_buffer(seckey_buffer) {}
 
     void Execute () {
-      CHECK_ASYNC(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
       secp256k1_pubkey pubkey;
@@ -25,7 +25,7 @@ class ECDHWorker : public Nan::AsyncWorker {
         return SetErrorMessage(EC_PUBKEY_PARSE_FAIL);
       }
 
-      CHECK_ASYNC(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+      CHECK_ASYNC(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
       CHECK_ASYNC(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
       const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
@@ -69,7 +69,7 @@ NAN_METHOD(ecdhSync) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK(pubkey_buffer->IsUint8Array(), EC_PUBKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(pubkey_buffer), EC_PUBKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(pubkey_buffer) == 33 || node::Buffer::Length(pubkey_buffer) == 65, EC_PUBKEY_LENGTH_INVALID);
 
   secp256k1_pubkey pubkey;
@@ -80,7 +80,7 @@ NAN_METHOD(ecdhSync) {
   }
 
   v8::Local<v8::Object> seckey_buffer = info[1].As<v8::Object>();
-  CHECK(seckey_buffer->IsUint8Array(), EC_PRIVKEY_TYPE_INVALID);
+  CHECK(node::Buffer::HasInstance(seckey_buffer), EC_PRIVKEY_TYPE_INVALID);
   CHECK(node::Buffer::Length(seckey_buffer) == 32, EC_PRIVKEY_LENGTH_INVALID);
 
   unsigned char output[32];
