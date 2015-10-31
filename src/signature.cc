@@ -12,8 +12,8 @@ NAN_METHOD(signatureNormalize) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sigin_buffer = info[0].As<v8::Object>();
-  CHECK(node::Buffer::HasInstance(sigin_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
-  CHECK(node::Buffer::Length(sigin_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+  CHECK_TYPE_BUFFER(sigin_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(sigin_buffer, 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
   secp256k1_ecdsa_signature sigin;
   const unsigned char* input = (unsigned char*) node::Buffer::Data(sigin_buffer);
@@ -29,15 +29,15 @@ NAN_METHOD(signatureNormalize) {
   unsigned char output[64];
   secp256k1_ecdsa_signature_serialize_compact(secp256k1ctx, &output[0], &sigout);
 
-  info.GetReturnValue().Set(Nan::CopyBuffer((const char*) &output[0], 64).ToLocalChecked());
+  info.GetReturnValue().Set(COPY_BUFFER(&output[0], 64));
 }
 
 NAN_METHOD(signatureExport) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
-  CHECK(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
-  CHECK(node::Buffer::Length(sig_buffer) == 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+  CHECK_TYPE_BUFFER(sig_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(sig_buffer, 64, ECDSA_SIGNATURE_LENGTH_INVALID);
 
   secp256k1_ecdsa_signature sig;
   const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
@@ -51,14 +51,14 @@ NAN_METHOD(signatureExport) {
     return Nan::ThrowError(ECDSA_SIGNATURE_SERIALIZE_DER_FAIL);
   }
 
-  info.GetReturnValue().Set(Nan::CopyBuffer((const char*) &output[0], outputlen).ToLocalChecked());
+  info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
 }
 
 NAN_METHOD(signatureImport) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
-  CHECK(node::Buffer::HasInstance(sig_buffer), ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK_TYPE_BUFFER(sig_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
 
   secp256k1_ecdsa_signature sig;
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(sig_buffer);
@@ -70,5 +70,5 @@ NAN_METHOD(signatureImport) {
   unsigned char output[64];
   secp256k1_ecdsa_signature_serialize_compact(secp256k1ctx, &output[0], &sig);
 
-  info.GetReturnValue().Set(Nan::CopyBuffer((const char*) &output[0], 64).ToLocalChecked());
+  info.GetReturnValue().Set(COPY_BUFFER(&output[0], 64));
 }

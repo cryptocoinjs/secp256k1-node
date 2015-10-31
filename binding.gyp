@@ -6,8 +6,8 @@
     },
     "sources": [
       "./src/addon.cc",
-      "./src/secret_key.cc",
-      "./src/public_key.cc",
+      "./src/secretkey.cc",
+      "./src/publickey.cc",
       "./src/signature.cc",
       "./src/sign.cc",
       "./src/verify.cc",

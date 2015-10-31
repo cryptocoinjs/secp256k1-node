@@ -43,7 +43,6 @@
   },
   "devDependencies": {
     "bigi": "^1.3.0",
-    "bn.js": "^4.1.0",
     "chai": "^3.4.0",
     "coinkey": "^1.3.0",
     "coveralls": "^2.11.4",

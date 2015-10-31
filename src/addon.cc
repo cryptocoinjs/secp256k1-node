@@ -2,8 +2,8 @@
 #include <nan.h>
 #include <secp256k1.h>
 
-#include "secret_key.h"
-#include "public_key.h"
+#include "secretkey.h"
+#include "publickey.h"
 #include "signature.h"
 #include "sign.h"
 #include "verify.h"

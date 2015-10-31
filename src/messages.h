@@ -2,6 +2,7 @@
 # define _SECP256K1_NODE_MESSAGES_
 
 #define CALLBACK_TYPE_INVALID "callback should be a function"
+#define COMPRESSED_TYPE_INVALID "compressed should be a boolean"
 
 #define MSG32_TYPE_INVALID "message should be a Buffer"
 #define MSG32_LENGTH_INVALID "message length is invalid"
