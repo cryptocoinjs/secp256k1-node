@@ -23,6 +23,7 @@ class RecoverWorker : public AsyncWorker {
         sig_input = (unsigned char*) node::Buffer::Data(sig_buffer);
 
         CHECK_TYPE_NUMBER_ASYNC(recid_number, ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
+        CHECK_NUMBER_IN_INTERVAL_ASYNC(recid_number, -1, 4, ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID);
         recid = recid_number->Int32Value();
     }
 
@@ -41,7 +42,6 @@ class RecoverWorker : public AsyncWorker {
         return SetError(AsyncWorker::Error, ECDSA_RECOVER_FAIL);
       }
 
-      unsigned char output[33];
       size_t outputlen;
       secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
     }
@@ -63,7 +63,7 @@ class RecoverWorker : public AsyncWorker {
 NAN_METHOD(recover) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Function> callback = info[2].As<v8::Function>();
+  v8::Local<v8::Function> callback = info[3].As<v8::Function>();
   CHECK_TYPE_FUNCTION(callback, CALLBACK_TYPE_INVALID);
 
   RecoverWorker* worker = new RecoverWorker(
@@ -88,6 +88,7 @@ NAN_METHOD(recoverSync) {
 
   v8::Local<v8::Object> recid = info[2].As<v8::Object>();
   CHECK_TYPE_NUMBER(recid, ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
+  CHECK_NUMBER_IN_INTERVAL(recid, -1, 4, ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID);
 
   secp256k1_ecdsa_recoverable_signature sig;
   const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);

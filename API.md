@@ -1,4 +1,4 @@
-# API Reference (v0.2.x)
+# API Reference (v2.x.x)
 
 - [`.secretKeyVerify(Buffer secretKey)`](#secretkeyverifybuffer-secretkey---boolean)
 - [`.secretKeyExport(Buffer secretKey [, Boolean compressed = true])`](#secretkeyexportbuffer-secretkey--boolean-compressed--true---buffer)

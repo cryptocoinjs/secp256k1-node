@@ -89,4 +89,17 @@
   }                                                                            \
 }
 
+#define CHECK_NUMBER_IN_INTERVAL(number, x, y, msg) {                          \
+  if (number->Int32Value() <= x || number->Int32Value() >= y) {                \
+    return Nan::ThrowRangeError(msg);                                          \
+  }                                                                            \
+}
+
+#define CHECK_NUMBER_IN_INTERVAL_ASYNC(number, x, y, msg) {                    \
+  if (number->Int32Value() <= x || number->Int32Value() >= y) {                \
+    SetError(AsyncWorker::RangeError, msg);                                    \
+    return;                                                                    \
+  }                                                                            \
+}
+
 #endif

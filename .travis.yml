@@ -6,11 +6,19 @@ node_js:
   - "0.11"
   - "0.12"
   - "4"
+  - "5"
 env:
   - CXX=g++-4.8
+  - TEST_SUITE=coveralls
+  - TEST_SUITE=lint
+  - TEST_SUITE=test
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
     - g++-4.8
+before_install:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+script: "npm run $TEST_SUITE"

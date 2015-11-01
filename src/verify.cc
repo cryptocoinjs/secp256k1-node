@@ -64,7 +64,7 @@ class VerifyWorker : public AsyncWorker {
 NAN_METHOD(verify) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Function> callback = info[2].As<v8::Function>();
+  v8::Local<v8::Function> callback = info[3].As<v8::Function>();
   CHECK_TYPE_FUNCTION(callback, CALLBACK_TYPE_INVALID);
 
   VerifyWorker* worker = new VerifyWorker(

@@ -28,6 +28,7 @@
 #define ECDSA_SIGNATURE_TYPE_INVALID "signature should be a Buffer"
 #define ECDSA_SIGNATURE_LENGTH_INVALID "signature length is invalid"
 #define ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID "recovery should be a Number"
+#define ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID "recovery should have value between -1 and 4"
 #define ECDSA_SIGNATURE_PARSE_FAIL "couldn't parse signature"
 #define ECDSA_SIGNATURE_PARSE_DER_FAIL "couldn't parse DER signature"
 #define ECDSA_SIGNATURE_SERIALIZE_DER_FAIL "couldn't serialize signature to DER format"
