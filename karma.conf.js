@@ -5,12 +5,13 @@ module.exports = function (config) {
       'test/*.js'
     ],
     preprocessors: {
-      'test/*.js': ['browserify']
+      'test/*.js': ['browserify', 'env']
     },
     singleRun: true,
     plugins: [
       'karma-browserify',
       'karma-chrome-launcher',
+      'karma-env-preprocessor',
       'karma-firefox-launcher',
       'karma-detect-browsers',
       'karma-mocha'

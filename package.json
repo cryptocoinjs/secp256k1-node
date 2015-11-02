@@ -41,8 +41,10 @@
   "dependencies": {
     "bindings": "^1.2.1",
     "bluebird": "^3.0.2",
+    "bn.js": "^4.1.1",
     "elliptic": "^6.0.0",
-    "nan": "^2.0.9"
+    "nan": "^2.0.9",
+    "object-assign": "^4.0.1"
   },
   "devDependencies": {
     "bigi": "^1.3.0",
@@ -59,12 +61,12 @@
     "karma-browserify": "^4.4.0",
     "karma-chrome-launcher": "^0.2.1",
     "karma-detect-browsers": "^2.0.2",
+    "karma-env-preprocessor": "^0.1.1",
     "karma-firefox-launcher": "^0.1.6",
     "karma-mocha": "^0.2.0",
     "mocha": "^2.3.3",
     "node-gyp": "^3.0.3",
-    "progress": "^1.1.8",
-    "secure-random": "^1.1.1"
+    "progress": "^1.1.8"
   },
   "gypfile": true,
   "browser": {

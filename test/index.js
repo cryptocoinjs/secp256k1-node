@@ -2,8 +2,13 @@ var chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-// TODO: get repeat from arguments?
-var repeat = 5
+var repeat = 10
+if (process.env.RANDOM_TESTS_REPEAT !== undefined) {
+  repeat = parseInt(process.env.RANDOM_TESTS_REPEAT, 10)
+}
+if (global.__env__ && global.__env__.RANDOM_TESTS_REPEAT !== undefined) {
+  repeat = parseInt(global.__env__.RANDOM_TESTS_REPEAT, 10)
+}
 
 /**
  * @param {Object} secp256k1
@@ -28,4 +33,4 @@ if (!process.browser) {
   runTests(require('../bindings'), 'secp256k1 bindings')
 }
 
-// runTests(require('../elliptic'), 'elliptic package')
+runTests(require('../elliptic'), 'elliptic package')
