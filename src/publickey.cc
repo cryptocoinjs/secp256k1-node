@@ -14,9 +14,9 @@ NAN_METHOD(publicKeyCreate) {
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(seckey_buffer, EC_PRIVKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
+  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
 
   secp256k1_pubkey pubkey;
-  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
   if (secp256k1_ec_pubkey_create(secp256k1ctx, &pubkey, seckey) == 0) {
     return Nan::ThrowError(EC_PUBKEY_CREATE_FAIL);
   }
@@ -34,6 +34,8 @@ NAN_METHOD(publicKeyConvert) {
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH2(pubkey_buffer, 33, 65, EC_PUBKEY_LENGTH_INVALID);
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+  size_t inputlen = node::Buffer::Length(pubkey_buffer);
 
   unsigned int flags = SECP256K1_EC_COMPRESSED;
   v8::Local<v8::Value> compressed = info[1].As<v8::Value>();
@@ -45,8 +47,6 @@ NAN_METHOD(publicKeyConvert) {
   }
 
   secp256k1_pubkey pubkey;
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
-  size_t inputlen = node::Buffer::Length(pubkey_buffer);
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
@@ -63,10 +63,10 @@ NAN_METHOD(publicKeyVerify) {
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBKEY_TYPE_INVALID);
-
-  secp256k1_pubkey pubkey;
   const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
   size_t inputlen = node::Buffer::Length(pubkey_buffer);
+
+  secp256k1_pubkey pubkey;
   int result = secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen);
 
   info.GetReturnValue().Set(Nan::New<v8::Boolean>(result));
@@ -78,19 +78,19 @@ NAN_METHOD(publicKeyTweakAdd) {
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH2(pubkey_buffer, 33, 65, EC_PUBKEY_LENGTH_INVALID);
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+  size_t inputlen = node::Buffer::Length(pubkey_buffer);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
+  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
 
   secp256k1_pubkey pubkey;
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
-  size_t inputlen = node::Buffer::Length(pubkey_buffer);
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
 
-  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
   if (secp256k1_ec_pubkey_tweak_add(secp256k1ctx, &pubkey, tweak) == 0) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_ADD_FAIL);
   }
@@ -108,19 +108,19 @@ NAN_METHOD(publicKeyTweakMul) {
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH2(pubkey_buffer, 33, 65, EC_PUBKEY_LENGTH_INVALID);
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+  size_t inputlen = node::Buffer::Length(pubkey_buffer);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
+  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
 
   secp256k1_pubkey pubkey;
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
-  size_t inputlen = node::Buffer::Length(pubkey_buffer);
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
   }
 
-  const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
   if (secp256k1_ec_pubkey_tweak_mul(secp256k1ctx, &pubkey, tweak) == 0) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_MUL_FAIL);
   }

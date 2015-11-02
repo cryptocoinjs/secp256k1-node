@@ -14,9 +14,9 @@ NAN_METHOD(signatureNormalize) {
   v8::Local<v8::Object> sigin_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(sigin_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(sigin_buffer, 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(sigin_buffer);
 
   secp256k1_ecdsa_signature sigin;
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(sigin_buffer);
   if (secp256k1_ecdsa_signature_parse_compact(secp256k1ctx, &sigin, input) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_FAIL);
   }
@@ -38,9 +38,9 @@ NAN_METHOD(signatureExport) {
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(sig_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(sig_buffer, 64, ECDSA_SIGNATURE_LENGTH_INVALID);
+  const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
 
   secp256k1_ecdsa_signature sig;
-  const unsigned char* input = (unsigned char*) node::Buffer::Data(sig_buffer);
   if (secp256k1_ecdsa_signature_parse_compact(secp256k1ctx, &sig, input) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_FAIL);
   }
@@ -59,10 +59,10 @@ NAN_METHOD(signatureImport) {
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(sig_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
-
-  secp256k1_ecdsa_signature sig;
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(sig_buffer);
   size_t inputlen = node::Buffer::Length(sig_buffer);
+
+  secp256k1_ecdsa_signature sig;
   if (secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, inputlen) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_DER_FAIL);
   }

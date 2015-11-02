@@ -74,14 +74,14 @@ NAN_METHOD(signSync) {
   v8::Local<v8::Object> msg32_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(msg32_buffer, MSG32_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(msg32_buffer, 32, MSG32_LENGTH_INVALID);
+  const unsigned char* msg32 = (const unsigned char*) node::Buffer::Data(msg32_buffer);
 
   v8::Local<v8::Object> seckey_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(seckey_buffer, EC_PRIVKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
+  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
 
   secp256k1_ecdsa_recoverable_signature sig;
-  const unsigned char* msg32 = (const unsigned char*) node::Buffer::Data(msg32_buffer);
-  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
   if (secp256k1_ecdsa_sign_recoverable(secp256k1ctx, &sig, msg32, seckey, NULL, NULL) == 0) {
     return Nan::ThrowError(ECDSA_SIGN_FAIL);
   }

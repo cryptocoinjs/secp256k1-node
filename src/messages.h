@@ -14,6 +14,8 @@
 #define EC_PRIVKEY_LENGTH_INVALID "secret key length is invalid"
 #define EC_PRIVKEY_TWEAK_ADD_FAIL "tweak out of range or resulting secret key is invalid"
 #define EC_PRIVKEY_TWEAK_MUL_FAIL "tweak out of range"
+#define EC_PRIVKEY_EXPORT_DER_FAIL "couldn't export to DER format"
+#define EC_PRIVKEY_IMPORT_DER_FAIL "couldn't import from DER format"
 
 #define EC_PUBKEYS_TYPE_INVALID "public keys should be an Array"
 #define EC_PUBKEYS_LENGTH_INVALID "public keys Array should have at least 1 element"

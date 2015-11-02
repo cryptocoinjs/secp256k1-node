@@ -37,31 +37,53 @@ module.exports = function (secp256k1, opts) {
     })
   })
 
-  describe.skip('secretKeyExport', function () {
-    it.skip('secret key should be a Buffer', function () {
+  describe('secretKeyExport', function () {
+    it('secret key should be a Buffer', function () {
+      expect(function () {
+        secp256k1.secretKeyExport(null)
+      }).to.throw(TypeError, /secret/)
     })
 
-    it.skip('compressed should be a boolean', function () {
+    it('compressed should be a boolean', function () {
+      expect(function () {
+        secp256k1.secretKeyExport(util.getPrivateKey(), null)
+      }).to.throw(TypeError, /compressed/)
     })
 
-    it.skip('secret key length is invalid', function () {
+    it('secret key length is invalid', function () {
+      expect(function () {
+        secp256k1.secretKeyExport(util.getPrivateKey().slice(1))
+      }).to.throw(RangeError, /secret/)
     })
 
-    it.skip('secret key is invalid', function () {
-    })
-
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    it('secret key is invalid', function () {
+      expect(function () {
+        secp256k1.secretKeyExport(SECP256K1_N.toBuffer(32))
+      }).to.throw(Error)
     })
   })
 
-  describe.skip('secretKeyImport', function () {
-    it.skip('should be a Buffer', function () {
+  describe('secretKeyImport', function () {
+    it('should be a Buffer', function () {
+      expect(function () {
+        secp256k1.secretKeyImport(null)
+      }).to.throw(TypeError, /secret/)
     })
 
-    it.skip('invalid length', function () {
+    it('invalid format', function () {
+      expect(function () {
+        secp256k1.secretKeyImport(new Buffer([0x00]))
+      }).to.throw(Error)
     })
+  })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+  describe('secretKeyExport/secretKeyImport', function () {
+    util.repeatIt('random tests', opts.repeat, function () {
+      var privKey = util.getPrivateKey()
+      var der2 = secp256k1.secretKeyExport(privKey, true)
+      expect(secp256k1.secretKeyImport(der2).toString('hex')).to.equal(privKey.toString('hex'))
+      var der1 = secp256k1.secretKeyExport(privKey, false)
+      expect(secp256k1.secretKeyImport(der1).toString('hex')).to.equal(privKey.toString('hex'))
     })
   })
 
