@@ -30,7 +30,7 @@ function runTests (secp256k1, description) {
 }
 
 if (!process.browser) {
-  runTests(require('../bindings'), 'secp256k1 bindings')
+  // runTests(require('../bindings'), 'secp256k1 bindings')
 }
 
 runTests(require('../elliptic'), 'elliptic package')

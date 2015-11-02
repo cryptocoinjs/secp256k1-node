@@ -15,27 +15,27 @@ module.exports = function (secp256k1, opts) {
     it('should be a Buffer', function () {
       expect(function () {
         secp256k1.publicKeyCreate(null)
-      }).to.throw(TypeError)
+      }).to.throw(TypeError, /secret/)
     })
 
     it('invalid length', function () {
       expect(function () {
         secp256k1.publicKeyCreate(util.getPrivateKey().slice(1))
-      }).to.throw(RangeError)
+      }).to.throw(RangeError, /secret/)
     })
 
     it('zero key', function () {
       expect(function () {
         var privKey = BigInteger.ZERO.toBuffer(32)
         secp256k1.publicKeyCreate(privKey)
-      }).to.throw(Error)
+      }).to.throw(Error, /secret/)
     })
 
     it('equal to N', function () {
       expect(function () {
         var privKey = SECP256K1_N.toBuffer(32)
         secp256k1.publicKeyCreate(privKey)
-      }).to.throw(Error)
+      }).to.throw(Error, /secret/)
     })
 
     util.repeatIt('random tests', opts.repeat, function () {

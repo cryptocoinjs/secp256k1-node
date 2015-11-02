@@ -51,13 +51,6 @@ module.exports = function (secp256k1, opts) {
       return expect(promise).to.be.rejectedWith(RangeError, /public/)
     })
 
-    it('public key is invalid (version is 0x01)', function () {
-      var pubKey = util.getPublicKey()
-      pubKey[0] = 0x01
-      var promise = secp256k1.verify(util.getMessage(), util.getSignature(), pubKey)
-      return expect(promise).to.be.rejectedWith(Error, /public/)
-    })
-
     it('signature is invalid (r equal N)', function () {
       var signature = Buffer.concat([
         SECP256K1_N.toBuffer(32),
@@ -65,6 +58,13 @@ module.exports = function (secp256k1, opts) {
       ])
       var promise = secp256k1.verify(util.getMessage(), signature, util.getPublicKey())
       return expect(promise).to.be.rejectedWith(Error, /signature/)
+    })
+
+    it('public key is invalid (version is 0x01)', function () {
+      var pubKey = util.getPublicKey()
+      pubKey[0] = 0x01
+      var promise = secp256k1.verify(util.getMessage(), util.getSignature(), pubKey)
+      return expect(promise).to.be.rejectedWith(Error, /public/)
     })
   })
 
@@ -105,14 +105,6 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(RangeError, /public/)
     })
 
-    it('public key is invalid (version is 0x01)', function () {
-      expect(function () {
-        var pubKey = util.getPublicKey()
-        pubKey[0] = 0x01
-        secp256k1.verifySync(util.getMessage(), util.getSignature(), pubKey)
-      }).to.throw(Error, /public/)
-    })
-
     it('signature is invalid (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
@@ -121,6 +113,14 @@ module.exports = function (secp256k1, opts) {
         ])
         secp256k1.verifySync(util.getMessage(), signature, util.getPublicKey())
       }).to.throw(Error, /signature/)
+    })
+
+    it('public key is invalid (version is 0x01)', function () {
+      expect(function () {
+        var pubKey = util.getPublicKey()
+        pubKey[0] = 0x01
+        secp256k1.verifySync(util.getMessage(), util.getSignature(), pubKey)
+      }).to.throw(Error, /public/)
     })
   })
 }

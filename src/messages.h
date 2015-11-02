@@ -36,7 +36,7 @@
 #define ECDSA_SIGNATURE_SERIALIZE_DER_FAIL "couldn't serialize signature to DER format"
 #define ECDSA_SIGNATURE_NORMALIZE_FAIL "couldn't normalize signature"
 
-#define ECDSA_SIGN_FAIL "nonce generation function failed or private key is invalid"
+#define ECDSA_SIGN_FAIL "nonce generation function failed or secret key is invalid"
 #define ECDSA_VERIFY_FAIL "incorrect or unparseable signature"
 #define ECDSA_RECOVER_FAIL "couldn't recover public key from signature"
 

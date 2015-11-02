@@ -38,6 +38,11 @@ module.exports = function (secp256k1, opts) {
       var promise = secp256k1.sign(util.getMessage(), util.getPrivateKey().slice(1))
       return expect(promise).to.be.rejectedWith(RangeError, /secret/)
     })
+
+    it('secret key is invalid', function () {
+      var promise = secp256k1.sign(util.getMessage(), require('./const').SECP256K1_N.toBuffer(32))
+      return expect(promise).to.be.rejectedWith(Error, /secret/)
+    })
   })
 
   describe('signSync', function () {
@@ -63,6 +68,12 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         secp256k1.signSync(util.getMessage(), util.getPrivateKey().slice(1))
       }).to.throw(RangeError, /secret/)
+    })
+
+    it('secret key is invalid', function () {
+      expect(function () {
+        secp256k1.signSync(util.getMessage(), require('./const').SECP256K1_N.toBuffer(32))
+      }).to.throw(Error, /secret/)
     })
   })
 }
