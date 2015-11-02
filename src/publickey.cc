@@ -22,7 +22,7 @@ NAN_METHOD(publicKeyCreate) {
   }
 
   unsigned char output[33];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
@@ -52,7 +52,7 @@ NAN_METHOD(publicKeyConvert) {
   }
 
   unsigned char output[65];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
@@ -96,7 +96,7 @@ NAN_METHOD(publicKeyTweakAdd) {
   }
 
   unsigned char output[33];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
@@ -126,7 +126,7 @@ NAN_METHOD(publicKeyTweakMul) {
   }
 
   unsigned char output[33];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
@@ -162,7 +162,7 @@ NAN_METHOD(publicKeyCombine) {
   }
 
   unsigned char output[33];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));

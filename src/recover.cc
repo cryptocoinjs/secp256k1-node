@@ -42,7 +42,7 @@ class RecoverWorker : public AsyncWorker {
         return SetError(AsyncWorker::Error, ECDSA_RECOVER_FAIL);
       }
 
-      size_t outputlen;
+      size_t outputlen = 33;
       secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
     }
 
@@ -103,7 +103,7 @@ NAN_METHOD(recoverSync) {
   }
 
   unsigned char output[33];
-  size_t outputlen;
+  size_t outputlen = 33;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], 33));
 }
