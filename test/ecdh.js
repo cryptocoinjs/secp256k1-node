@@ -1,5 +1,6 @@
 var expect = require('chai').expect
 
+var SECP256K1_N = require('./const').SECP256K1_N
 var util = require('./util')
 
 /**
@@ -39,7 +40,26 @@ module.exports = function (secp256k1, opts) {
       return expect(promise).to.be.rejectedWith(RangeError, /secret/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    it('invalid public key', function () {
+      var pubKey = util.getPublicKey()
+      pubKey[0] = 0x01
+      var promise = secp256k1.ecdh(pubKey, util.getPrivateKey())
+      return expect(promise).to.be.rejectedWith(Error, /public/)
+    })
+
+    it('secret key equal N', function () {
+      var promise = secp256k1.ecdh(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+      return expect(promise).to.be.rejectedWith(Error, /scalar/)
+    })
+
+    util.repeatIt('random tests', opts.repeat, function () {
+      var pubKey = util.getPublicKey()
+      var privKey = util.getPrivateKey()
+
+      var expected = util.ecdhSync(pubKey, privKey)
+      return secp256k1.ecdh(pubKey, privKey).then(function (result) {
+        expect(result.toString('hex')).to.equal(expected.toString('hex'))
+      })
     })
   })
 
@@ -68,7 +88,27 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(RangeError, /secret/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    it('invalid public key', function () {
+      expect(function () {
+        var pubKey = util.getPublicKey()
+        pubKey[0] = 0x01
+        secp256k1.ecdhSync(pubKey, util.getPrivateKey())
+      }).to.throw(Error, /public/)
+    })
+
+    it('secret key equal N', function () {
+      expect(function () {
+        secp256k1.ecdhSync(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+      }).to.throw(Error, /scalar/)
+    })
+
+    util.repeatIt('random tests', opts.repeat, function () {
+      var pubKey = util.getPublicKey()
+      var privKey = util.getPrivateKey()
+
+      var expected = util.ecdhSync(pubKey, privKey)
+      var result = secp256k1.ecdhSync(pubKey, privKey)
+      expect(result.toString('hex')).to.equal(expected.toString('hex'))
     })
   })
 }

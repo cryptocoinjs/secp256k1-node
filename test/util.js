@@ -1,11 +1,15 @@
 var randomBytes = require('crypto').randomBytes
+var createHash = require('create-hash')
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
 var ECKey = require('eckey')
+var ecurve = require('ecurve')
 var ProgressBar = require('progress')
 
 var SECP256K1_N = require('./const').SECP256K1_N
 var Promise = require('../lib/promise')
+
+var ecparams = ecurve.getCurveByName('secp256k1')
 
 /**
  * @return {Buffer}
@@ -67,6 +71,17 @@ exports.signSync = function (msg, privKey) {
     signature: Buffer.concat([obj.r.toBuffer(32), obj.s.toBuffer(32)]),
     recovery: null // TODO
   }
+}
+
+/**
+ * @param {Buffer} pubKey
+ * @param {Buffer} privKey
+ * @return {Buffer}
+ */
+exports.ecdhSync = function (pubKey, privKey) {
+  var point = ecurve.Point.decodeFrom(ecparams, pubKey)
+  var buf = point.multiply(BigInteger.fromBuffer(privKey)).getEncoded(true)
+  return createHash('sha256').update(buf).digest()
 }
 
 var stream = process.stdout

@@ -16,7 +16,7 @@ if (global.__env__ && global.__env__.RANDOM_TESTS_REPEAT !== undefined) {
  */
 function runTests (secp256k1, description) {
   describe(description, function () {
-    this.timeout(200 * repeat)
+    this.timeout(400 * repeat)
 
     require('./secretkey')(secp256k1, {repeat: repeat})
     require('./publickey')(secp256k1, {repeat: repeat})
