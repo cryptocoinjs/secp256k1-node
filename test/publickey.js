@@ -1,9 +1,12 @@
 var expect = require('chai').expect
 var BigInteger = require('bigi')
 var ECKey = require('eckey')
+var ecurve = require('ecurve')
 
 var SECP256K1_N = require('./const').SECP256K1_N
 var util = require('./util')
+
+var ecparams = ecurve.getCurveByName('secp256k1')
 
 /**
  * @param {Object} secp256k1
@@ -139,10 +142,22 @@ module.exports = function (secp256k1, opts) {
       pubKey[0] = 0x01
       expect(function () {
         secp256k1.publicKeyTweakAdd(pubKey, util.getTweak())
-      }).to.throw(Error)
+      }).to.throw(Error, /public/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    it('tweak overflow', function () {
+      expect(function () {
+        secp256k1.publicKeyTweakAdd(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+      }).to.throw(Error, /range/)
+    })
+
+    util.repeatIt('random tests', opts.repeat, function () {
+      var eckey = new ECKey(util.getPrivateKey())
+      var tweak = util.getTweak()
+
+      var expected = ecparams.G.multiply(BigInteger.fromBuffer(tweak)).add(eckey.publicPoint).getEncoded(true)
+      var result = secp256k1.publicKeyTweakAdd(eckey.publicKey, tweak)
+      expect(expected.toString('hex')).to.equal(result.toString('hex'))
     })
   })
 
@@ -176,10 +191,34 @@ module.exports = function (secp256k1, opts) {
       pubKey[0] = 0x01
       expect(function () {
         secp256k1.publicKeyTweakMul(pubKey, util.getTweak())
-      }).to.throw(Error)
+      }).to.throw(Error, /public/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    it('tweak is zero', function () {
+      expect(function () {
+        secp256k1.publicKeyTweakMul(util.getPublicKey(), BigInteger.ZERO.toBuffer(32))
+      }).to.throw(Error, /range/)
+    })
+
+    it('tweak overflow', function () {
+      expect(function () {
+        secp256k1.publicKeyTweakMul(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+      }).to.throw(Error, /range/)
+    })
+
+    util.repeatIt('random tests', opts.repeat, function () {
+      var eckey = new ECKey(util.getPrivateKey(), false)
+      var tweak = BigInteger.fromBuffer(util.getTweak())
+
+      if (tweak.compareTo(BigInteger.ZERO) === 0) {
+        return expect(function () {
+          secp256k1.publicKeyTweakMul(eckey.publicKey, tweak.toBuffer(32))
+        }).to.throw(Error, /range/)
+      }
+
+      var expected = eckey.publicPoint.multiply(tweak).getEncoded(true)
+      var result = secp256k1.publicKeyTweakMul(eckey.publicKey, tweak.toBuffer(32))
+      expect(result.toString('hex')).to.equal(expected.toString('hex'))
     })
   })
 
@@ -217,9 +256,21 @@ module.exports = function (secp256k1, opts) {
     })
 
     util.repeatIt('random tests', opts.repeat, function () {
-      var pubKey = util.getPublicKey()
-      var result = secp256k1.publicKeyCombine([pubKey])
-      expect(pubKey.toString('hex')).to.equal(result.toString('hex'))
+      var cnt = 1 + Math.floor(Math.random() * 3) // 1 <= cnt <= 3
+      var keys = []
+      while (keys.length < cnt) {
+        keys.push(new ECKey(util.getPrivateKey()))
+      }
+      var pubKeys = keys.map(function (key) { return key.publicKey })
+
+      var publicPoint = keys[0].publicPoint
+      for (var i = 1; i < keys.length; ++i) {
+        publicPoint = publicPoint.add(keys[i].publicPoint)
+      }
+      var expected = publicPoint.getEncoded(true)
+
+      var result = secp256k1.publicKeyCombine(pubKeys)
+      expect(result.toString('hex')).to.equal(expected.toString('hex'))
     })
   })
 }

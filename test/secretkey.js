@@ -112,14 +112,36 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(RangeError, /tweak/)
     })
 
-    it('throw Error (overflow: (N - 1) + 1)', function () {
+    it('tweak overflow', function () {
+      expect(function () {
+        secp256k1.secretKeyTweakAdd(util.getPrivateKey(), SECP256K1_N.toBuffer(32))
+      }).to.throw(Error, /range/)
+    })
+
+    it('throw Error (result is zero: (N - 1) + 1)', function () {
       expect(function () {
         var privKey = SECP256K1_N.subtract(BigInteger.ONE).toBuffer(32)
         secp256k1.secretKeyTweakAdd(privKey, BigInteger.ONE.toBuffer(32))
-      }).to.throw(Error)
+      }).to.throw(Error, /range/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', opts.repeat, function () {
+      var privKey = util.getPrivateKey()
+      var tweak = util.getTweak()
+
+      var expected = BigInteger.fromBuffer(privKey).add(BigInteger.fromBuffer(tweak))
+      if (expected.compareTo(SECP256K1_N) >= 0) {
+        expected = expected.subtract(SECP256K1_N)
+      }
+
+      if (expected.compareTo(BigInteger.ZERO) === 0) {
+        return expect(function () {
+          secp256k1.secretKeyTweakAdd(privKey, tweak)
+        }).to.throw(Error, /range/)
+      }
+
+      var result = secp256k1.secretKeyTweakAdd(privKey, tweak)
+      expect(result.toString('hex')).to.equal(expected.toHex(32))
     })
   })
 
@@ -152,10 +174,25 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         var privKey = util.getPrivateKey()
         secp256k1.secretKeyTweakMul(privKey, BigInteger.ZERO.toBuffer(32))
-      }).to.throw(Error)
+      }).to.throw(Error, /range/)
     })
 
-    util.repeatIt.skip('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', opts.repeat, function () {
+      var privKey = util.getPrivateKey()
+      var tweak = util.getTweak()
+
+      if (BigInteger.fromBuffer(tweak).compareTo(BigInteger.ZERO) === 0) {
+        return expect(function () {
+          secp256k1.secretKeyTweakMul(privKey, tweak)
+        }).to.throw(Error, /range/)
+      }
+
+      var expected = BigInteger.fromBuffer(privKey)
+        .multiply(BigInteger.fromBuffer(tweak))
+        .remainder(SECP256K1_N)
+
+      var result = secp256k1.secretKeyTweakMul(privKey, tweak)
+      expect(result.toString('hex')).to.equal(expected.toHex(32))
     })
   })
 }

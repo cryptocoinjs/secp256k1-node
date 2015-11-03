@@ -40,7 +40,13 @@ exports.getSignature = function () {
  * @return {Buffer}
  */
 exports.getTweak = function () {
-  return randomBytes(32)
+  while (true) {
+    var tweak = randomBytes(32)
+    var bn = BigInteger.fromBuffer(tweak)
+    if (bn.compareTo(SECP256K1_N) < 0) {
+      return tweak
+    }
+  }
 }
 
 /**
