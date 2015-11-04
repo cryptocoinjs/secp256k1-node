@@ -55,6 +55,12 @@
 }
 
 // Length checks (RangeError)
+#define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, msg) {                             \
+  if (node::Buffer::Length(buffer) == 0) {                                     \
+    return Nan::ThrowRangeError(msg);                                          \
+  }                                                                            \
+}
+
 #define CHECK_BUFFER_LENGTH(buffer, length, msg) {                             \
   if (node::Buffer::Length(buffer) != length) {                                \
     return Nan::ThrowRangeError(msg);                                          \

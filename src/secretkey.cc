@@ -56,6 +56,7 @@ NAN_METHOD(secretKeyImport) {
 
   v8::Local<v8::Object> privkey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(privkey_buffer, EC_PRIVKEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH_GT_ZERO(privkey_buffer, EC_PRIVKEY_LENGTH_INVALID);
   const unsigned char* privkey = (const unsigned char*) node::Buffer::Data(privkey_buffer);
   size_t privkeylen = node::Buffer::Length(privkey_buffer);
 

@@ -91,7 +91,7 @@ module.exports = function (secp256k1, opts) {
 
     it('parse fail', function () {
       expect(function () {
-        secp256k1.signatureImport(new Buffer(0))
+        secp256k1.signatureImport(new Buffer(1))
       }).to.throw(Error, /parse/)
     })
   })

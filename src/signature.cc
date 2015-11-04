@@ -59,6 +59,7 @@ NAN_METHOD(signatureImport) {
 
   v8::Local<v8::Object> sig_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(sig_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH_GT_ZERO(sig_buffer, ECDSA_SIGNATURE_LENGTH_INVALID);
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(sig_buffer);
   size_t inputlen = node::Buffer::Length(sig_buffer);
 
