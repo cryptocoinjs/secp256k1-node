@@ -1,172 +1,61 @@
-SYNOPSIS [![Build Status](https://travis-ci.org/wanderer/secp256k1-node.svg?branch=master)](https://travis-ci.org/wanderer/secp256k1-node)
-===
+# secp256k1-node
 
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.   
+[![NPM Package](https://img.shields.io/npm/v/secp256k1-node.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1-node)
+[![Build Status](https://img.shields.io/travis/wanderer/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/wanderer/secp256k1-node)
+[![Coverage Status](https://img.shields.io/coveralls/wanderer/secp256k1-node.svg?style=flat-square)](https://coveralls.io/r/wanderer/secp256k1-node)
+
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.
 This library is experimental, so use at your own risk. Works on node version 0.11 or greater.
 
-INSTALL
-===
+# Installation
+
 If you have gmp installed secp256k1 will use it. Otherwise it should fallback to openssl.
 * arch `pacman -S gmp`
 * ubuntu `sudo apt-get install libgmp-dev`
 
 ##### from npm
 
-`npm install secp256k1`   
+`npm install secp256k1`
 
 ##### from git
 
-`git clone git@github.com:wanderer/secp256k1-node.git`  
-`cd secp256k1-node`  
-`npm install` 
+`git clone git@github.com:wanderer/secp256k1-node.git`
+`cd secp256k1-node`
+`npm install`
 
-BROWSER
-===
-If you want an compatiable API use [secp256k1-browserify](https://github.com/wanderer/secp256k1-browserify). Or use [elliptic](https://github.com/indutny/elliptic) directly
+# Usage
 
-USAGE
-===
-```javascript
+* [API Reference (v2.x)](API.md)
 
-var ecdsa = require('secp256k1')
+```js
 var crypto = require('crypto')
+var secp256k1 = require('secp256k1')
+// or require('secp256k1/js')
+//   if you want to use pure js implementation in node (uses elliptic now)
+// or require('secp256k1/elliptic')
+//   if implementation that uses elliptic package
 
-var privateKey = crypto.randomBytes(32)
-//a random message to sign
+// generate message to sign
 var msg = crypto.randomBytes(32)
 
-//get the public key in a compressed format
-var pubKey = ecdsa.createPublicKey(privateKey, true)
+// generate privKey
+var privKey
+do {
+  privKey = crypto.randomBytes(32)
+} while (!secp256k1.secretKeyVerify(privKey))
 
-//sign the message
-var sig = ecdsa.sign(msg, privateKey)
+// get the public key in a compressed format
+var pubKey = secp256k1.publicKeyCreate(privKey)
 
-//verify the signature
-if(ecdsa.verify(msg, sig, pubKey)){
-  console.log("valid signature")
-}
+// sign the message
+var sigObj = secp256k1.signSync(msg, privKey)
 
+// verify the signature
+console.log(secp256k1.verifySync(msg, sigObj.signature, pubKey))
 ```
 
-TEST
-===
-run `npm test`
- 
-API
-===
-**Signature**
-All functions that take signatures can take two formats
-* DER - which should be a repersented as an `Buffer`
-* Compact - which should be an `Object` with the following
-  - `signature` - a `Buffer`
-  - `recovery` - an `Integer` for the recovery id
+# LICENSE
 
-secp256k1.verifySecretKey(secretKey) 
------------------------------
-Verify an ECDSA secret key.
-
-**Parameters**
-
-* secretKey - `Buffer`, the secret Key to verify
-
-**Returns**: `Boolean`, `true` if secret key is valid, `false` secret key is invalid
-
-secp256k1.verifyPublicKey(publicKey) 
------------------------------
-Verify an ECDSA public key.
-
-**Parameters**
-
-* publicKey - `Buffer`, the public Key to verify
-
-**Returns**: `Boolean`, `true` if public key is valid, `false` secret key is invalid
-
-secp256k1.sign(msg, secretkey, [DER], [cb]) 
------------------------------
-Create an ECDSA signature.
-
-**Parameters**
-
-* msg - `Buffer`,  a 32-byte message hash being signed 
-* secretkey - `Buffer`, a 32-byte secret key (assumed to be valid)
-* DER - `Boolean`, **Optional**  if `true` the signature produced will be in DER format. Defaults to `false`
-* cb - `function`, **Optional** the callback. The callback is given the signature. If no callback is given the function will run sync.
-
-**Returns**:
-
-* if `DER` a `Buffer`, if no callback is given a 72-byte signature is returned  
-* else an compact siganture `Object`
-
-secp256k1.verify(mgs, sig, pubKey, [cb]) 
------------------------------
-Verify an ECDSA signature.  Runs asynchronously if given a callback
-
-**Parameters**
-* mgs - `Buffer`, the 32-byte message hash being verified
-* sig - `Buffer`, the signature being verified
-* pubKey - `Buffer`, the public key
-* cb - a callback if you want to run async
- 
-**Returns**: Integer,  
-   - true correct signature
-   - false incorrect signature
-
-secp256k1.recover(msg, sig, compressed, [cb]) 
------------------------------
-Recover an ECDSA public key from a compact signature in the process also verifing it.  Runs asynchronously if given a callback
-
-**Parameters**
-* msg - `Buffer`, the message assumed to be signed
-* sig - `Buffer`, the signature
-* compressed - `Boolean`, whether to recover a compressed or uncompressed pubkey. Defaults to `true`
-* cb - `function`, Recover an ECDSA public key from a compact signature. In the process also verifing it.
-
-**Returns**: Buffer, the pubkey, a 33 or 65 byte buffer
-
-secp256k1.createPublicKey(secKey, compressed) 
------------------------------
-Compute the public key for a secret key.
-
-**Parameters**
-* secKey - `Buffer`, a 32-byte private key.
-* compressed - `Boolean`, whether the computed public key should be compressed
-
-**Returns**: Buffer, a 33-byte (if compressed) or 65-byte (if uncompressed).
-
-secp256k1.exportPrivateKey(secretKey, compressed) 
------------------------------
-
-**Parameters**
-* secretKey - `Buffer`
-* compressed - `Boolean`
-
-** Returns**: Buffer, privateKey
-
-secp256k1.importPrivateKey(privateKey) 
------------------------------
-
-**Parameters**
-* privateKey - `Buffer`
-
-**Returns**: `Buffer`, secretKey
-
-secp256k1.privKeyTweakAdd(secretKey) 
------------------------------
-**Parameters**
-* privateKey - `Buffer`
-* tweak - `Buffer`
-
-**Returns**: `Buffer`
-
-secp256k1.privKeyTweakMul(privateKey, tweak) 
------------------------------
-**Parameters**
-* privateKey - `Buffer`
-* tweak - `Buffer`
-
-**Returns**: Buffer
-
-
-LICENSE
------------------------------
-MIT
+This library is free and open-source software released under the MIT license.

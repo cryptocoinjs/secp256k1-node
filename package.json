@@ -29,14 +29,14 @@
   },
   "scripts": {
     "clean": "node-gyp clean",
-    "coverage": "istanbul cover mocha",
+    "coverage": "istanbul cover _mocha",
     "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
     "install": "npm run rebuild",
     "lint": "eslint src test",
     "rebuild": "node-gyp rebuild",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "karma start karma.conf.js",
-    "test:node": "istanbul test mocha -- --reporter spec"
+    "test:node": "istanbul test _mocha -- --reporter spec"
   },
   "dependencies": {
     "bindings": "^1.2.1",
