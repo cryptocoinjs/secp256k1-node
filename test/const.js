@@ -1,9 +1,0 @@
-var BigInteger = require('bigi')
-
-// Limbs of the secp256k1 order
-exports.SECP256K1_N = BigInteger.fromHex(
-  'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141')
-
-// Limbs of half the secp256k1 order
-exports.SECP256K1_N_H = BigInteger.fromHex(
-  '7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0')

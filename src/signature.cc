@@ -45,8 +45,8 @@ NAN_METHOD(signatureExport) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_FAIL);
   }
 
-  unsigned char output[300];
-  size_t outputlen = 300;
+  unsigned char output[72];
+  size_t outputlen = 72;
   if (secp256k1_ecdsa_signature_serialize_der(secp256k1ctx, &output[0], &outputlen, &sig) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_SERIALIZE_DER_FAIL);
   }

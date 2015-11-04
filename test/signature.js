@@ -1,9 +1,6 @@
 var expect = require('chai').expect
-var randomBytes = require('crypto').randomBytes
 var BigInteger = require('bigi')
 
-var SECP256K1_N = require('./const').SECP256K1_N
-var SECP256K1_N_H = require('./const').SECP256K1_N_H
 var util = require('./util')
 
 /**
@@ -28,24 +25,36 @@ module.exports = function (secp256k1, opts) {
     it('parse fail (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          SECP256K1_N.toBuffer(32),
-          randomBytes(32)
+          util.ecparams.n.toBuffer(32),
+          BigInteger.ONE.toBuffer(32)
         ])
         secp256k1.signatureNormalize(signature)
       }).to.throw(Error, /parse/)
     })
 
-    it('normalize fail (s is not high)', function () {
+    it('normalize fail (s equal n/2)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          randomBytes(32),
-          SECP256K1_N_H.subtract(BigInteger.ONE).toBuffer(32)
+          BigInteger.ONE.toBuffer(32),
+          util.ecparams.nH.toBuffer(32)
         ])
         secp256k1.signatureNormalize(signature)
       }).to.throw(Error, /normalize/)
     })
 
-    util.repeatIt.skip('random tests', function () {
+    util.repeatIt('random tests', opts.repeat, function () {
+      var msg = util.getMessage()
+      var privKey = util.getPrivateKey()
+
+      var sigObj = util.signSync(msg, privKey)
+      if (sigObj.signatureLowS.toString('hex') === sigObj.signature.toString('hex')) {
+        return expect(function () {
+          secp256k1.signatureNormalize(sigObj.signature)
+        }).to.throw(Error, /normalize/)
+      }
+
+      var result = secp256k1.signatureNormalize(sigObj.signature)
+      expect(result.toString('hex')).to.equal(sigObj.signatureLowS.toString('hex'))
     })
   })
 
@@ -65,14 +74,11 @@ module.exports = function (secp256k1, opts) {
     it('parse fail (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          SECP256K1_N.toBuffer(32),
-          randomBytes(32)
+          util.ecparams.n.toBuffer(32),
+          BigInteger.ONE.toBuffer(32)
         ])
         secp256k1.signatureExport(signature)
       }).to.throw(Error, /parse/)
-    })
-
-    util.repeatIt.skip('random tests', function () {
     })
   })
 
@@ -88,8 +94,18 @@ module.exports = function (secp256k1, opts) {
         secp256k1.signatureImport(new Buffer(0))
       }).to.throw(Error, /parse/)
     })
+  })
 
-    util.repeatIt.skip('random tests', function () {
+  describe('signatureExport/signatureImport', function () {
+    util.repeatIt('random tests', opts.repeat, function () {
+      var msg = util.getMessage()
+      var privKey = util.getPrivateKey()
+
+      var sig = util.signSync(msg, privKey).signatureLowS
+
+      var der = secp256k1.signatureExport(sig)
+      var result = secp256k1.signatureImport(der)
+      expect(result.toString('hex')).to.equal(sig.toString('hex'))
     })
   })
 }

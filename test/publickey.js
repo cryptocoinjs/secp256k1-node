@@ -3,7 +3,6 @@ var BigInteger = require('bigi')
 var ECKey = require('eckey')
 var ecurve = require('ecurve')
 
-var SECP256K1_N = require('./const').SECP256K1_N
 var util = require('./util')
 
 var ecparams = ecurve.getCurveByName('secp256k1')
@@ -36,7 +35,7 @@ module.exports = function (secp256k1, opts) {
 
     it('equal to N', function () {
       expect(function () {
-        var privKey = SECP256K1_N.toBuffer(32)
+        var privKey = util.ecparams.n.toBuffer(32)
         secp256k1.publicKeyCreate(privKey)
       }).to.throw(Error, /secret/)
     })
@@ -147,7 +146,7 @@ module.exports = function (secp256k1, opts) {
 
     it('tweak overflow', function () {
       expect(function () {
-        secp256k1.publicKeyTweakAdd(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+        secp256k1.publicKeyTweakAdd(util.getPublicKey(), util.ecparams.n.toBuffer(32))
       }).to.throw(Error, /range/)
     })
 
@@ -202,7 +201,7 @@ module.exports = function (secp256k1, opts) {
 
     it('tweak overflow', function () {
       expect(function () {
-        secp256k1.publicKeyTweakMul(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+        secp256k1.publicKeyTweakMul(util.getPublicKey(), util.ecparams.n.toBuffer(32))
       }).to.throw(Error, /range/)
     })
 

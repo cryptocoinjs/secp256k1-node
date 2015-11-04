@@ -1,6 +1,5 @@
 var expect = require('chai').expect
 
-var SECP256K1_N = require('./const').SECP256K1_N
 var util = require('./util')
 
 /**
@@ -48,7 +47,7 @@ module.exports = function (secp256k1, opts) {
     })
 
     it('secret key equal N', function () {
-      var promise = secp256k1.ecdh(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+      var promise = secp256k1.ecdh(util.getPublicKey(), util.ecparams.n.toBuffer(32))
       return expect(promise).to.be.rejectedWith(Error, /scalar/)
     })
 
@@ -98,7 +97,7 @@ module.exports = function (secp256k1, opts) {
 
     it('secret key equal N', function () {
       expect(function () {
-        secp256k1.ecdhSync(util.getPublicKey(), SECP256K1_N.toBuffer(32))
+        secp256k1.ecdhSync(util.getPublicKey(), util.ecparams.n.toBuffer(32))
       }).to.throw(Error, /scalar/)
     })
 

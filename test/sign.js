@@ -40,7 +40,7 @@ module.exports = function (secp256k1, opts) {
     })
 
     it('secret key is invalid', function () {
-      var promise = secp256k1.sign(util.getMessage(), require('./const').SECP256K1_N.toBuffer(32))
+      var promise = secp256k1.sign(util.getMessage(), util.ecparams.n.toBuffer(32))
       return expect(promise).to.be.rejectedWith(Error, /secret/)
     })
   })
@@ -72,7 +72,7 @@ module.exports = function (secp256k1, opts) {
 
     it('secret key is invalid', function () {
       expect(function () {
-        secp256k1.signSync(util.getMessage(), require('./const').SECP256K1_N.toBuffer(32))
+        secp256k1.signSync(util.getMessage(), util.ecparams.n.toBuffer(32))
       }).to.throw(Error, /secret/)
     })
   })

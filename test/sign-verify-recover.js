@@ -20,7 +20,7 @@ module.exports = function (secp256k1, opts) {
       return secp256k1.sign(msg, eckey.privateKey)
         .then(function (value) {
           sigObj = value
-          expect(sigObj.signature.toString('hex')).to.equal(expected.signature.toString('hex'))
+          expect(sigObj.signature.toString('hex')).to.equal(expected.signatureLowS.toString('hex'))
 
           return secp256k1.verify(msg, sigObj.signature, eckey.publicKey)
         })
@@ -42,7 +42,7 @@ module.exports = function (secp256k1, opts) {
       var expected = util.signSync(msg, eckey.privateKey)
 
       var sigObj = secp256k1.signSync(msg, eckey.privateKey)
-      expect(sigObj.signature.toString('hex')).to.equal(expected.signature.toString('hex'))
+      expect(sigObj.signature.toString('hex')).to.equal(expected.signatureLowS.toString('hex'))
 
       var result = secp256k1.verifySync(msg, sigObj.signature, eckey.publicKey)
       expect(result).to.be.true

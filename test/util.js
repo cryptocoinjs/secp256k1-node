@@ -1,15 +1,16 @@
+var assert = require('assert')
 var randomBytes = require('crypto').randomBytes
-var createHash = require('create-hash')
+var createHash = require('crypto').createHash
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
 var ECKey = require('eckey')
 var ecurve = require('ecurve')
 var ProgressBar = require('progress')
 
-var SECP256K1_N = require('./const').SECP256K1_N
 var Promise = require('../lib/promise')
 
-var ecparams = ecurve.getCurveByName('secp256k1')
+var ecparams = exports.ecparams = ecurve.getCurveByName('secp256k1')
+ecparams.nH = ecparams.n.shiftRight(1)
 
 /**
  * @return {Buffer}
@@ -18,7 +19,7 @@ exports.getPrivateKey = function () {
   while (true) {
     var privKey = randomBytes(32)
     var bn = BigInteger.fromBuffer(privKey)
-    if (bn.compareTo(BigInteger.ZERO) !== 0 && bn.compareTo(SECP256K1_N) < 0) {
+    if (bn.compareTo(BigInteger.ZERO) !== 0 && bn.compareTo(ecparams.n) < 0) {
       return privKey
     }
   }
@@ -47,7 +48,7 @@ exports.getTweak = function () {
   while (true) {
     var tweak = randomBytes(32)
     var bn = BigInteger.fromBuffer(tweak)
-    if (bn.compareTo(SECP256K1_N) < 0) {
+    if (bn.compareTo(ecparams.n) < 0) {
       return tweak
     }
   }
@@ -66,9 +67,25 @@ exports.getMessage = function () {
  * @return {{signature: string, recovery: number}}
  */
 exports.signSync = function (msg, privKey) {
-  var obj = ecdsa.sign(msg, privKey)
+  var D = BigInteger.fromBuffer(privKey)
+  var k = ecdsa.deterministicGenerateK(msg, D)
+  var Q = ecparams.G.multiply(k)
+  var e = BigInteger.fromBuffer(msg)
+
+  var r = Q.affineX.mod(ecparams.n)
+  assert.notEqual(r.signum(), 0, 'Invalid R value')
+
+  var s, lowS
+  s = lowS = k.modInverse(ecparams.n).multiply(e.add(D.multiply(r))).mod(ecparams.n)
+  assert.notEqual(s.signum(), 0, 'Invalid S value')
+
+  if (lowS.compareTo(ecparams.nH) > 0) {
+    lowS = ecparams.n.subtract(lowS)
+  }
+
   return {
-    signature: Buffer.concat([obj.r.toBuffer(32), obj.s.toBuffer(32)]),
+    signature: Buffer.concat([r.toBuffer(32), s.toBuffer(32)]),
+    signatureLowS: Buffer.concat([r.toBuffer(32), lowS.toBuffer(32)]),
     recovery: null // TODO
   }
 }

@@ -1,7 +1,6 @@
 var expect = require('chai').expect
 var randomBytes = require('crypto').randomBytes
 
-var SECP256K1_N = require('./const').SECP256K1_N
 var util = require('./util')
 
 /**
@@ -53,7 +52,7 @@ module.exports = function (secp256k1, opts) {
 
     it('signature is invalid (r equal N)', function () {
       var signature = Buffer.concat([
-        SECP256K1_N.toBuffer(32),
+        util.ecparams.n.toBuffer(32),
         randomBytes(32)
       ])
       var promise = secp256k1.verify(util.getMessage(), signature, util.getPublicKey())
@@ -108,7 +107,7 @@ module.exports = function (secp256k1, opts) {
     it('signature is invalid (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          SECP256K1_N.toBuffer(32),
+          util.ecparams.n.toBuffer(32),
           randomBytes(32)
         ])
         secp256k1.verifySync(util.getMessage(), signature, util.getPublicKey())
