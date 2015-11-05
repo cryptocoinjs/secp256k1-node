@@ -5,46 +5,16 @@
       "with_gmp%": "<!(./utils/has_lib.sh gmpxx && ./utils/has_lib.sh gmp)"
     },
     "sources": [
-      "./functions.cc",
-      "./util.cc",
-      "./secp256k1.cc",
-      "./secp256k1-src/src/secp256k1.c",
-      "./secp256k1-src/src/ecdsa.h",
-      "./secp256k1-src/src/ecdsa_impl.h",
-      "./secp256k1-src/src/eckey.h",
-      "./secp256k1-src/src/eckey_impl.h",
-      "./secp256k1-src/src/ecmult_const.h",
-      "./secp256k1-src/src/ecmult_const_impl.h",
-      "./secp256k1-src/src/ecmult_gen.h",
-      "./secp256k1-src/src/ecmult_gen_impl.h",
-      "./secp256k1-src/src/ecmult.h",
-      "./secp256k1-src/src/ecmult_impl.h",
-      "./secp256k1-src/src/field_10x26.h",
-      "./secp256k1-src/src/field_10x26_impl.h",
-      "./secp256k1-src/src/field_5x52.h",
-      "./secp256k1-src/src/field_5x52_impl.h",
-      "./secp256k1-src/src/field_5x52_int128_impl.h",
-      "./secp256k1-src/src/field_5x52_asm_impl.h",
-      "./secp256k1-src/src/field.h",
-      "./secp256k1-src/src/field_impl.h",
-      "./secp256k1-src/src/group.h",
-      "./secp256k1-src/src/group_impl.h",
-      "./secp256k1-src/src/num.h",
-      "./secp256k1-src/src/num_impl.h",
-      "./secp256k1-src/src/num_gmp.h",
-      "./secp256k1-src/src/num_gmp_impl.h",
-      "./secp256k1-src/src/scalar_4x64.h",
-      "./secp256k1-src/src/scalar_4x64_impl.h",
-      "./secp256k1-src/src/scalar_8x32.h",
-      "./secp256k1-src/src/scalar_8x32_impl.h",
-      "./secp256k1-src/src/scalar.h",
-      "./secp256k1-src/src/scalar_impl.h",
-      "./secp256k1-src/src/util.h",
-      "./secp256k1-src/src/modules/schnorr/main_impl.h",
-      "./secp256k1-src/src/modules/schnorr/schnorr_impl.h",
-      "./secp256k1-src/src/modules/schnorr/schnorr.h",
-      "./secp256k1-src/src/modules/ecdh/main_impl.h",
-      "./secp256k1-src/src/modules/recovery/main_impl.h"
+      "./src/addon.cc",
+      "./src/secretkey.cc",
+      "./src/publickey.cc",
+      "./src/signature.cc",
+      "./src/sign.cc",
+      "./src/verify.cc",
+      "./src/recover.cc",
+      "./src/ecdh.cc",
+      "./src/secp256k1-src/src/secp256k1.c",
+      "./src/secp256k1-src/contrib/lax_der_privatekey_parsing.c"
     ],
     "cflags": [
       "-Wall",
@@ -53,10 +23,15 @@
       "-Wno-unused-function",
       "-Wextra"
     ],
+    "cflags_cc+": [
+      "-std=c++0x"
+    ],
     "include_dirs": [
       "/usr/local/include",
-      "./secp256k1-src",
-      "./secp256k1-src/src",
+      "./src/secp256k1-src",
+      "./src/secp256k1-src/contrib",
+      "./src/secp256k1-src/include",
+      "./src/secp256k1-src/src",
       "<!(node -e \"require('nan')\")"
     ],
     "conditions": [
@@ -77,6 +52,7 @@
             "USE_NUM_NONE=1",
             "USE_SCALAR_INV_BUILTIN=1",
             "USE_FIELD_INV_BUILTIN=1",
+            "ENABLE_MODULE_ECDH=1",
             "ENABLE_MODULE_RECOVERY=1"
           ]
         }

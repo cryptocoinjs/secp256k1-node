@@ -1,35 +1,16 @@
 {
   "name": "secp256k1",
-  "version": "1.1.5",
+  "version": "2.0.0",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
-  "main": "index.js",
-  "scripts": {
-    "test": "standard ./index.js && ./node_modules/mocha/bin/mocha --reporter spec ./test/",
-    "install": "node-gyp rebuild",
-    "rebuild": "node-gyp rebuild"
-  },
-  "dependencies": {
-    "bindings": "^1.2.1",
-    "nan": "^2.0.9"
-  },
-  "devDependencies": {
-    "bigi": "^1.3.0",
-    "coinkey": "^1.3.0",
-    "ecdsa": "^0.6.0",
-    "mocha": "^2.2.5",
-    "node-gyp": "^3.0.3",
-    "secure-random": "^1.1.1",
-    "standard": "^5.2.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wanderer/secp256k1-node.git"
-  },
   "keywords": [
     "secp256k1",
     "ecdsa",
     "ec"
   ],
+  "bugs": {
+    "url": "https://github.com/wanderer/secp256k1-node/issues"
+  },
+  "license": "MIT",
   "author": {
     "name": "martin becze",
     "email": "mjbecze@gmail.com"
@@ -38,11 +19,58 @@
     "Aaron Davis (https://github.com/kumavis)",
     "Ian Matyssik (https://github.com/phpb-com)",
     "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
-    "ethers (https://github.com/ethers)"
+    "ethers (https://github.com/ethers)",
+    "Kirill Fomichev fanatid@ya.ru (https://github.com/fanatid)"
   ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wanderer/secp256k1-node/issues"
+  "main": "./bindings.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wanderer/secp256k1-node.git"
   },
-  "gypfile": true
+  "scripts": {
+    "clean": "node-gyp clean",
+    "coverage": "istanbul cover _mocha",
+    "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
+    "install": "npm run rebuild",
+    "lint": "eslint src test",
+    "rebuild": "node-gyp rebuild",
+    "test": "npm run test:node && npm run test:browser",
+    "test:browser": "karma start karma.conf.js",
+    "test:node": "istanbul test _mocha -- --reporter spec"
+  },
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "bluebird": "^3.0.2",
+    "bn.js": "^4.1.1",
+    "elliptic": "^6.0.1",
+    "nan": "^2.0.9",
+    "object-assign": "^4.0.1"
+  },
+  "devDependencies": {
+    "bigi": "^1.3.0",
+    "chai": "^3.4.0",
+    "chai-as-promised": "^5.1.0",
+    "coveralls": "^2.11.4",
+    "ecdsa": "^0.6.0",
+    "eckey": "^0.8.0",
+    "ecurve": "^1.0.2",
+    "eslint": "^1.7.3",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
+    "istanbul": "^0.4.0",
+    "karma": "^0.13.14",
+    "karma-browserify": "^4.4.0",
+    "karma-chrome-launcher": "^0.2.1",
+    "karma-detect-browsers": "^2.0.2",
+    "karma-env-preprocessor": "^0.1.1",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-mocha": "^0.2.0",
+    "mocha": "^2.3.3",
+    "node-gyp": "^3.0.3",
+    "progress": "^1.1.8"
+  },
+  "gypfile": true,
+  "browser": {
+    "./bindings.js": "./js.js"
+  }
 }
