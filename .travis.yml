@@ -7,8 +7,15 @@ node_js:
   - 0.12
   - 4
   - 5
+env:
+  global:
+    - CXX=g++-4.8
+    - DISPLAY=:99.0
+  matrix:
+    - TEST_SUITE=coveralls
+    - TEST_SUITE=lint
+    - TEST_SUITE=test
 matrix:
-# include don't work with addons?
   exclude:
     - node_js: 0.11
       env: TEST_SUITE=coveralls
@@ -22,20 +29,13 @@ matrix:
       env: TEST_SUITE=coveralls
     - node_js: 5
       env: TEST_SUITE=lint
-env:
-  global:
-    - CXX=g++-4.8
-  matrix:
-    - TEST_SUITE=coveralls
-    - TEST_SUITE=lint
-    - TEST_SUITE=test
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
     packages:
-    - g++-4.8
-before_script:
-  - export DISPLAY=:99.0
+      - g++-4.8
+  firefox: latest
+before_install:
   - sh -e /etc/init.d/xvfb start
-script: "npm run $TEST_SUITE"
+script: npm run $TEST_SUITE
