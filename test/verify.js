@@ -123,4 +123,3 @@ module.exports = function (secp256k1, opts) {
     })
   })
 }
-
