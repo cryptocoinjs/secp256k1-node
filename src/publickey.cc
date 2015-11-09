@@ -52,7 +52,7 @@ NAN_METHOD(publicKeyConvert) {
   }
 
   unsigned char output[65];
-  size_t outputlen = 33;
+  size_t outputlen = 65;
   secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
