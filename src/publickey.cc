@@ -38,7 +38,7 @@ NAN_METHOD(publicKeyConvert) {
   size_t inputlen = node::Buffer::Length(pubkey_buffer);
 
   unsigned int flags = SECP256K1_EC_COMPRESSED;
-  v8::Local<v8::Value> compressed = info[1].As<v8::Value>();
+  v8::Local<v8::Value> compressed = info[1];
   if (!compressed->IsUndefined()) {
     CHECK_TYPE_BOOLEAN(compressed, COMPRESSED_TYPE_INVALID);
     if (!compressed->BooleanValue()) {
