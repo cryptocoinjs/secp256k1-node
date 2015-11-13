@@ -34,7 +34,7 @@ NAN_METHOD(secretKeyExport) {
   const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
 
   int compressed = 1;
-  v8::Local<v8::Value> compressed_value = info[1].As<v8::Value>();
+  v8::Local<v8::Value> compressed_value = info[1];
   if (!compressed_value->IsUndefined()) {
     CHECK_TYPE_BOOLEAN(compressed_value, COMPRESSED_TYPE_INVALID);
     if (!compressed_value->BooleanValue()) {

@@ -1,13 +1,13 @@
 # secp256k1-node
 
-[![NPM Package](https://img.shields.io/npm/v/secp256k1-node.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1-node)
+[![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1)
 [![Build Status](https://img.shields.io/travis/wanderer/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/wanderer/secp256k1-node)
 [![Coverage Status](https://img.shields.io/coveralls/wanderer/secp256k1-node.svg?style=flat-square)](https://coveralls.io/r/wanderer/secp256k1-node)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.
-This library is experimental, so use at your own risk. Works on node version 0.11 or greater.
+This library is experimental, so use at your own risk. Works on node version 0.10 or greater.
 
 # Installation
 
