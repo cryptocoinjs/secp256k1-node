@@ -1,3 +1,5 @@
+# Please use [cryptocoinjs/secp256k1-node](https://github.com/cryptocoinjs/secp256k1-node)
+
 # secp256k1-node
 
 [![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1)
