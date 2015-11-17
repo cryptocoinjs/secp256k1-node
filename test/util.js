@@ -136,7 +136,8 @@ function repeatIt (it, args) {
           .then(function () {
             bar.tick()
           })
-          .then(next, reject)
+          .then(next)
+          .catch(reject)
       }
 
       next()

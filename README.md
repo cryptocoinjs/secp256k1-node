@@ -1,8 +1,8 @@
 # secp256k1-node
 
 [![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1)
-[![Build Status](https://img.shields.io/travis/wanderer/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/wanderer/secp256k1-node)
-[![Coverage Status](https://img.shields.io/coveralls/wanderer/secp256k1-node.svg?style=flat-square)](https://coveralls.io/r/wanderer/secp256k1-node)
+[![Build Status](https://img.shields.io/travis/cryptocoinjs/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/cryptocoinjs/secp256k1-node)
+[![Coverage Status](https://img.shields.io/coveralls/cryptocoinjs/secp256k1-node.svg?style=flat-square)](https://coveralls.io/r/cryptocoinjs/secp256k1-node)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
@@ -22,7 +22,7 @@ If you have gmp installed secp256k1 will use it. Otherwise it should fallback to
 ##### from git
 
 ```
-git clone git@github.com:wanderer/secp256k1-node.git
+git clone git@github.com:cryptocoinjs/secp256k1-node.git
 cd secp256k1-node
 npm install
 ```
