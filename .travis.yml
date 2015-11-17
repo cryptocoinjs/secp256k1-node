@@ -3,40 +3,35 @@ os:
   - linux
 language: node_js
 node_js:
-  - 0.10
-  - 0.11
-  - 0.12
-  - 4
-  - 5
-env:
-  global:
-    - CXX=g++-4.8
-    - DISPLAY=:99.0
-  matrix:
-    - TEST_SUITE=coveralls
-    - TEST_SUITE=lint
-    - TEST_SUITE=test
-matrix:
-  exclude:
-    - node_js: 0.11
-      env: TEST_SUITE=coveralls
-    - node_js: 0.11
-      env: TEST_SUITE=lint
-    - node_js: 0.12
-      env: TEST_SUITE=coveralls
-    - node_js: 0.12
-      env: TEST_SUITE=lint
-    - node_js: 5
-      env: TEST_SUITE=coveralls
-    - node_js: 5
-      env: TEST_SUITE=lint
+  - "0.10"
+  - "0.11"
+  - "0.12"
+  - "4"
+  - "5"
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - clang-3.5
       - g++-4.8
-  firefox: latest
 before_install:
   - sh -e /etc/init.d/xvfb start
+env:
+  global:
+    - DISPLAY=:99.0
+  matrix:
+    - CXX=g++-4.8 TEST_SUITE=test
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      node_js: "4"
+      env: CXX=clang++ TEST_SUITE=test
+    - os: linux
+      node_js: "4"
+      env: CXX=g++-4.8 TEST_SUITE=coveralls
+    - os: linux
+      node_js: "4"
+      env: CXX=g++-4.8 TEST_SUITE=lint
 script: npm run $TEST_SUITE
