@@ -2,13 +2,12 @@ var chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-var repeat = 10
-if (process.env.RANDOM_TESTS_REPEAT !== undefined) {
-  repeat = parseInt(process.env.RANDOM_TESTS_REPEAT, 10)
-}
-if (global.__env__ && global.__env__.RANDOM_TESTS_REPEAT !== undefined) {
-  repeat = parseInt(global.__env__.RANDOM_TESTS_REPEAT, 10)
-}
+var repeat = global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+             process.env.RANDOM_TESTS_REPEAT ||
+             10
+repeat = parseInt(repeat, 10)
+
+var isTravis = global.__env__ && global.__env__.TRAVIS || process.env.TRAVIS || false
 
 /**
  * @param {Object} secp256k1
@@ -16,7 +15,7 @@ if (global.__env__ && global.__env__.RANDOM_TESTS_REPEAT !== undefined) {
  */
 function runTests (secp256k1, description) {
   describe(description, function () {
-    this.timeout(400 * repeat)
+    this.timeout(repeat * 500 * (isTravis ? 5 : 1))
 
     require('./secretkey')(secp256k1, {repeat: repeat})
     require('./publickey')(secp256k1, {repeat: repeat})

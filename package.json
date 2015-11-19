@@ -1,6 +1,6 @@
 {
   "name": "secp256k1",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "keywords": [
     "secp256k1",
@@ -20,7 +20,7 @@
     "Ian Matyssik (https://github.com/phpb-com)",
     "Kagami Hiiragi <kagami@genshiken.org> (http://kagami.genshiken.org/)",
     "ethers (https://github.com/ethers)",
-    "Kirill Fomichev fanatid@ya.ru (https://github.com/fanatid)"
+    "Kirill Fomichev <fanatid@ya.ru> (https://github.com/fanatid)"
   ],
   "files": [
     "lib",
@@ -54,8 +54,8 @@
   "dependencies": {
     "bindings": "^1.2.1",
     "bluebird": "^3.0.2",
-    "bn.js": "^4.1.1",
-    "elliptic": "^6.0.1",
+    "bn.js": "^4.2.0",
+    "elliptic": "^6.0.2",
     "nan": "^2.0.9",
     "object-assign": "^4.0.1"
   },
@@ -85,6 +85,9 @@
     "./bindings.js": "./js.js"
   },
   "standard": {
-    "globals": ["describe", "it"]
+    "globals": [
+      "describe",
+      "it"
+    ]
   }
 }

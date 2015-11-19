@@ -19,6 +19,10 @@ module.exports = function (config) {
     browserify: {
       debug: true
     },
+    envPreprocessor: [
+      'RANDOM_TESTS_REPEAT',
+      'TRAVIS'
+    ],
     detectBrowsers: {
       enabled: true,
       usePhantomJS: false,
