@@ -50,6 +50,11 @@ module.exports = function (secp256k1, opts) {
       return expect(promise).to.be.rejectedWith(RangeError, /recovery/)
     })
 
+    it('recovery is invalid (equal 32 bytes+)', function () {
+      var promise = secp256k1.recover(util.getMessage(), util.getSignature(), 57779999999999999999999999999999999999999999999)
+      return expect(promise).to.be.rejectedWith(RangeError, /recovery/)
+    })
+
     it('signature is invalid (r equal N)', function () {
       var signature = Buffer.concat([
         util.ecparams.n.toBuffer(32),

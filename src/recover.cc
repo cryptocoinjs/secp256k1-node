@@ -24,7 +24,7 @@ class RecoverWorker : public AsyncWorker {
 
         CHECK_TYPE_NUMBER_ASYNC(recid_number, ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
         CHECK_NUMBER_IN_INTERVAL_ASYNC(recid_number, -1, 4, ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID);
-        recid = recid_number->Int32Value();
+        recid = recid_number->IntegerValue();
     }
 
     void Execute () {
@@ -91,7 +91,7 @@ NAN_METHOD(recoverSync) {
   v8::Local<v8::Object> recid_number = info[2].As<v8::Object>();
   CHECK_TYPE_NUMBER(recid_number, ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
   CHECK_NUMBER_IN_INTERVAL(recid_number, -1, 4, ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID);
-  int recid = recid_number->Int32Value();
+  int recid = recid_number->IntegerValue();
 
   secp256k1_ecdsa_recoverable_signature sig;
   if (secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1ctx, &sig, input, recid) == 0) {
