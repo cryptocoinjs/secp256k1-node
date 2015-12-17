@@ -6,6 +6,5 @@
 
 
 NAN_METHOD(recover);
-NAN_METHOD(recoverSync);
 
 #endif

@@ -37,7 +37,7 @@ exports.getPublicKey = function () {
  * @return {Buffer}
  */
 exports.getSignature = function () {
-  var sig = exports.signSync(exports.getMessage(), exports.getPrivateKey())
+  var sig = exports.sign(exports.getMessage(), exports.getPrivateKey())
   return sig.signature
 }
 
@@ -66,7 +66,7 @@ exports.getMessage = function () {
  * @param {Buffer} privKey
  * @return {{signature: string, recovery: number}}
  */
-exports.signSync = function (msg, privKey) {
+exports.sign = function (msg, privKey) {
   var D = BigInteger.fromBuffer(privKey)
   var k = ecdsa.deterministicGenerateK(msg, D)
   var Q = ecparams.G.multiply(k)
@@ -95,7 +95,7 @@ exports.signSync = function (msg, privKey) {
  * @param {Buffer} privKey
  * @return {Buffer}
  */
-exports.ecdhSync = function (pubKey, privKey) {
+exports.ecdh = function (pubKey, privKey) {
   var point = ecurve.Point.decodeFrom(ecparams, pubKey)
   var buf = point.multiply(BigInteger.fromBuffer(privKey)).getEncoded(true)
   return createHash('sha256').update(buf).digest()

@@ -6,6 +6,5 @@
 
 
 NAN_METHOD(ecdh);
-NAN_METHOD(ecdhSync);
 
 #endif

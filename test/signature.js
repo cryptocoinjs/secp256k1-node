@@ -46,7 +46,7 @@ module.exports = function (secp256k1, opts) {
       var msg = util.getMessage()
       var privKey = util.getPrivateKey()
 
-      var sigObj = util.signSync(msg, privKey)
+      var sigObj = util.sign(msg, privKey)
       if (sigObj.signatureLowS.toString('hex') === sigObj.signature.toString('hex')) {
         return expect(function () {
           secp256k1.signatureNormalize(sigObj.signature)
@@ -101,7 +101,7 @@ module.exports = function (secp256k1, opts) {
       var msg = util.getMessage()
       var privKey = util.getPrivateKey()
 
-      var sig = util.signSync(msg, privKey).signatureLowS
+      var sig = util.sign(msg, privKey).signatureLowS
 
       var der = secp256k1.signatureExport(sig)
       var result = secp256k1.signatureImport(der)

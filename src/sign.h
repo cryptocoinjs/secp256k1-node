@@ -6,6 +6,5 @@
 
 
 NAN_METHOD(sign);
-NAN_METHOD(signSync);
 
 #endif

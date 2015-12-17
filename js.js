@@ -1,1 +1,1 @@
-module.exports = require('./elliptic')
+module.exports = require('./lib/elliptic')

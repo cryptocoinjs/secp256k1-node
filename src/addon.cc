@@ -39,19 +39,15 @@ NAN_MODULE_INIT(Init) {
 
   // sign
   Nan::Export(target, "sign", sign);
-  Nan::Export(target, "signSync", signSync);
 
   // verify
   Nan::Export(target, "verify", verify);
-  Nan::Export(target, "verifySync", verifySync);
 
   // recover
   Nan::Export(target, "recover", recover);
-  Nan::Export(target, "recoverSync", recoverSync);
 
   // ecdh
   Nan::Export(target, "ecdh", ecdh);
-  Nan::Export(target, "ecdhSync", ecdhSync);
 }
 
 NODE_MODULE(secp256k1, Init)

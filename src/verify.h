@@ -6,6 +6,5 @@
 
 
 NAN_METHOD(verify);
-NAN_METHOD(verifySync);
 
 #endif

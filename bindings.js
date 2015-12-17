@@ -1,1 +1,1 @@
-module.exports = require('./lib/bindings')
+module.exports = require('bindings')('secp256k1')
