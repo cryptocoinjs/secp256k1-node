@@ -13,23 +13,23 @@ NAN_METHOD(ecdh) {
   Nan::HandleScope scope;
 
   v8::Local<v8::Object> pubkey_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBKEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH2(pubkey_buffer, 33, 65, EC_PUBKEY_LENGTH_INVALID);
-  const unsigned char* pubkey_input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
-  size_t pubkey_inputlen = node::Buffer::Length(pubkey_buffer);
+  CHECK_TYPE_BUFFER(pubkey_buffer, EC_PUBLIC_KEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH2(pubkey_buffer, 33, 65, EC_PUBLIC_KEY_LENGTH_INVALID);
+  const unsigned char* public_key_input = (unsigned char*) node::Buffer::Data(pubkey_buffer);
+  size_t public_key_input_length = node::Buffer::Length(pubkey_buffer);
 
-  v8::Local<v8::Object> seckey_buffer = info[1].As<v8::Object>();
-  CHECK_TYPE_BUFFER(seckey_buffer, EC_PRIVKEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
-  const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
+  v8::Local<v8::Object> private_key_buffer = info[1].As<v8::Object>();
+  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
+  const unsigned char* private_key = (const unsigned char*) node::Buffer::Data(private_key_buffer);
 
-  secp256k1_pubkey pubkey;
-  if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, pubkey_input, pubkey_inputlen) == 0) {
-    return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
+  secp256k1_pubkey public_key;
+  if (secp256k1_ec_pubkey_parse(secp256k1ctx, &public_key, public_key_input, public_key_input_length) == 0) {
+    return Nan::ThrowError(EC_PUBLIC_KEY_PARSE_FAIL);
   }
 
   unsigned char output[32];
-  if (secp256k1_ecdh(secp256k1ctx, &output[0], &pubkey, seckey) == 0) {
+  if (secp256k1_ecdh(secp256k1ctx, &output[0], &public_key, private_key) == 0) {
     return Nan::ThrowError(ECDH_FAIL);
   }
 

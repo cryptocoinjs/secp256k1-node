@@ -2,7 +2,7 @@
 #include <nan.h>
 #include <secp256k1.h>
 
-#include "secretkey.h"
+#include "privatekey.h"
 #include "publickey.h"
 #include "signature.h"
 #include "ecdsa.h"
@@ -16,11 +16,11 @@ NAN_MODULE_INIT(Init) {
     SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
   // secret key
-  Nan::Export(target, "secretKeyVerify", secretKeyVerify);
-  Nan::Export(target, "secretKeyExport", secretKeyExport);
-  Nan::Export(target, "secretKeyImport", secretKeyImport);
-  Nan::Export(target, "secretKeyTweakAdd", secretKeyTweakAdd);
-  Nan::Export(target, "secretKeyTweakMul", secretKeyTweakMul);
+  Nan::Export(target, "privateKeyVerify", privateKeyVerify);
+  Nan::Export(target, "privateKeyExport", privateKeyExport);
+  Nan::Export(target, "privateKeyImport", privateKeyImport);
+  Nan::Export(target, "privateKeyTweakAdd", privateKeyTweakAdd);
+  Nan::Export(target, "privateKeyTweakMul", privateKeyTweakMul);
 
   // public key
   Nan::Export(target, "publicKeyCreate", publicKeyCreate);

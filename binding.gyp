@@ -6,7 +6,7 @@
     },
     "sources": [
       "./src/addon.cc",
-      "./src/secretkey.cc",
+      "./src/privatekey.cc",
       "./src/publickey.cc",
       "./src/signature.cc",
       "./src/ecdsa.cc",
