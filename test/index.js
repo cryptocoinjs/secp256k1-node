@@ -7,7 +7,9 @@ var repeat = global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
              10
 repeat = parseInt(repeat, 10)
 
-var isTravis = global.__env__ && global.__env__.TRAVIS || process.env.TRAVIS || false
+var isTravis = global.__env__ && global.__env__.TRAVIS ||
+               process.env.TRAVIS ||
+               false
 
 /**
  * @param {Object} secp256k1

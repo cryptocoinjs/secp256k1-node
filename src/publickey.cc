@@ -139,7 +139,6 @@ NAN_METHOD(publicKeyCombine) {
   CHECK_TYPE_ARRAY(buffers, EC_PUBKEYS_TYPE_INVALID);
   CHECK_LENGTH_GT_ZERO(buffers, EC_PUBKEYS_LENGTH_INVALID);
 
-  // vector instead new for public_keys?
   std::unique_ptr<secp256k1_pubkey[]> public_keys(new secp256k1_pubkey[buffers->Length()]);
   std::unique_ptr<secp256k1_pubkey*[]> ins(new secp256k1_pubkey*[buffers->Length()]);
   for (unsigned int i = 0; i < buffers->Length(); ++i) {
