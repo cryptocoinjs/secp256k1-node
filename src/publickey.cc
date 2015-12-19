@@ -16,14 +16,17 @@ NAN_METHOD(publicKeyCreate) {
   CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
   const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
 
+  unsigned int flags = SECP256K1_EC_COMPRESSED;
+  UPDATE_COMPRESSED_VALUE(flags, info[1], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
+
   secp256k1_pubkey pubkey;
   if (secp256k1_ec_pubkey_create(secp256k1ctx, &pubkey, seckey) == 0) {
     return Nan::ThrowError(EC_PUBKEY_CREATE_FAIL);
   }
 
-  unsigned char output[33];
-  size_t outputlen = 33;
-  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
+  unsigned char output[65];
+  size_t outputlen = 65;
+  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
 }
@@ -38,13 +41,7 @@ NAN_METHOD(publicKeyConvert) {
   size_t inputlen = node::Buffer::Length(pubkey_buffer);
 
   unsigned int flags = SECP256K1_EC_COMPRESSED;
-  v8::Local<v8::Value> compressed = info[1];
-  if (!compressed->IsUndefined()) {
-    CHECK_TYPE_BOOLEAN(compressed, COMPRESSED_TYPE_INVALID);
-    if (!compressed->BooleanValue()) {
-      flags = SECP256K1_EC_UNCOMPRESSED;
-    }
-  }
+  UPDATE_COMPRESSED_VALUE(flags, info[1], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
 
   secp256k1_pubkey pubkey;
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
@@ -86,6 +83,9 @@ NAN_METHOD(publicKeyTweakAdd) {
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
 
+  unsigned int flags = SECP256K1_EC_COMPRESSED;
+  UPDATE_COMPRESSED_VALUE(flags, info[2], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
+
   secp256k1_pubkey pubkey;
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
@@ -95,9 +95,9 @@ NAN_METHOD(publicKeyTweakAdd) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_ADD_FAIL);
   }
 
-  unsigned char output[33];
-  size_t outputlen = 33;
-  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
+  unsigned char output[65];
+  size_t outputlen = 65;
+  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
 }
@@ -116,6 +116,9 @@ NAN_METHOD(publicKeyTweakMul) {
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (const unsigned char *) node::Buffer::Data(tweak_buffer);
 
+  unsigned int flags = SECP256K1_EC_COMPRESSED;
+  UPDATE_COMPRESSED_VALUE(flags, info[2], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
+
   secp256k1_pubkey pubkey;
   if (secp256k1_ec_pubkey_parse(secp256k1ctx, &pubkey, input, inputlen) == 0) {
     return Nan::ThrowError(EC_PUBKEY_PARSE_FAIL);
@@ -125,9 +128,9 @@ NAN_METHOD(publicKeyTweakMul) {
     return Nan::ThrowError(EC_PUBKEY_TWEAK_MUL_FAIL);
   }
 
-  unsigned char output[33];
-  size_t outputlen = 33;
-  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
+  unsigned char output[65];
+  size_t outputlen = 65;
+  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
 }
@@ -138,6 +141,9 @@ NAN_METHOD(publicKeyCombine) {
   v8::Local<v8::Array> buffers = info[0].As<v8::Array>();
   CHECK_TYPE_ARRAY(buffers, EC_PUBKEYS_TYPE_INVALID);
   CHECK_LENGTH_GT_ZERO(buffers, EC_PUBKEYS_LENGTH_INVALID);
+
+  unsigned int flags = SECP256K1_EC_COMPRESSED;
+  UPDATE_COMPRESSED_VALUE(flags, info[1], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
 
   std::unique_ptr<secp256k1_pubkey[]> public_keys(new secp256k1_pubkey[buffers->Length()]);
   std::unique_ptr<secp256k1_pubkey*[]> ins(new secp256k1_pubkey*[buffers->Length()]);
@@ -162,7 +168,7 @@ NAN_METHOD(publicKeyCombine) {
 
   unsigned char output[33];
   size_t outputlen = 33;
-  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, SECP256K1_EC_COMPRESSED);
+  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &outputlen, &pubkey, flags);
 
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], outputlen));
 }

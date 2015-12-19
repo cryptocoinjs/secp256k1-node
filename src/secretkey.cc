@@ -21,7 +21,6 @@ NAN_METHOD(secretKeyVerify) {
   }
 
   int result = secp256k1_ec_seckey_verify(secp256k1ctx, seckey);
-
   info.GetReturnValue().Set(Nan::New<v8::Boolean>(result));
 }
 
@@ -34,13 +33,7 @@ NAN_METHOD(secretKeyExport) {
   const unsigned char* seckey = (const unsigned char*) node::Buffer::Data(seckey_buffer);
 
   int compressed = 1;
-  v8::Local<v8::Value> compressed_value = info[1];
-  if (!compressed_value->IsUndefined()) {
-    CHECK_TYPE_BOOLEAN(compressed_value, COMPRESSED_TYPE_INVALID);
-    if (!compressed_value->BooleanValue()) {
-      compressed = 0;
-    }
-  }
+  UPDATE_COMPRESSED_VALUE(compressed, info[1], 1, 0);
 
   unsigned char privkey[279];
   size_t privkeylen;

@@ -4,8 +4,17 @@
 #include <node.h>
 #include <nan.h>
 
+#include "messages.h"
+
 
 #define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, datalen).ToLocalChecked()
+
+#define UPDATE_COMPRESSED_VALUE(compressed, obj, v_true, v_false) {            \
+  if (!obj->IsUndefined()) {                                                   \
+    CHECK_TYPE_BOOLEAN(obj, COMPRESSED_TYPE_INVALID);                          \
+    compressed = obj->BooleanValue() ? v_true : v_false;                       \
+  }                                                                            \
+}
 
 // Type checks (TypeError)
 #define CHECK_TYPE_BUFFER(buffer, msg) {                                       \
@@ -14,26 +23,26 @@
   }                                                                            \
 }
 
-#define CHECK_TYPE_BOOLEAN(boolean, msg) {                                     \
-  if (!boolean->IsBoolean() && !boolean->IsBooleanObject()) {                  \
+#define CHECK_TYPE_BOOLEAN(obj, msg) {                                         \
+  if (!obj->IsBoolean() && !obj->IsBooleanObject()) {                          \
     return Nan::ThrowTypeError(msg);                                           \
   }                                                                            \
 }
 
-#define CHECK_TYPE_FUNCTION(function, msg) {                                   \
-  if (!function->IsFunction()) {                                               \
+#define CHECK_TYPE_FUNCTION(obj, msg) {                                        \
+  if (!obj->IsFunction()) {                                                    \
     return Nan::ThrowTypeError(msg);                                           \
   }                                                                            \
 }
 
-#define CHECK_TYPE_NUMBER(number, msg) {                                       \
-  if (!number->IsNumber() && !number->IsNumberObject()) {                      \
+#define CHECK_TYPE_NUMBER(obj, msg) {                                          \
+  if (!obj->IsNumber() && !obj->IsNumberObject()) {                            \
     return Nan::ThrowTypeError(msg);                                           \
   }                                                                            \
 }
 
-#define CHECK_TYPE_ARRAY(array, msg) {                                         \
-  if (!array->IsArray()) {                                                     \
+#define CHECK_TYPE_ARRAY(obj, msg) {                                           \
+  if (!obj->IsArray()) {                                                       \
     return Nan::ThrowTypeError(msg);                                           \
   }                                                                            \
 }
