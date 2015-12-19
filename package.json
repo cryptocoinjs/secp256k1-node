@@ -3,18 +3,16 @@
   "version": "2.0.10",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "keywords": [
-    "secp256k1",
+    "ec",
+    "ecdh",
     "ecdsa",
-    "ec"
+    "secp256k1"
   ],
   "bugs": {
     "url": "https://github.com/cryptocoinjs/secp256k1-node/issues"
   },
   "license": "MIT",
-  "author": {
-    "name": "martin becze",
-    "email": "mjbecze@gmail.com"
-  },
+  "author": "Martin Becze <mjbecze@gmail.com>",
   "contributors": [
     "Aaron Davis (https://github.com/kumavis)",
     "Ian Matyssik (https://github.com/phpb-com)",
@@ -29,7 +27,6 @@
     "API.md",
     "binding.gyp",
     "bindings.js",
-    "elliptic.js",
     "js.js",
     "package.json",
     "README.md"

@@ -84,8 +84,8 @@ NAN_METHOD(recover) {
   const unsigned char* sig_input = (unsigned char*) node::Buffer::Data(sig_input_buffer);
 
   v8::Local<v8::Object> recid_object = info[2].As<v8::Object>();
-  CHECK_TYPE_NUMBER(recid_object, ECDSA_SIGNATURE_RECOVERY_ID_TYPE_INVALID);
-  CHECK_NUMBER_IN_INTERVAL(recid_object, -1, 4, ECDSA_SIGNATURE_RECOVERY_ID_VALUE_INVALID);
+  CHECK_TYPE_NUMBER(recid_object, RECOVERY_ID_TYPE_INVALID);
+  CHECK_NUMBER_IN_INTERVAL(recid_object, -1, 4, RECOVERY_ID_VALUE_INVALID);
   int recid = recid_object->IntegerValue();
 
   unsigned int flags = SECP256K1_EC_COMPRESSED;

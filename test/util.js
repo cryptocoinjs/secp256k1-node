@@ -1,36 +1,40 @@
-var assert = require('assert')
 var randomBytes = require('crypto').randomBytes
 var createHash = require('crypto').createHash
-var BigInteger = require('bigi')
-var ecdsa = require('ecdsa')
-var ECKey = require('eckey')
-var ecurve = require('ecurve')
+var BN = require('bn.js')
+var EC = require('elliptic').ec
 var ProgressBar = require('progress')
 
-var Promise = require('../lib/promise')
-
-var ecparams = exports.ecparams = ecurve.getCurveByName('secp256k1')
-ecparams.nH = ecparams.n.shiftRight(1)
+var ec = exports.ec = new EC('secp256k1')
+exports.BN_ZERO = new BN(0)
+exports.BN_ONE = new BN(1)
 
 /**
  * @return {Buffer}
  */
 exports.getPrivateKey = function () {
   while (true) {
-    var privKey = randomBytes(32)
-    var bn = BigInteger.fromBuffer(privKey)
-    if (bn.compareTo(BigInteger.ZERO) !== 0 && bn.compareTo(ecparams.n) < 0) {
-      return privKey
+    var privateKey = randomBytes(32)
+    var bn = new BN(privateKey)
+    if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
+      return privateKey
     }
   }
 }
 
 /**
- * @return {Buffer}
+ * @param {Buffer} [privateKey]
+ * @return {{compressed: Buffer, uncompressed: Buffer}}
  */
-exports.getPublicKey = function () {
-  var eckey = new ECKey(exports.getPrivateKey())
-  return eckey.publicKey
+exports.getPublicKey = function (privateKey) {
+  if (privateKey === undefined) {
+    privateKey = exports.getPrivateKey()
+  }
+
+  var publicKey = ec.keyFromPrivate(privateKey).getPublic()
+  return {
+    compressed: new Buffer(publicKey.encode(null, true)),
+    uncompressed: new Buffer(publicKey.encode(null, false))
+  }
 }
 
 /**
@@ -47,8 +51,8 @@ exports.getSignature = function () {
 exports.getTweak = function () {
   while (true) {
     var tweak = randomBytes(32)
-    var bn = BigInteger.fromBuffer(tweak)
-    if (bn.compareTo(ecparams.n) < 0) {
+    var bn = new BN(tweak)
+    if (bn.cmp(ec.curve.n) === -1) {
       return tweak
     }
   }
@@ -63,42 +67,37 @@ exports.getMessage = function () {
 
 /**
  * @param {Buffer} msg
- * @param {Buffer} privKey
+ * @param {Buffer} privateKey
  * @return {{signature: string, recovery: number}}
  */
-exports.sign = function (msg, privKey) {
-  var D = BigInteger.fromBuffer(privKey)
-  var k = ecdsa.deterministicGenerateK(msg, D)
-  var Q = ecparams.G.multiply(k)
-  var e = BigInteger.fromBuffer(msg)
+exports.sign = function (msg, privateKey) {
+  var ecSig = ec.sign(msg, privateKey, {canonical: false})
 
-  var r = Q.affineX.mod(ecparams.n)
-  assert.notEqual(r.signum(), 0, 'Invalid R value')
-
-  var s, lowS
-  s = lowS = k.modInverse(ecparams.n).multiply(e.add(D.multiply(r))).mod(ecparams.n)
-  assert.notEqual(s.signum(), 0, 'Invalid S value')
-
-  if (lowS.compareTo(ecparams.nH) > 0) {
-    lowS = ecparams.n.subtract(lowS)
+  var signature = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
+  var recovery = ecSig.recoveryParam
+  if (ecSig.s.cmp(ec.nh) === 1) {
+    ecSig.s = ec.n.sub(ecSig.s)
+    recovery ^= 1
   }
+  var signatureLowS = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
 
   return {
-    signature: Buffer.concat([r.toBuffer(32), s.toBuffer(32)]),
-    signatureLowS: Buffer.concat([r.toBuffer(32), lowS.toBuffer(32)]),
-    recovery: null // TODO
+    signature: signature,
+    signatureLowS: signatureLowS,
+    recovery: recovery
   }
 }
 
 /**
- * @param {Buffer} pubKey
- * @param {Buffer} privKey
+ * @param {Buffer} publicKey
+ * @param {Buffer} privateKey
  * @return {Buffer}
  */
-exports.ecdh = function (pubKey, privKey) {
-  var point = ecurve.Point.decodeFrom(ecparams, pubKey)
-  var buf = point.multiply(BigInteger.fromBuffer(privKey)).getEncoded(true)
-  return createHash('sha256').update(buf).digest()
+exports.ecdh = function (publicKey, privateKey) {
+  var secret = ec.keyFromPrivate(privateKey)
+  var point = ec.keyFromPublic(publicKey)
+  var sharedSecret = new BN(secret.derive(point).encode(null, 32))
+  return createHash('sha256').update(sharedSecret).digest()
 }
 
 var stream = process.stdout
@@ -123,25 +122,10 @@ function repeatIt (it, args) {
       stream: stream
     })
 
-    return new Promise(function (resolve, reject) {
-      function next () {
-        if (bar.curr === args[1]) {
-          return resolve()
-        }
-
-        Promise.resolve()
-          .then(function () {
-            return args[2]()
-          })
-          .then(function () {
-            bar.tick()
-          })
-          .then(next)
-          .catch(reject)
-      }
-
-      next()
-    })
+    while (bar.curr !== args[1]) {
+      args[2]()
+      bar.tick()
+    }
   })
 }
 
