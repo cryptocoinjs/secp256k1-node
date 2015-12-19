@@ -22,9 +22,7 @@ NAN_METHOD(signatureNormalize) {
   }
 
   secp256k1_ecdsa_signature sigout;
-  if (secp256k1_ecdsa_signature_normalize(secp256k1ctx, &sigout, &sigin) == 0) {
-    return Nan::ThrowError(ECDSA_SIGNATURE_NORMALIZE_FAIL);
-  }
+  secp256k1_ecdsa_signature_normalize(secp256k1ctx, &sigout, &sigin);
 
   unsigned char output[64];
   secp256k1_ecdsa_signature_serialize_compact(secp256k1ctx, &output[0], &sigout);

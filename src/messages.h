@@ -1,7 +1,6 @@
 #ifndef _SECP256K1_NODE_MESSAGES_
 # define _SECP256K1_NODE_MESSAGES_
 
-#define CALLBACK_TYPE_INVALID "callback should be a function"
 #define COMPRESSED_TYPE_INVALID "compressed should be a boolean"
 
 #define MSG32_TYPE_INVALID "message should be a Buffer"
@@ -34,7 +33,6 @@
 #define ECDSA_SIGNATURE_PARSE_FAIL "couldn't parse signature"
 #define ECDSA_SIGNATURE_PARSE_DER_FAIL "couldn't parse DER signature"
 #define ECDSA_SIGNATURE_SERIALIZE_DER_FAIL "couldn't serialize signature to DER format"
-#define ECDSA_SIGNATURE_NORMALIZE_FAIL "couldn't normalize signature"
 
 #define ECDSA_SIGN_FAIL "nonce generation function failed or secret key is invalid"
 #define ECDSA_VERIFY_FAIL "incorrect or unparseable signature"
