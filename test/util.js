@@ -38,20 +38,20 @@ exports.getPublicKey = function (privateKey) {
 }
 
 /**
- * @param {Buffer} msg
+ * @param {Buffer} message
  * @param {Buffer} privateKey
  * @return {Buffer}
  */
-exports.getSignature = function (msg, privateKey) {
-  if (msg === undefined) {
-    msg = exports.getMessage()
+exports.getSignature = function (message, privateKey) {
+  if (message === undefined) {
+    message = exports.getMessage()
   }
 
   if (privateKey === undefined) {
     privateKey = exports.getPrivateKey()
   }
 
-  var sig = exports.sign(msg, privateKey)
+  var sig = exports.sign(message, privateKey)
   return sig.signatureLowS
 }
 
@@ -76,12 +76,12 @@ exports.getMessage = function () {
 }
 
 /**
- * @param {Buffer} msg
+ * @param {Buffer} message
  * @param {Buffer} privateKey
  * @return {{signature: string, recovery: number}}
  */
-exports.sign = function (msg, privateKey) {
-  var ecSig = ec.sign(msg, privateKey, {canonical: false})
+exports.sign = function (message, privateKey) {
+  var ecSig = ec.sign(message, privateKey, {canonical: false})
 
   var signature = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
   var recovery = ecSig.recoveryParam

@@ -42,10 +42,10 @@ module.exports = function (secp256k1, opts) {
     })
 
     util.repeatIt('random tests', opts.repeat, function () {
-      var msg = util.getMessage()
+      var message = util.getMessage()
       var privateKey = util.getPrivateKey()
 
-      var sigObj = util.sign(msg, privateKey)
+      var sigObj = util.sign(message, privateKey)
       var result = secp256k1.signatureNormalize(sigObj.signature)
       expect(result.toString('hex')).to.equal(sigObj.signatureLowS.toString('hex'))
     })
@@ -92,10 +92,10 @@ module.exports = function (secp256k1, opts) {
 
   describe('signatureExport/signatureImport', function () {
     util.repeatIt('random tests', opts.repeat, function () {
-      var msg = util.getMessage()
-      var privKey = util.getPrivateKey()
+      var message = util.getMessage()
+      var privateKey = util.getPrivateKey()
 
-      var signature = util.sign(msg, privKey).signatureLowS
+      var signature = util.sign(message, privateKey).signatureLowS
 
       var der = secp256k1.signatureExport(signature)
       var result = secp256k1.signatureImport(der)

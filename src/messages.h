@@ -3,15 +3,6 @@
 
 #define COMPRESSED_TYPE_INVALID "compressed should be a boolean"
 
-#define MSG32_TYPE_INVALID "message should be a Buffer"
-#define MSG32_LENGTH_INVALID "message length is invalid"
-
-#define TWEAK_TYPE_INVALID "tweak should be a Buffer"
-#define TWEAK_LENGTH_INVALID "tweak length is invalid"
-
-#define RECOVERY_ID_TYPE_INVALID "recovery should be a Number"
-#define RECOVERY_ID_VALUE_INVALID "recovery should have value between -1 and 4"
-
 #define EC_PRIVATE_KEY_TYPE_INVALID "private key should be a Buffer"
 #define EC_PRIVATE_KEY_LENGTH_INVALID "private key length is invalid"
 #define EC_PRIVATE_KEY_TWEAK_ADD_FAIL "tweak out of range or resulting private key is invalid"
@@ -29,6 +20,8 @@
 #define EC_PUBLIC_KEY_TWEAK_MUL_FAIL "tweak out of range"
 #define EC_PUBLIC_KEY_COMBINE_FAIL "the sum of the public keys is not valid"
 
+#define ECDH_FAIL "scalar was invalid (zero or overflow)"
+
 #define ECDSA_SIGNATURE_TYPE_INVALID "signature should be a Buffer"
 #define ECDSA_SIGNATURE_LENGTH_INVALID "signature length is invalid"
 #define ECDSA_SIGNATURE_PARSE_FAIL "couldn't parse signature"
@@ -39,6 +32,18 @@
 #define ECDSA_VERIFY_FAIL "incorrect or unparseable signature"
 #define ECDSA_RECOVER_FAIL "couldn't recover public key from signature"
 
-#define ECDH_FAIL "scalar was invalid (zero or overflow)"
+#define MSG32_TYPE_INVALID "message should be a Buffer"
+#define MSG32_LENGTH_INVALID "message length is invalid"
+
+#define OPTIONS_TYPE_INVALID "options should be an Object"
+#define OPTIONS_DATA_TYPE_INVALID "options.data should be a Buffer"
+#define OPTIONS_DATA_LENGTH_INVALID "options.data length is invalid"
+#define OPTIONS_NONCEFN_TYPE_INVALID "options.noncefn should be a Function"
+
+#define RECOVERY_ID_TYPE_INVALID "recovery should be a Number"
+#define RECOVERY_ID_VALUE_INVALID "recovery should have value between -1 and 4"
+
+#define TWEAK_TYPE_INVALID "tweak should be a Buffer"
+#define TWEAK_LENGTH_INVALID "tweak length is invalid"
 
 #endif

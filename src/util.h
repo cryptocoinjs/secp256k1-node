@@ -47,6 +47,12 @@
   }                                                                            \
 }
 
+#define CHECK_TYPE_OBJECT(obj, msg) {                                          \
+  if (!obj->IsObject()) {                                                      \
+    return Nan::ThrowTypeError(msg);                                           \
+  }                                                                            \
+}
+
 // Length checks (RangeError)
 #define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, msg) {                             \
   if (node::Buffer::Length(buffer) == 0) {                                     \

@@ -14,11 +14,11 @@
 - [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
 - [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
 - [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
-- [`.sign(Buffer msg, Buffer privateKey [, Object options])`](#signbuffer-msg-buffer-privatekey--object-options---signature-buffer-recovery-number)
+- [`.sign(Buffer message, Buffer privateKey [, Object options])`](#signbuffer-message-buffer-privatekey--object-options---signature-buffer-recovery-number)
   - [Option: `Function noncefn`](#option-function-noncefn)
   - [Option: `Buffer data`](#option-buffer-data)
-- [`.verify(Buffer msg, Buffer signature, Buffer publicKey)`](#verifybuffer-msg-buffer-signature-buffer-publickey---boolean)
-- [`.recover(Buffer msg, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-msg-buffer-signature-number-recovery--boolean-compressed--true---buffer)
+- [`.verify(Buffer message, Buffer signature, Buffer publicKey)`](#verifybuffer-message-buffer-signature-buffer-publickey---boolean)
+- [`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-message-buffer-signature-number-recovery--boolean-compressed--true---buffer)
 - [`.ecdh(Buffer publicKey, Buffer privateKey [, Object options])`](#ecdhbuffer-publickey-buffer-privatekey--object-options---buffer)
   - [Option: `Function hashfn`](#option-function-hashfn)
 
@@ -106,7 +106,7 @@ Parse a DER ECDSA *signature*.
 
 <hr>
 
-#####`.sign(Buffer msg, Buffer privateKey [, Object options])` -> `{signature: Buffer, recovery: number}`
+#####`.sign(Buffer message, Buffer privateKey [, Object options])` -> `{signature: Buffer, recovery: number}`
 
 Create an ECDSA signature.
 
@@ -114,7 +114,7 @@ Create an ECDSA signature.
 
 Nonce generator. By default it is [rfc6979](https://tools.ietf.org/html/rfc6979).
 
-Function signature: `noncefn(Buffer msg, Buffer privateKey, ?Buffer algo, ?Buffer data, Number attempt)` -> `Buffer`
+Function signature: `noncefn(Buffer message, Buffer privateKey, ?Buffer algo, ?Buffer data, Number attempt)` -> `Buffer`
 
 ######Option: `Buffer data`
 
@@ -122,13 +122,13 @@ Additional data for [noncefn](#option-function-noncefn) (RFC 6979 3.6) (32 bytes
 
 <hr>
 
-#####`.verify(Buffer msg, Buffer signature, Buffer publicKey)` -> `Boolean`
+#####`.verify(Buffer message, Buffer signature, Buffer publicKey)` -> `Boolean`
 
 Verify an ECDSA signature.
 
 <hr>
 
-#####`.recover(Buffer msg, Buffer signature, Number recovery [, Boolean compressed = true]` -> `Buffer`
+#####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true]` -> `Buffer`
 
 Recover an ECDSA public key from a signature.
 

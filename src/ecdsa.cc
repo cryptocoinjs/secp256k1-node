@@ -9,6 +9,25 @@
 
 extern secp256k1_context* secp256k1ctx;
 
+v8::Local<v8::Function> noncefn_callback;
+int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, const unsigned char *key32, const unsigned char *algo16, void *data, unsigned int counter) {
+  v8::Local<v8::Value> argv[] = {
+    COPY_BUFFER(msg32, 32),
+    COPY_BUFFER(key32, 32),
+    algo16 == NULL ? v8::Local<v8::Value>::Cast(Nan::Null()) : v8::Local<v8::Value>::Cast(COPY_BUFFER(algo16, 16)),
+    data == NULL ? v8::Local<v8::Value>::Cast(Nan::Null()) : v8::Local<v8::Value>::Cast(COPY_BUFFER(data, 32)),
+    Nan::New(counter)
+  };
+
+  v8::Local<v8::Value> result = noncefn_callback->Call(Nan::Null(), 5, argv);
+  if (!node::Buffer::HasInstance(result) || node::Buffer::Length(result) != 32) {
+    return 0;
+  }
+
+  memcpy(nonce32, node::Buffer::Data(result), 32);
+  return 1;
+}
+
 NAN_METHOD(sign) {
   Nan::HandleScope scope;
 
@@ -22,8 +41,28 @@ NAN_METHOD(sign) {
   CHECK_BUFFER_LENGTH(private_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
   const unsigned char* private_key = (const unsigned char*) node::Buffer::Data(private_buffer);
 
+  secp256k1_nonce_function noncefn = secp256k1_nonce_function_rfc6979;
+  void* data = NULL;
+  v8::Local<v8::Object> options = info[2].As<v8::Object>();
+  if (!options->IsUndefined()) {
+    CHECK_TYPE_OBJECT(options, OPTIONS_TYPE_INVALID);
+
+    v8::Local<v8::Value> data_value = options->Get(Nan::New<v8::String>("data").ToLocalChecked());
+    if (!data_value->IsUndefined()) {
+      CHECK_TYPE_BUFFER(data_value, OPTIONS_DATA_TYPE_INVALID);
+      CHECK_BUFFER_LENGTH(data_value, 32, OPTIONS_DATA_LENGTH_INVALID);
+      data = (void*) node::Buffer::Data(data_value);
+    }
+
+    noncefn_callback = v8::Local<v8::Function>::Cast(options->Get(Nan::New<v8::String>("noncefn").ToLocalChecked()));
+    if (!noncefn_callback->IsUndefined()) {
+      CHECK_TYPE_FUNCTION(noncefn_callback, OPTIONS_NONCEFN_TYPE_INVALID);
+      noncefn = nonce_function_custom;
+    }
+  }
+
   secp256k1_ecdsa_recoverable_signature sig;
-  if (secp256k1_ecdsa_sign_recoverable(secp256k1ctx, &sig, msg32, private_key, NULL, NULL) == 0) {
+  if (secp256k1_ecdsa_sign_recoverable(secp256k1ctx, &sig, msg32, private_key, noncefn, data) == 0) {
     return Nan::ThrowError(ECDSA_SIGN_FAIL);
   }
 
