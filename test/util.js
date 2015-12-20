@@ -1,4 +1,4 @@
-var randomBytes = require('crypto').randomBytes
+var getRandomBytes = require('crypto').randomBytes
 var createHash = require('crypto').createHash
 var BN = require('bn.js')
 var EC = require('elliptic').ec
@@ -13,7 +13,7 @@ exports.BN_ONE = new BN(1)
  */
 exports.getPrivateKey = function () {
   while (true) {
-    var privateKey = randomBytes(32)
+    var privateKey = getRandomBytes(32)
     var bn = new BN(privateKey)
     if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
       return privateKey
@@ -38,11 +38,21 @@ exports.getPublicKey = function (privateKey) {
 }
 
 /**
+ * @param {Buffer} msg
+ * @param {Buffer} privateKey
  * @return {Buffer}
  */
-exports.getSignature = function () {
-  var sig = exports.sign(exports.getMessage(), exports.getPrivateKey())
-  return sig.signature
+exports.getSignature = function (msg, privateKey) {
+  if (msg === undefined) {
+    msg = exports.getMessage()
+  }
+
+  if (privateKey === undefined) {
+    privateKey = exports.getPrivateKey()
+  }
+
+  var sig = exports.sign(msg, privateKey)
+  return sig.signatureLowS
 }
 
 /**
@@ -50,7 +60,7 @@ exports.getSignature = function () {
  */
 exports.getTweak = function () {
   while (true) {
-    var tweak = randomBytes(32)
+    var tweak = getRandomBytes(32)
     var bn = new BN(tweak)
     if (bn.cmp(ec.curve.n) === -1) {
       return tweak
@@ -62,7 +72,7 @@ exports.getTweak = function () {
  * @return {Buffer}
  */
 exports.getMessage = function () {
-  return randomBytes(32)
+  return getRandomBytes(32)
 }
 
 /**

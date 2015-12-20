@@ -1,5 +1,5 @@
 var expect = require('chai').expect
-var randomBytes = require('crypto').randomBytes
+var getRandomBytes = require('crypto').randomBytes
 
 var util = require('./util')
 
@@ -89,7 +89,7 @@ module.exports = function (secp256k1, opts) {
         var msg = util.getMessage()
         var signature = Buffer.concat([
           new Buffer(util.ec.n.toArray(null, 32)),
-          randomBytes(32)
+          getRandomBytes(32)
         ])
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(msg, signature, publicKey)
@@ -160,7 +160,7 @@ module.exports = function (secp256k1, opts) {
         var msg = util.getMessage()
         var signature = Buffer.concat([
           new Buffer(util.ec.n.toArray(null, 32)),
-          randomBytes(32)
+          getRandomBytes(32)
         ])
         secp256k1.recover(msg, signature, 0)
       }).to.throw(Error, 'couldn\'t parse signature')

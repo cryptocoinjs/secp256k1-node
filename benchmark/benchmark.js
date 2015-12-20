@@ -1,12 +1,26 @@
 var benchmark = require('benchmark')
 
-var bindings = require('../bindings')
-var elliptic = require('../elliptic')
+var util = require('../test/util')
+var packages = {
+  bindings: require('../bindings'),
+  elliptic: require('./elliptic'),
+  ecdsa: require('./ecdsa')
+}
 
-var ecdsa = require('./ecdsa')
-var util = require('./util')
+var fixtureIndex = 0
+var fixtures = new Array(1000)
+for (var i = 0; i < fixtures.length; ++i) {
+  var fixture = {}
+  fixture.privateKey = util.getPrivateKey()
+  fixture.publicKey = util.getPublicKey(fixture.privateKey).compressed
+  fixture.message = util.getMessage()
+  fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
+  fixtures[i] = fixture
+}
+console.log('Create ' + fixtures.length + ' fixtures')
+console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')
 
-function createSuite (suiteName, objs) {
+function runSuite (suiteName, testFunctionGenerator) {
   var suite = new benchmark.Suite(suiteName, {
     onStart: function () {
       console.log('Benchmarking: ' + suiteName)
@@ -25,52 +39,38 @@ function createSuite (suiteName, objs) {
     }
   })
 
-  Object.keys(objs).forEach(function (fnName) {
-    var obj = objs[fnName]
-    suite.add(fnName, obj.fn, obj.options)
+  Object.keys(packages).forEach(function (packageName) {
+    suite.add(packageName, testFunctionGenerator(packages[packageName]), {
+      onStart: function () {
+        fixtureIndex = 0
+      },
+      onCycle: function () {
+        fixtureIndex = 0
+      }
+    })
   })
 
-  return suite
+  suite.run()
 }
 
-var message = util.getMessage()
-var pair = util.generateKeyPair()
-var signature = util.createSignature(message, pair.privateKey)
+runSuite('sign', function (package) {
+  return function () {
+    var fixture = fixtures[fixtureIndex++]
+    if (fixtureIndex === fixtures.length) {
+      fixtureIndex = 0
+    }
 
-// sign
-createSuite('sign', {
-  bindings: {
-    fn: function () {
-      bindings.signSync(message, pair.privateKey)
-    }
-  },
-  elliptic: {
-    fn: function () {
-      elliptic.signSync(message, pair.privateKey)
-    }
-  },
-  ecdsa: {
-    fn: function () {
-      ecdsa.signSync(message, pair.privateKey)
-    }
+    package.sign(fixture.message, fixture.privateKey)
   }
-}).run()
+})
 
-// verify
-createSuite('verify', {
-  bindings: {
-    fn: function () {
-      bindings.verifySync(message, signature, pair.publicKey)
+runSuite('verify', function (package) {
+  return function () {
+    var fixture = fixtures[fixtureIndex++]
+    if (fixtureIndex === fixtures.length) {
+      fixtureIndex = 0
     }
-  },
-  elliptic: {
-    fn: function () {
-      elliptic.verifySync(message, signature, pair.publicKey)
-    }
-  },
-  ecdsa: {
-    fn: function () {
-      ecdsa.verifySync(message, signature, pair.publicKey)
-    }
+
+    package.verify(fixture.message, fixture.signature, fixture.publicKey)
   }
-}).run()
+})
