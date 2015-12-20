@@ -23,13 +23,13 @@
   "files": [
     "lib",
     "src",
-    "utils",
     "API.md",
     "binding.gyp",
     "bindings.js",
     "js.js",
     "package.json",
-    "README.md"
+    "README.md",
+    "utils/has_lib.sh"
   ],
   "main": "./bindings.js",
   "repository": {
