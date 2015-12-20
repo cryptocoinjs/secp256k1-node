@@ -1,3 +1,5 @@
+'use strict'
+
 var getRandomBytes = require('crypto').randomBytes
 var createHash = require('crypto').createHash
 var BN = require('bn.js')

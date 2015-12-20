@@ -9,79 +9,79 @@
 
 #define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, datalen).ToLocalChecked()
 
-#define UPDATE_COMPRESSED_VALUE(compressed, obj, v_true, v_false) {            \
-  if (!obj->IsUndefined()) {                                                   \
-    CHECK_TYPE_BOOLEAN(obj, COMPRESSED_TYPE_INVALID);                          \
-    compressed = obj->BooleanValue() ? v_true : v_false;                       \
+#define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
+  if (!value->IsUndefined()) {                                                 \
+    CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
+    compressed = value->BooleanValue() ? v_true : v_false;                     \
   }                                                                            \
 }
 
-// Type checks (TypeError)
-#define CHECK_TYPE_BUFFER(buffer, msg) {                                       \
-  if (!node::Buffer::HasInstance(buffer)) {                                    \
-    return Nan::ThrowTypeError(msg);                                           \
+// TypeError
+#define CHECK_TYPE_ARRAY(value, message) {                                     \
+  if (!value->IsArray()) {                                                     \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_BOOLEAN(obj, msg) {                                         \
-  if (!obj->IsBoolean() && !obj->IsBooleanObject()) {                          \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_BOOLEAN(value, message) {                                   \
+  if (!value->IsBoolean() && !value->IsBooleanObject()) {                      \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_FUNCTION(obj, msg) {                                        \
-  if (!obj->IsFunction()) {                                                    \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_BUFFER(value, message) {                                    \
+  if (!node::Buffer::HasInstance(value)) {                                     \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_NUMBER(obj, msg) {                                          \
-  if (!obj->IsNumber() && !obj->IsNumberObject()) {                            \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_FUNCTION(value, message) {                                  \
+  if (!value->IsFunction()) {                                                  \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_ARRAY(obj, msg) {                                           \
-  if (!obj->IsArray()) {                                                       \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_NUMBER(value, message) {                                    \
+  if (!value->IsNumber() && !value->IsNumberObject()) {                        \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_OBJECT(obj, msg) {                                          \
-  if (!obj->IsObject()) {                                                      \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_OBJECT(value, message) {                                    \
+  if (!value->IsObject()) {                                                    \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-// Length checks (RangeError)
-#define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, msg) {                             \
-  if (node::Buffer::Length(buffer) == 0) {                                     \
-    return Nan::ThrowRangeError(msg);                                          \
-  }                                                                            \
-}
-
-#define CHECK_BUFFER_LENGTH(buffer, length, msg) {                             \
+// RangeError
+#define CHECK_BUFFER_LENGTH(buffer, length, message) {                         \
   if (node::Buffer::Length(buffer) != length) {                                \
-    return Nan::ThrowRangeError(msg);                                          \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 
-#define CHECK_BUFFER_LENGTH2(buffer, length1, length2, msg) {                  \
+#define CHECK_BUFFER_LENGTH2(buffer, length1, length2, message) {              \
   if (node::Buffer::Length(buffer) != length1 &&                               \
       node::Buffer::Length(buffer) != length2) {                               \
-    return Nan::ThrowRangeError(msg);                                          \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 
-#define CHECK_LENGTH_GT_ZERO(obj, msg) {                                       \
-  if (obj->Length() == 0) {                                                    \
-    return Nan::ThrowRangeError(msg);                                          \
+#define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, message) {                         \
+  if (node::Buffer::Length(buffer) == 0) {                                     \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 
-#define CHECK_NUMBER_IN_INTERVAL(number, x, y, msg) {                          \
+#define CHECK_LENGTH_GT_ZERO(value, message) {                                 \
+  if (value->Length() == 0) {                                                  \
+    return Nan::ThrowRangeError(message);                                      \
+  }                                                                            \
+}
+
+#define CHECK_NUMBER_IN_INTERVAL(number, x, y, message) {                      \
   if (number->IntegerValue() <= x || number->IntegerValue() >= y) {            \
-    return Nan::ThrowRangeError(msg);                                          \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 

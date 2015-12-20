@@ -1,7 +1,9 @@
+'use strict'
+
 var benchmark = require('benchmark')
 
 var util = require('../test/util')
-var packages = {
+var implementations = {
   bindings: require('../bindings'),
   elliptic: require('./elliptic'),
   ecdsa: require('./ecdsa')
@@ -39,8 +41,8 @@ function runSuite (suiteName, testFunctionGenerator) {
     }
   })
 
-  Object.keys(packages).forEach(function (packageName) {
-    suite.add(packageName, testFunctionGenerator(packages[packageName]), {
+  Object.keys(implementations).forEach(function (name) {
+    suite.add(name, testFunctionGenerator(implementations[name]), {
       onStart: function () {
         fixtureIndex = 0
       },
@@ -53,24 +55,24 @@ function runSuite (suiteName, testFunctionGenerator) {
   suite.run()
 }
 
-runSuite('sign', function (package) {
+runSuite('sign', function (secp256k1) {
   return function () {
     var fixture = fixtures[fixtureIndex++]
     if (fixtureIndex === fixtures.length) {
       fixtureIndex = 0
     }
 
-    package.sign(fixture.message, fixture.privateKey)
+    secp256k1.sign(fixture.message, fixture.privateKey)
   }
 })
 
-runSuite('verify', function (package) {
+runSuite('verify', function (secp256k1) {
   return function () {
     var fixture = fixtures[fixtureIndex++]
     if (fixtureIndex === fixtures.length) {
       fixtureIndex = 0
     }
 
-    package.verify(fixture.message, fixture.signature, fixture.publicKey)
+    secp256k1.verify(fixture.message, fixture.signature, fixture.publicKey)
   }
 })

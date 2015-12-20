@@ -1,3 +1,5 @@
+'use strict'
+
 var assert = require('assert')
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
