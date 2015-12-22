@@ -24,6 +24,8 @@
   "ECDSA_SIGN_FAIL": "nonce generation function failed or private key is invalid",
   "ECDSA_VERIFY_FAIL": "incorrect or unparseable signature",
   "ECDSA_RECOVER_FAIL": "couldn't recover public key from signature",
+  "MSG32_TYPE_INVALID": "message should be a Buffer",
+  "MSG32_LENGTH_INVALID": "message length is invalid",
   "OPTIONS_TYPE_INVALID": "options should be an Object",
   "OPTIONS_DATA_TYPE_INVALID": "options.data should be a Buffer",
   "OPTIONS_DATA_LENGTH_INVALID": "options.data length is invalid",

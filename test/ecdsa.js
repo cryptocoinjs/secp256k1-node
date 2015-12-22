@@ -4,6 +4,7 @@ var expect = require('chai').expect
 var getRandomBytes = require('crypto').randomBytes
 
 var util = require('./util')
+var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
@@ -16,7 +17,7 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.sign(null, privateKey)
-      }).to.throw(TypeError, 'message should be a Buffer')
+      }).to.throw(TypeError, messages.MSG32_TYPE_INVALID)
     })
 
     it('message invalid length', function () {
@@ -24,14 +25,14 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage().slice(1)
         var privateKey = util.getPrivateKey()
         secp256k1.sign(message, privateKey)
-      }).to.throw(RangeError, 'message length is invalid')
+      }).to.throw(RangeError, messages.MSG32_LENGTH_INVALID)
     })
 
     it('private key should be a Buffer', function () {
       expect(function () {
         var message = util.getMessage()
         secp256k1.sign(message, null)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('private key invalid length', function () {
@@ -39,7 +40,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var privateKey = util.getPrivateKey().slice(1)
         secp256k1.sign(message, privateKey)
-      }).to.throw(RangeError, 'private key length is invalid')
+      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
     it('private key is invalid', function () {
@@ -47,7 +48,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var privateKey = new Buffer(util.ec.n.toArray(null, 32))
         secp256k1.sign(message, privateKey)
-      }).to.throw(Error, 'nonce generation function failed or private key is invalid')
+      }).to.throw(Error, messages.ECDSA_SIGN_FAIL)
     })
 
     it('options should be an Object', function () {
@@ -55,7 +56,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var privateKey = util.getPrivateKey()
         secp256k1.sign(message, privateKey, null)
-      }).to.throw(TypeError, 'options should be an Object')
+      }).to.throw(TypeError, messages.OPTIONS_TYPE_INVALID)
     })
 
     it('options.data should be a Buffer', function () {
@@ -63,7 +64,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var privateKey = util.getPrivateKey()
         secp256k1.sign(message, privateKey, {data: null})
-      }).to.throw(TypeError, 'options.data should be a Buffer')
+      }).to.throw(TypeError, messages.OPTIONS_DATA_TYPE_INVALID)
     })
 
     it('options.data length is invalid', function () {
@@ -72,7 +73,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var data = getRandomBytes(31)
         secp256k1.sign(message, privateKey, {data: data})
-      }).to.throw(RangeError, 'options.data length is invalid')
+      }).to.throw(RangeError, messages.OPTIONS_DATA_LENGTH_INVALID)
     })
 
     it('options.noncefn should be a Function', function () {
@@ -80,7 +81,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var privateKey = util.getPrivateKey()
         secp256k1.sign(message, privateKey, {noncefn: null})
-      }).to.throw(TypeError, 'options.noncefn should be a Function')
+      }).to.throw(TypeError, messages.OPTIONS_NONCEFN_TYPE_INVALID)
     })
 
     it('noncefn return not a Buffer', function () {
@@ -89,7 +90,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var noncefn = function () { return null }
         secp256k1.sign(message, privateKey, {noncefn: noncefn})
-      }).to.throw(Error, 'nonce generation function failed or private key is invalid')
+      }).to.throw(Error, messages.ECDSA_SIGN_FAIL)
     })
 
     it('noncefn return Buffer with invalid length', function () {
@@ -98,7 +99,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var noncefn = function () { return getRandomBytes(31) }
         secp256k1.sign(message, privateKey, {noncefn: noncefn})
-      }).to.throw(Error, 'nonce generation function failed or private key is invalid')
+      }).to.throw(Error, messages.ECDSA_SIGN_FAIL)
     })
 
     it('check options.noncefn arguments', function (done) {
@@ -129,7 +130,7 @@ module.exports = function (secp256k1, opts) {
         var signature = util.getSignature()
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(null, signature, publicKey)
-      }).to.throw(TypeError, 'message should be a Buffer')
+      }).to.throw(TypeError, messages.MSG32_TYPE_INVALID)
     })
 
     it('message length is invalid', function () {
@@ -138,7 +139,7 @@ module.exports = function (secp256k1, opts) {
         var signature = util.getSignature()
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(message, signature, publicKey)
-      }).to.throw(RangeError, 'message length is invalid')
+      }).to.throw(RangeError, messages.MSG32_LENGTH_INVALID)
     })
 
     it('signature should be a Buffer', function () {
@@ -146,7 +147,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(message, null, publicKey)
-      }).to.throw(TypeError, 'signature should be a Buffer')
+      }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('signature length is invalid', function () {
@@ -155,7 +156,7 @@ module.exports = function (secp256k1, opts) {
         var signature = util.getSignature().slice(1)
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(message, signature, publicKey)
-      }).to.throw(RangeError, 'signature length is invalid')
+      }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
 
     it('signature is invalid (r equal N)', function () {
@@ -167,7 +168,7 @@ module.exports = function (secp256k1, opts) {
         ])
         var publicKey = util.getPublicKey().compressed
         secp256k1.verify(message, signature, publicKey)
-      }).to.throw(Error, 'couldn\'t parse signature')
+      }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
     })
 
     it('public key should be a Buffer', function () {
@@ -175,7 +176,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var signature = util.getSignature()
         secp256k1.verify(message, signature, null)
-      }).to.throw(TypeError, 'public key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
     })
 
     it('public key length is invalid', function () {
@@ -184,7 +185,7 @@ module.exports = function (secp256k1, opts) {
         var signature = util.getSignature()
         var publicKey = util.getPublicKey().compressed.slice(1)
         secp256k1.verify(message, signature, publicKey)
-      }).to.throw(RangeError, 'public key length is invalid')
+      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
     })
 
     it('public key is invalid (version is 0x01)', function () {
@@ -194,7 +195,7 @@ module.exports = function (secp256k1, opts) {
         var publicKey = util.getPublicKey().compressed
         publicKey[0] = 0x01
         secp256k1.verify(message, signature, publicKey)
-      }).to.throw(Error, 'the public key could not be parsed or is invalid')
+      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
     })
   })
 
@@ -203,7 +204,7 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         var signature = util.getSignature()
         secp256k1.recover(null, signature, 0)
-      }).to.throw(TypeError, 'message should be a Buffer')
+      }).to.throw(TypeError, messages.MSG32_TYPE_INVALID)
     })
 
     it('message length is invalid', function () {
@@ -211,14 +212,14 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage().slice(1)
         var signature = util.getSignature()
         secp256k1.recover(message, signature, 0)
-      }).to.throw(RangeError, 'message length is invalid')
+      }).to.throw(RangeError, messages.MSG32_LENGTH_INVALID)
     })
 
     it('signature should be a Buffer', function () {
       expect(function () {
         var message = util.getMessage()
         secp256k1.recover(message, null, 0)
-      }).to.throw(TypeError, 'signature should be a Buffer')
+      }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('signature length is invalid', function () {
@@ -226,7 +227,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var signature = util.getSignature().slice(1)
         secp256k1.recover(message, signature, 0)
-      }).to.throw(RangeError, 'signature length is invalid')
+      }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
 
     it('signature is invalid (r equal N)', function () {
@@ -237,7 +238,7 @@ module.exports = function (secp256k1, opts) {
           getRandomBytes(32)
         ])
         secp256k1.recover(message, signature, 0)
-      }).to.throw(Error, 'couldn\'t parse signature')
+      }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
     })
 
     it('recovery should be a Number', function () {
@@ -245,7 +246,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var signature = util.getSignature()
         secp256k1.recover(message, signature, null)
-      }).to.throw(TypeError, 'recovery should be a Number')
+      }).to.throw(TypeError, messages.RECOVERY_ID_TYPE_INVALID)
     })
 
     it('recovery is invalid (equal 4)', function () {
@@ -253,7 +254,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var signature = util.getSignature()
         secp256k1.recover(message, signature, 4)
-      }).to.throw(RangeError, 'recovery should have value between -1 and 4')
+      }).to.throw(RangeError, messages.RECOVERY_ID_VALUE_INVALID)
     })
 
     it('compressed should be a boolean', function () {
@@ -261,7 +262,7 @@ module.exports = function (secp256k1, opts) {
         var message = util.getMessage()
         var signature = util.getSignature()
         secp256k1.recover(message, signature, 0, null)
-      }).to.throw(TypeError, 'compressed should be a boolean')
+      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
   })
 

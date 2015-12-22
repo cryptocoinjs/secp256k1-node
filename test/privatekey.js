@@ -4,6 +4,7 @@ var expect = require('chai').expect
 var BN = require('bn.js')
 
 var util = require('./util')
+var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
@@ -15,7 +16,7 @@ module.exports = function (secp256k1, opts) {
     it('should be a Buffer', function () {
       expect(function () {
         secp256k1.privateKeyVerify(null)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('invalid length', function () {
@@ -43,28 +44,28 @@ module.exports = function (secp256k1, opts) {
     it('private key should be a Buffer', function () {
       expect(function () {
         secp256k1.privateKeyExport(null)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('private key length is invalid', function () {
       expect(function () {
         var privateKey = util.getPrivateKey().slice(1)
         secp256k1.privateKeyExport(privateKey)
-      }).to.throw(RangeError, 'private key length is invalid')
+      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
     it('compressed should be a boolean', function () {
       expect(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyExport(privateKey, null)
-      }).to.throw(TypeError, 'compressed should be a boolean')
+      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
 
     it('private key is invalid', function () {
       expect(function () {
         var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.privateKeyExport(privateKey)
-      }).to.throw(Error, 'couldn\'t export to DER format')
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_EXPORT_DER_FAIL)
     })
   })
 
@@ -72,14 +73,14 @@ module.exports = function (secp256k1, opts) {
     it('should be a Buffer', function () {
       expect(function () {
         secp256k1.privateKeyImport(null)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('invalid format', function () {
       expect(function () {
         var buffer = new Buffer([0x00])
         secp256k1.privateKeyImport(buffer)
-      }).to.throw(Error, 'couldn\'t import from DER format')
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_IMPORT_DER_FAIL)
     })
   })
 
@@ -102,7 +103,7 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(null, tweak)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('private key length is invalid', function () {
@@ -110,14 +111,14 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey().slice(1)
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(RangeError, 'private key length is invalid')
+      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
     it('tweak should be a Buffer', function () {
       expect(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakAdd(privateKey, null)
-      }).to.throw(TypeError, 'tweak should be a Buffer')
+      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
     })
 
     it('tweak length is invalid', function () {
@@ -125,7 +126,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(RangeError, 'tweak length is invalid')
+      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
     })
 
     it('tweak overflow', function () {
@@ -133,7 +134,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(Error, 'tweak out of range or resulting private key is invalid')
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
     })
 
     it('throw Error (result is zero: (N - 1) + 1)', function () {
@@ -141,7 +142,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = new Buffer(util.ec.curve.n.sub(util.BN_ONE).toArray(null, 32))
         var tweak = new Buffer(util.BN_ONE.toArray(null, 32))
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(Error, 'tweak out of range or resulting private key is invalid')
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
     })
 
     util.repeatIt('random tests', opts.repeat, function () {
@@ -152,7 +153,7 @@ module.exports = function (secp256k1, opts) {
       if (expected.cmp(util.BN_ZERO) === 0) {
         return expect(function () {
           secp256k1.privateKeyTweakAdd(privateKey, tweak)
-        }).to.throw(Error, 'tweak out of range or resulting private key is invalid')
+        }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
       }
 
       var result = secp256k1.privateKeyTweakAdd(privateKey, tweak)
@@ -165,7 +166,7 @@ module.exports = function (secp256k1, opts) {
       expect(function () {
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(null, tweak)
-      }).to.throw(TypeError, 'private key should be a Buffer')
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
     })
 
     it('private key length is invalid', function () {
@@ -173,14 +174,14 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey().slice(1)
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(RangeError, 'private key length is invalid')
+      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
     it('tweak should be a Buffer', function () {
       expect(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakMul(privateKey, null)
-      }).to.throw(TypeError, 'tweak should be a Buffer')
+      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
     })
 
     it('tweak length is invalid', function () {
@@ -188,7 +189,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(RangeError, 'tweak length is invalid')
+      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
     })
 
     it('throw Error (tweak is 0)', function () {
@@ -196,7 +197,7 @@ module.exports = function (secp256k1, opts) {
         var privateKey = util.getPrivateKey()
         var tweak = new Buffer(util.BN_ZERO.toArray(null, 32))
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(Error, 'tweak out of range')
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
     })
 
     util.repeatIt('random tests', opts.repeat, function () {
@@ -206,7 +207,7 @@ module.exports = function (secp256k1, opts) {
       if (new BN(tweak).cmp(util.BN_ZERO) === 0) {
         return expect(function () {
           secp256k1.privateKeyTweakMul(privateKey, tweak)
-        }).to.throw(Error, 'tweak out of range')
+        }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
       }
 
       var expected = new BN(privateKey).mul(new BN(tweak)).mod(util.ec.curve.n)

@@ -33,4 +33,4 @@ if (!process.browser) {
   runTests(require('../bindings'), 'secp256k1 bindings')
 }
 
-runTests(require('../js'), 'pure js')
+// runTests(require('../js'), 'pure js')
