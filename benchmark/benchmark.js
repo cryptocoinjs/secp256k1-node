@@ -11,6 +11,15 @@ var implementations = {
 
 var fixtureIndex = 0
 var fixtures = new Array(1000)
+var getNextFixture = function () {
+  var fixture = fixtures[fixtureIndex++]
+  if (fixtureIndex === fixtures.length) {
+    fixtureIndex = 0
+  }
+
+  return fixture
+}
+
 for (var i = 0; i < fixtures.length; ++i) {
   var fixture = {}
   fixture.privateKey = util.getPrivateKey()
@@ -55,24 +64,23 @@ function runSuite (suiteName, testFunctionGenerator) {
   suite.run()
 }
 
+runSuite('publicKeyCreate', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.publicKeyCreate(fixture.privateKey)
+  }
+})
+
 runSuite('sign', function (secp256k1) {
   return function () {
-    var fixture = fixtures[fixtureIndex++]
-    if (fixtureIndex === fixtures.length) {
-      fixtureIndex = 0
-    }
-
+    var fixture = getNextFixture()
     secp256k1.sign(fixture.message, fixture.privateKey)
   }
 })
 
 runSuite('verify', function (secp256k1) {
   return function () {
-    var fixture = fixtures[fixtureIndex++]
-    if (fixtureIndex === fixtures.length) {
-      fixtureIndex = 0
-    }
-
+    var fixture = getNextFixture()
     secp256k1.verify(fixture.message, fixture.signature, fixture.publicKey)
   }
 })

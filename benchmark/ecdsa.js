@@ -4,9 +4,19 @@ var assert = require('assert')
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
 var ecurve = require('ecurve')
+var ECKey = require('eckey')
 
 var ecparams = ecurve.getCurveByName('secp256k1')
 ecparams.nH = ecparams.n.shiftRight(1)
+
+/**
+ * @param {Buffer} privateKey
+ * @return {Buffer}
+ */
+exports.publicKeyCreate = function (privateKey) {
+  var eckey = new ECKey(privateKey)
+  return eckey.publicKey
+}
 
 /**
  * @param {Buffer} message

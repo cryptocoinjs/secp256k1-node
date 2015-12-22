@@ -4,6 +4,15 @@ var EC = require('elliptic').ec
 var ec = new EC('secp256k1')
 
 /**
+ * @param {Buffer} privateKey
+ * @return {Buffer}
+ */
+exports.publicKeyCreate = function (privateKey) {
+  var key = ec.keyFromPrivate(privateKey)
+  return new Buffer(key.getPublic().encodeCompressed())
+}
+
+/**
  * @param {Buffer} message
  * @param {Buffer} privateKey
  * @return {{signature: string, recovery: number}}
