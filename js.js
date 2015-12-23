@@ -10,6 +10,7 @@ function extend (target, source) {
 
 exports.ecparams = require('./lib/ecparams')
 exports.ECPoint = require('./lib/ecpoint')
+exports.ECJPoint = require('./lib/ecjpoint')
 
 extend(exports, require('./lib/privatekey'))
 extend(exports, require('./lib/publickey'))
