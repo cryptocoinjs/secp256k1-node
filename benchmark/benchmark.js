@@ -1,6 +1,7 @@
 'use strict'
 
 var benchmark = require('benchmark')
+var ProgressBar = require('progress')
 
 var util = require('../test/util')
 var implementations = {
@@ -20,6 +21,11 @@ var getNextFixture = function () {
   return fixture
 }
 
+var progressBar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
+  total: fixtures.length,
+  stream: util.progressStream
+})
+
 for (var i = 0; i < fixtures.length; ++i) {
   var fixture = {}
   fixture.privateKey = util.getPrivateKey()
@@ -27,6 +33,7 @@ for (var i = 0; i < fixtures.length; ++i) {
   fixture.message = util.getMessage()
   fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
   fixtures[i] = fixture
+  progressBar.tick()
 }
 console.log('Create ' + fixtures.length + ' fixtures')
 console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')

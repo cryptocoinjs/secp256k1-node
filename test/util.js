@@ -112,9 +112,9 @@ exports.ecdh = function (publicKey, privateKey) {
   return createHash('sha256').update(sharedSecret).digest()
 }
 
-var stream = process.stdout
+exports.progressStream = process.stdout
 if (process.browser) {
-  stream = {
+  exports.progressStream = {
     isTTY: true,
     columns: 100,
     clearLine: function () {},
@@ -131,7 +131,7 @@ function repeatIt (it, args) {
   it(args[0], function () {
     var bar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
       total: args[1],
-      stream: stream
+      stream: exports.progressStream
     })
 
     while (bar.curr !== args[1]) {
