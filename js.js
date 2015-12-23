@@ -1,9 +1,18 @@
 'use strict'
 
-var objectAssign = require('object-assign')
+function extend (target, source) {
+  for (var key in source) {
+    if (source.hasOwnProperty(key)) {
+      target[key] = source[key]
+    }
+  }
+}
 
-objectAssign(exports, require('./lib/privatekey'))
-objectAssign(exports, require('./lib/publickey'))
-objectAssign(exports, require('./lib/signature'))
-objectAssign(exports, require('./lib/ecdsa'))
-objectAssign(exports, require('./lib/ecdh'))
+exports.ecparams = require('./lib/ecparams')
+exports.ECPoint = require('./lib/ecpoint')
+
+extend(exports, require('./lib/privatekey'))
+extend(exports, require('./lib/publickey'))
+extend(exports, require('./lib/signature'))
+extend(exports, require('./lib/ecdsa'))
+extend(exports, require('./lib/ecdh'))
