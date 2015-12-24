@@ -33,5 +33,4 @@ if (!process.browser) {
   runTests(require('../bindings'), 'secp256k1 bindings')
 }
 
-require('../js').ecparams.G.precompute()
 runTests(require('../js'), 'pure js')

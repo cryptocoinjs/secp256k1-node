@@ -4,8 +4,6 @@ var benchmark = require('benchmark')
 var ProgressBar = require('progress')
 
 var util = require('../test/util')
-
-require('../js').ecparams.G.precompute()
 var implementations = {
   bindings: require('../bindings'),
   this: require('../js'),
