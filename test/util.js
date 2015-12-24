@@ -149,3 +149,22 @@ function repeatIt (it, args) {
 exports.repeatIt = function () { repeatIt(it, arguments) }
 exports.repeatIt.skip = function () { repeatIt(it.skip, arguments) }
 exports.repeatIt.only = function () { repeatIt(it.only, arguments) }
+
+/**
+ * @return {number}
+ */
+exports.getRepeat = function () {
+  var repeat = global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+               process.env.RANDOM_TESTS_REPEAT ||
+               100
+  return parseInt(repeat, 10)
+}
+
+/**
+ * @return {boolean}
+ */
+exports.isTravis = function () {
+  return global.__env__ && global.__env__.TRAVIS ||
+         process.env.TRAVIS ||
+         false
+}
