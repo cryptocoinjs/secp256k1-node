@@ -8,7 +8,7 @@ function extend (target, source) {
   }
 }
 
-require('./lib/ecparams').G.precompute()
+require('./lib/ecparams').initG()
 
 extend(exports, require('./lib/privatekey'))
 extend(exports, require('./lib/publickey'))
