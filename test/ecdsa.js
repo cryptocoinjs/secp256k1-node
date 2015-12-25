@@ -127,72 +127,81 @@ module.exports = function (secp256k1, opts) {
   describe('verify', function () {
     it('message should be a Buffer', function () {
       expect(function () {
-        var signature = util.getSignature()
-        var publicKey = util.getPublicKey().compressed
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey)
+        var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.verify(null, signature, publicKey)
       }).to.throw(TypeError, messages.MSG32_TYPE_INVALID)
     })
 
     it('message length is invalid', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage().slice(1)
-        var signature = util.getSignature()
-        var publicKey = util.getPublicKey().compressed
+        var signature = util.getSignature(message, privateKey)
+        var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.verify(message, signature, publicKey)
       }).to.throw(RangeError, messages.MSG32_LENGTH_INVALID)
     })
 
     it('signature should be a Buffer', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var publicKey = util.getPublicKey().compressed
+        var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.verify(message, null, publicKey)
       }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('signature length is invalid', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature().slice(1)
-        var publicKey = util.getPublicKey().compressed
+        var signature = util.getSignature(message, privateKey).slice(1)
+        var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.verify(message, signature, publicKey)
       }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
 
     it('signature is invalid (r equal N)', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
         var signature = Buffer.concat([
           new Buffer(util.ec.n.toArray(null, 32)),
           getRandomBytes(32)
         ])
-        var publicKey = util.getPublicKey().compressed
+        var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.verify(message, signature, publicKey)
       }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
     })
 
     it('public key should be a Buffer', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
+        var signature = util.getSignature(message, privateKey)
         secp256k1.verify(message, signature, null)
       }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
     })
 
     it('public key length is invalid', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
-        var publicKey = util.getPublicKey().compressed.slice(1)
+        var signature = util.getSignature(message, privateKey)
+        var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         secp256k1.verify(message, signature, publicKey)
       }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
     })
 
     it('public key is invalid (version is 0x01)', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
-        var publicKey = util.getPublicKey().compressed
+        var signature = util.getSignature(message, privateKey)
+        var publicKey = util.getPublicKey(privateKey).compressed
         publicKey[0] = 0x01
         secp256k1.verify(message, signature, publicKey)
       }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
@@ -202,15 +211,18 @@ module.exports = function (secp256k1, opts) {
   describe('recover', function () {
     it('message should be a Buffer', function () {
       expect(function () {
-        var signature = util.getSignature()
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey)
         secp256k1.recover(null, signature, 0)
       }).to.throw(TypeError, messages.MSG32_TYPE_INVALID)
     })
 
     it('message length is invalid', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage().slice(1)
-        var signature = util.getSignature()
+        var signature = util.getSignature(message, privateKey)
         secp256k1.recover(message, signature, 0)
       }).to.throw(RangeError, messages.MSG32_LENGTH_INVALID)
     })
@@ -224,8 +236,9 @@ module.exports = function (secp256k1, opts) {
 
     it('signature length is invalid', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature().slice(1)
+        var signature = util.getSignature(message, privateKey).slice(1)
         secp256k1.recover(message, signature, 0)
       }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
@@ -243,24 +256,27 @@ module.exports = function (secp256k1, opts) {
 
     it('recovery should be a Number', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
+        var signature = util.getSignature(message, privateKey)
         secp256k1.recover(message, signature, null)
       }).to.throw(TypeError, messages.RECOVERY_ID_TYPE_INVALID)
     })
 
     it('recovery is invalid (equal 4)', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
+        var signature = util.getSignature(privateKey, message)
         secp256k1.recover(message, signature, 4)
       }).to.throw(RangeError, messages.RECOVERY_ID_VALUE_INVALID)
     })
 
     it('compressed should be a boolean', function () {
       expect(function () {
+        var privateKey = util.getPrivateKey()
         var message = util.getMessage()
-        var signature = util.getSignature()
+        var signature = util.getSignature(message, privateKey)
         secp256k1.recover(message, signature, 0, null)
       }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })

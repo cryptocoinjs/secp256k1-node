@@ -20,7 +20,9 @@ module.exports = function (secp256k1, opts) {
 
     it('invalid length', function () {
       expect(function () {
-        var signature = util.getSignature().slice(1)
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey).slice(1)
         secp256k1.signatureNormalize(signature)
       }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
@@ -63,7 +65,9 @@ module.exports = function (secp256k1, opts) {
 
     it('invalid length', function () {
       expect(function () {
-        var signature = util.getSignature().slice(1)
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey).slice(1)
         secp256k1.signatureExport(signature)
       }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })

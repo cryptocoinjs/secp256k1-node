@@ -1,21 +1,47 @@
 'use strict'
 
-var getRandomBytes = require('crypto').randomBytes
 var createHash = require('crypto').createHash
 var BN = require('bn.js')
 var EC = require('elliptic').ec
 var ProgressBar = require('progress')
 
+var PRNG = require('./prng')
+
 var ec = exports.ec = new EC('secp256k1')
 exports.BN_ZERO = new BN(0)
 exports.BN_ONE = new BN(1)
+
+var prngs = {
+  privateKey: new PRNG(),
+  tweak: new PRNG(),
+  message: new PRNG()
+}
+
+/**
+ * @param {string} name
+ * @return {function}
+ */
+function getSetSeedFn (name) {
+  /**
+   * @param {(Buffer|string)} [seed]
+   */
+  return function (seed) {
+    prngs[name].setSeed(seed)
+    if (Buffer.isBuffer(seed)) {
+      seed = seed.toString('hex')
+    }
+    console.log('Set new seed for ' + name + ': ' + seed)
+  }
+}
+
+exports.getPrivateKeySetSeed = getSetSeedFn('privateKey')
 
 /**
  * @return {Buffer}
  */
 exports.getPrivateKey = function () {
   while (true) {
-    var privateKey = getRandomBytes(32)
+    var privateKey = prngs.privateKey.random()
     var bn = new BN(privateKey)
     if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
       return privateKey
@@ -24,14 +50,10 @@ exports.getPrivateKey = function () {
 }
 
 /**
- * @param {Buffer} [privateKey]
+ * @param {Buffer} privateKey
  * @return {{compressed: Buffer, uncompressed: Buffer}}
  */
 exports.getPublicKey = function (privateKey) {
-  if (privateKey === undefined) {
-    privateKey = exports.getPrivateKey()
-  }
-
   var publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
     compressed: new Buffer(publicKey.encode(null, true)),
@@ -45,24 +67,18 @@ exports.getPublicKey = function (privateKey) {
  * @return {Buffer}
  */
 exports.getSignature = function (message, privateKey) {
-  if (message === undefined) {
-    message = exports.getMessage()
-  }
-
-  if (privateKey === undefined) {
-    privateKey = exports.getPrivateKey()
-  }
-
   var sig = exports.sign(message, privateKey)
   return sig.signatureLowS
 }
+
+exports.getTweakSetSeed = getSetSeedFn('tweak')
 
 /**
  * @return {Buffer}
  */
 exports.getTweak = function () {
   while (true) {
-    var tweak = getRandomBytes(32)
+    var tweak = prngs.tweak.random()
     var bn = new BN(tweak)
     if (bn.cmp(ec.curve.n) === -1) {
       return tweak
@@ -70,11 +86,13 @@ exports.getTweak = function () {
   }
 }
 
+exports.getMessageSetSeed = getSetSeedFn('message')
+
 /**
  * @return {Buffer}
  */
 exports.getMessage = function () {
-  return getRandomBytes(32)
+  return prngs.message.random()
 }
 
 /**
@@ -112,6 +130,7 @@ exports.ecdh = function (publicKey, privateKey) {
   return createHash('sha256').update(sharedSecret).digest()
 }
 
+// stream for progress package
 exports.progressStream = process.stdout
 if (process.browser) {
   exports.progressStream = {

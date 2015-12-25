@@ -47,7 +47,7 @@
     "rebuild": "node-gyp rebuild",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "karma start karma.conf.js",
-    "test:node": "istanbul test _mocha -- --reporter spec"
+    "test:node": "istanbul test _mocha -- --reporter spec test/index.js"
   },
   "dependencies": {
     "bindings": "^1.2.1",

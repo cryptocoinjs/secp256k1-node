@@ -8,20 +8,28 @@ var bindings = require('../bindings')
 var purejs = require('../js')
 var util = require('./util')
 
+var STEP_REPEAT = 100000
+
 global.it = function (_, fn) { fn() }
-util.repeatIt('random tests', util.getRepeat(), function () {
-  var message = util.getMessage()
-  var privateKey = util.getPrivateKey()
-  var publicKey = bindings.publicKeyCreate(privateKey)
-  var expected = bindings.sign(message, privateKey)
+var repeat = util.getRepeat()
+for (; repeat > 0; repeat -= STEP_REPEAT) {
+  util.getPrivateKeySetSeed(getRandomBytes(32))
+  util.getMessageSetSeed(getRandomBytes(32))
 
-  var sigObj = purejs.sign(message, privateKey)
-  assert.equal(sigObj.signature.toString('hex'), expected.signature.toString('hex'))
-  assert.equal(sigObj.recovery, expected.recovery)
+  util.repeatIt('random tests', Math.max(STEP_REPEAT, repeat % STEP_REPEAT), function () {
+    var message = util.getMessage()
+    var privateKey = util.getPrivateKey()
+    var publicKey = bindings.publicKeyCreate(privateKey)
+    var expected = bindings.sign(message, privateKey)
 
-  var isValid = purejs.verify(message, sigObj.signature, publicKey)
-  assert.equal(isValid, true)
+    var sigObj = purejs.sign(message, privateKey)
+    assert.equal(sigObj.signature.toString('hex'), expected.signature.toString('hex'))
+    assert.equal(sigObj.recovery, expected.recovery)
 
-  var publicKey2 = purejs.recover(message, sigObj.signature, sigObj.recovery, true)
-  assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
-})
+    var isValid = purejs.verify(message, sigObj.signature, publicKey)
+    assert.equal(isValid, true)
+
+    var publicKey2 = purejs.recover(message, sigObj.signature, sigObj.recovery, true)
+    assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
+  })
+}
