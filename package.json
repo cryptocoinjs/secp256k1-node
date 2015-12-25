@@ -85,6 +85,7 @@
   "standard": {
     "globals": [
       "describe",
+      "before",
       "it"
     ]
   }

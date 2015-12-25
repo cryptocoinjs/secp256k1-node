@@ -29,7 +29,7 @@ PRNG.prototype.setSeed = function (seed) {
     seed = crypto.randomBytes(32)
   }
 
-  if (typeof(seed) === 'string' && seed.length % 2 === 0 && seed.match(/^[0-1]*$/) !== null) {
+  if (typeof seed === 'string' && seed.length % 2 === 0 && seed.match(/^[0-1]*$/) !== null) {
     seed = new Buffer(seed, 'hex')
   }
 
@@ -41,7 +41,7 @@ PRNG.prototype.setSeed = function (seed) {
  * @return {Buffer}
  */
 PRNG.prototype.random = function () {
-  if (this._count === MAX_COUNT){
+  if (this._count === MAX_COUNT) {
     this._count = 0
   }
 
