@@ -1,6 +1,6 @@
 'use strict'
 
-var createHash = require('crypto').createHash
+var crypto = require('crypto')
 var BN = require('bn.js')
 var EC = require('elliptic').ec
 var ProgressBar = require('progress')
@@ -18,23 +18,16 @@ var prngs = {
 }
 
 /**
- * @param {string} name
- * @return {function}
+ * @param {(Buffer|string)} [seed]
  */
-function getSetSeedFn (name) {
-  /**
-   * @param {(Buffer|string)} [seed]
-   */
-  return function (seed) {
-    prngs[name].setSeed(seed)
-    if (Buffer.isBuffer(seed)) {
-      seed = seed.toString('hex')
-    }
-    console.log('Set new seed for ' + name + ': ' + seed)
-  }
-}
+exports.setSeed = function (seed) {
+  console.log('Set new seed: ' + (Buffer.isBuffer(seed) ? seed.toString('hex') : seed))
 
-exports.getPrivateKeySetSeed = getSetSeedFn('privateKey')
+  var prng = new PRNG(seed)
+  prngs.privateKey.setSeed(prng.random())
+  prngs.tweak.setSeed(prng.random())
+  prngs.message.setSeed(prng.random())
+}
 
 /**
  * @return {Buffer}
@@ -71,8 +64,6 @@ exports.getSignature = function (message, privateKey) {
   return sig.signatureLowS
 }
 
-exports.getTweakSetSeed = getSetSeedFn('tweak')
-
 /**
  * @return {Buffer}
  */
@@ -85,8 +76,6 @@ exports.getTweak = function () {
     }
   }
 }
-
-exports.getMessageSetSeed = getSetSeedFn('message')
 
 /**
  * @return {Buffer}
@@ -127,7 +116,7 @@ exports.ecdh = function (publicKey, privateKey) {
   var secret = ec.keyFromPrivate(privateKey)
   var point = ec.keyFromPublic(publicKey)
   var sharedSecret = new BN(secret.derive(point).encode(null, 32))
-  return createHash('sha256').update(sharedSecret).digest()
+  return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
 // stream for progress package
@@ -169,21 +158,14 @@ exports.repeatIt = function () { repeatIt(it, arguments) }
 exports.repeatIt.skip = function () { repeatIt(it.skip, arguments) }
 exports.repeatIt.only = function () { repeatIt(it.only, arguments) }
 
-/**
- * @return {number}
- */
-exports.getRepeat = function () {
-  var repeat = global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
-               process.env.RANDOM_TESTS_REPEAT ||
-               100
-  return parseInt(repeat, 10)
-}
-
-/**
- * @return {boolean}
- */
-exports.isTravis = function () {
-  return global.__env__ && global.__env__.TRAVIS ||
-         process.env.TRAVIS ||
-         false
+exports.env = {
+  repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+                   process.env.RANDOM_TESTS_REPEAT ||
+                   100, 10),
+  isTravis: global.__env__ && global.__env__.TRAVIS ||
+            process.env.TRAVIS ||
+            false,
+  seed: global.__env__ && global.__env__.SEED ||
+        process.env.SEED ||
+        crypto.randomBytes(32)
 }

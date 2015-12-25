@@ -11,10 +11,9 @@ var util = require('./util')
 var STEP_REPEAT = 100000
 
 global.it = function (_, fn) { fn() }
-var repeat = util.getRepeat()
+var repeat = util.env.repeat
 for (; repeat > 0; repeat -= STEP_REPEAT) {
-  util.getPrivateKeySetSeed(getRandomBytes(32))
-  util.getMessageSetSeed(getRandomBytes(32))
+  util.setSeed(getRandomBytes(32))
 
   util.repeatIt('random tests', Math.max(STEP_REPEAT, repeat % STEP_REPEAT), function () {
     var message = util.getMessage()

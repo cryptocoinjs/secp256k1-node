@@ -27,6 +27,7 @@ var progressBar = new ProgressBar(':percent (:current/:total), :elapseds elapsed
   stream: util.progressStream
 })
 
+util.setSeed(util.env.seed)
 for (var i = 0; i < fixtures.length; ++i) {
   var fixture = {}
   fixture.privateKey = util.getPrivateKey()
