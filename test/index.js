@@ -13,7 +13,7 @@ var util = require('./util')
 function runTests (secp256k1, description) {
   describe(description, function () {
     var repeat = util.env.repeat
-    this.timeout(repeat * 50 * (util.env.isTravis ? 5 : 1))
+    this.timeout(repeat * 100 * (util.env.isTravis ? 5 : 1))
 
     before(function () {
       util.setSeed(util.env.seed)
