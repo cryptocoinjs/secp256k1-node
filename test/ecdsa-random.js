@@ -7,15 +7,15 @@ var getRandomBytes = require('crypto').randomBytes
 var bindings = require('../bindings')
 var purejs = require('../js')
 var util = require('./util')
+global.it = function (_, fn) { fn() } // make util.repeatIt useful
 
 var STEP_REPEAT = 100000
 
-global.it = function (_, fn) { fn() }
 var repeat = util.env.repeat
-for (; repeat > 0; repeat -= STEP_REPEAT) {
-  util.setSeed(getRandomBytes(32))
-
-  util.repeatIt('random tests', Math.max(STEP_REPEAT, repeat % STEP_REPEAT), function () {
+var seed = util.env.seed
+while (repeat > 0) {
+  util.setSeed(seed)
+  util.repeatIt('random tests', (repeat % STEP_REPEAT) || STEP_REPEAT, function () {
     var message = util.getMessage()
     var privateKey = util.getPrivateKey()
     var publicKey = bindings.publicKeyCreate(privateKey)
@@ -31,4 +31,7 @@ for (; repeat > 0; repeat -= STEP_REPEAT) {
     var publicKey2 = purejs.recover(message, sigObj.signature, sigObj.recovery, true)
     assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
   })
+
+  repeat -= STEP_REPEAT
+  seed = getRandomBytes(32)
 }
