@@ -5,7 +5,7 @@ var assert = require('assert')
 var getRandomBytes = require('crypto').randomBytes
 
 var bindings = require('../bindings')
-var purejs = require('../js')
+var secp256k1js = require('../js')
 var util = require('./util')
 global.it = function (_, fn) { fn() } // make util.repeatIt useful
 
@@ -21,14 +21,14 @@ while (repeat > 0) {
     var publicKey = bindings.publicKeyCreate(privateKey)
     var expected = bindings.sign(message, privateKey)
 
-    var sigObj = purejs.sign(message, privateKey)
+    var sigObj = secp256k1js.sign(message, privateKey)
     assert.equal(sigObj.signature.toString('hex'), expected.signature.toString('hex'))
     assert.equal(sigObj.recovery, expected.recovery)
 
-    var isValid = purejs.verify(message, sigObj.signature, publicKey)
+    var isValid = secp256k1js.verify(message, sigObj.signature, publicKey)
     assert.equal(isValid, true)
 
-    var publicKey2 = purejs.recover(message, sigObj.signature, sigObj.recovery, true)
+    var publicKey2 = secp256k1js.recover(message, sigObj.signature, sigObj.recovery, true)
     assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
   })
 

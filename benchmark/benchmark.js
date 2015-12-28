@@ -6,7 +6,7 @@ var ProgressBar = require('progress')
 var util = require('../test/util')
 var implementations = {
   bindings: require('../bindings'),
-  this: require('../js'),
+  secp256k1js: require('../js'),
   elliptic: require('./elliptic'),
   ecdsa: require('./ecdsa')
 }
@@ -33,7 +33,8 @@ for (var i = 0; i < fixtures.length; ++i) {
   fixture.privateKey = util.getPrivateKey()
   fixture.publicKey = util.getPublicKey(fixture.privateKey).compressed
   fixture.message = util.getMessage()
-  fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
+  // fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
+  fixture.signature = implementations.secp256k1js.sign(fixture.message, fixture.privateKey).signature
   fixtures[i] = fixture
   progressBar.tick()
 }
