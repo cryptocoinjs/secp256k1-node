@@ -10,7 +10,7 @@ var util = require('./util')
  * @param {Object} secp256k1
  * @param {string} description
  */
-function runTests (secp256k1, description) {
+function test (secp256k1, description) {
   describe(description, function () {
     var repeat = util.env.repeat
     this.timeout(repeat * 100 * (util.env.isTravis ? 5 : 1))
@@ -28,7 +28,9 @@ function runTests (secp256k1, description) {
 }
 
 if (!process.browser) {
-  runTests(require('../bindings'), 'secp256k1 bindings')
+  test(require('../bindings'), 'secp256k1 bindings')
 }
 
-runTests(require('../js'), 'pure js')
+test(require('../js'), 'pure js')
+
+require('./rfc6979') // rf6979 tests

@@ -21,7 +21,7 @@ var prngs = {
  * @param {(Buffer|string)} [seed]
  */
 exports.setSeed = function (seed) {
-  console.log('Set new seed: ' + (Buffer.isBuffer(seed) ? seed.toString('hex') : seed))
+  console.log('Set seed: ' + (Buffer.isBuffer(seed) ? seed.toString('hex') : seed))
 
   var prng = new PRNG(seed)
   prngs.privateKey.setSeed(prng.random())
