@@ -8,10 +8,8 @@ var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
  */
-module.exports = function (secp256k1, opts) {
+module.exports = function (secp256k1) {
   describe('sign', function () {
     it('message should be a Buffer', function () {
       expect(function () {
@@ -283,7 +281,7 @@ module.exports = function (secp256k1, opts) {
   })
 
   describe('sign/verify/recover', function () {
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var message = util.getMessage()
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey)

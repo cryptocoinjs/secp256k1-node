@@ -8,10 +8,8 @@ var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
  */
-module.exports = function (secp256k1, opts) {
+module.exports = function (secp256k1) {
   describe('privateKeyVerify', function () {
     it('should be a Buffer', function () {
       expect(function () {
@@ -34,7 +32,7 @@ module.exports = function (secp256k1, opts) {
       expect(secp256k1.privateKeyVerify(privateKey)).to.be.false
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       expect(secp256k1.privateKeyVerify(privateKey)).to.be.true
     })
@@ -85,7 +83,7 @@ module.exports = function (secp256k1, opts) {
   })
 
   describe('privateKeyExport/privateKeyImport', function () {
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
 
       var der1 = secp256k1.privateKeyExport(privateKey, true)
@@ -145,7 +143,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 
@@ -200,7 +198,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 

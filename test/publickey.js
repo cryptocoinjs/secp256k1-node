@@ -8,10 +8,8 @@ var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
  */
-module.exports = function (secp256k1, opts) {
+module.exports = function (secp256k1) {
   describe('publicKeyCreate', function () {
     it('should be a Buffer', function () {
       expect(function () {
@@ -47,7 +45,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var expected = util.getPublicKey(privateKey)
 
@@ -90,7 +88,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var expected = util.getPublicKey(privateKey)
 
@@ -122,7 +120,7 @@ module.exports = function (secp256k1, opts) {
       expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey)
       expect(secp256k1.publicKeyVerify(publicKey.compressed)).to.be.true
@@ -192,7 +190,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 
@@ -279,7 +277,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var privateKey = util.getPrivateKey()
       var publicPoint = util.ec.g.mul(new BN(privateKey))
       var publicKey = new Buffer(publicPoint.encode(null, true))
@@ -355,7 +353,7 @@ module.exports = function (secp256k1, opts) {
       }).to.throw(messages.EC_PUBLIC_KEY_COMBINE_FAIL)
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var cnt = 1 + Math.floor(Math.random() * 3) // 1 <= cnt <= 3
       var privateKeys = []
       while (privateKeys.length < cnt) {

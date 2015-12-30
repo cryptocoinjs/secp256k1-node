@@ -7,10 +7,8 @@ var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
  */
-module.exports = function (secp256k1, opts) {
+module.exports = function (secp256k1) {
   describe('signatureNormalize', function () {
     it('signature should be a Buffer', function () {
       expect(function () {
@@ -46,7 +44,7 @@ module.exports = function (secp256k1, opts) {
       expect(result.toString('hex')).to.equal(signature.toString('hex'))
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var message = util.getMessage()
       var privateKey = util.getPrivateKey()
 
@@ -98,7 +96,7 @@ module.exports = function (secp256k1, opts) {
   })
 
   describe('signatureExport/signatureImport', function () {
-    util.repeatIt('random tests', opts.repeat, function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
       var message = util.getMessage()
       var privateKey = util.getPrivateKey()
 
