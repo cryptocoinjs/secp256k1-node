@@ -29,15 +29,13 @@ npm install
 
 # Usage
 
-* [API Reference (v2.x)](API.md)
+* [API Reference (v3.x)](API.md)
 
 ```js
 var crypto = require('crypto')
 var secp256k1 = require('secp256k1')
 // or require('secp256k1/js')
-//   if you want to use pure js implementation in node (uses elliptic now)
-// or require('secp256k1/elliptic')
-//   if implementation that uses elliptic package
+//   if you want to use pure js implementation in node
 
 // generate message to sign
 var msg = crypto.randomBytes(32)
@@ -46,16 +44,16 @@ var msg = crypto.randomBytes(32)
 var privKey
 do {
   privKey = crypto.randomBytes(32)
-} while (!secp256k1.secretKeyVerify(privKey))
+} while (!secp256k1.privateKeyVerify(privKey))
 
 // get the public key in a compressed format
 var pubKey = secp256k1.publicKeyCreate(privKey)
 
 // sign the message
-var sigObj = secp256k1.signSync(msg, privKey)
+var sigObj = secp256k1.sign(msg, privKey)
 
 // verify the signature
-console.log(secp256k1.verifySync(msg, sigObj.signature, pubKey))
+console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
 ```
 
 # LICENSE
