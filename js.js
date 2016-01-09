@@ -8,8 +8,6 @@ function extend (target, source) {
   }
 }
 
-require('./lib/ecparams').initG()
-
 extend(exports, require('./lib/privatekey'))
 extend(exports, require('./lib/publickey'))
 extend(exports, require('./lib/signature'))
