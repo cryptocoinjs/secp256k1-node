@@ -7,7 +7,7 @@
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.
-This library is experimental, so use at your own risk. Works on node version 0.10 or greater and in the Browser via browserify.
+This library is experimental, so use at your own risk. Works on node version 0.11 or greater and in the Browser via browserify.
 
 # Installation
 

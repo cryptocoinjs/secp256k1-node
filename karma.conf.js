@@ -1,5 +1,6 @@
 module.exports = function (config) {
   config.set({
+    browserNoActivityTimeout: 120000,
     frameworks: ['browserify', 'detectBrowsers', 'mocha'],
     files: [
       'test/index.js'

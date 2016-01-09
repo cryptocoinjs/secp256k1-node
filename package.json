@@ -77,6 +77,9 @@
     "progress": "^1.1.8",
     "standard": "^5.3.1"
   },
+  "engines": {
+    "node": ">=0.11"
+  },
   "gypfile": true,
   "browser": {
     "./bindings.js": "./js.js"
