@@ -28,6 +28,7 @@
     "bindings.js",
     "js.js",
     "package.json",
+    "LICENSE",
     "README.md",
     "utils/has_lib.sh"
   ],
