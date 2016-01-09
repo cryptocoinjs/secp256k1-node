@@ -67,18 +67,19 @@ NAN_METHOD(privateKeyTweakAdd) {
   v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  unsigned char* private_key = (unsigned char *) node::Buffer::Data(private_key_buffer);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
 
-  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, private_key, tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, &private_key[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVATE_KEY_TWEAK_ADD_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(private_key, 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
 }
 
 NAN_METHOD(privateKeyTweakMul) {
@@ -87,16 +88,17 @@ NAN_METHOD(privateKeyTweakMul) {
   v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  unsigned char* private_key = (unsigned char *) node::Buffer::Data(private_key_buffer);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
 
-  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, private_key, tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, &private_key[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVATE_KEY_TWEAK_MUL_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(private_key, 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
 }
