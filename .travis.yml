@@ -20,7 +20,7 @@ before_install:
 env:
   global:
     - DISPLAY=:99.0
-    - RANDOM_TESTS_REPEAT=5000
+    - RANDOM_TESTS_REPEAT=1000
   matrix:
     - CXX=g++-4.8 TEST_SUITE=test:node
 matrix:

@@ -8,9 +8,7 @@ var util = require('./util')
  */
 function test (secp256k1, description) {
   describe(description, function () {
-    // TODO: update
-    this.timeout(util.env.repeat * 1000)
-    // this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
+    this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
 
     before(function () {
       util.setSeed(util.env.seed)
@@ -25,7 +23,6 @@ function test (secp256k1, description) {
 }
 
 require('./rfc6979') // rf6979 tests
-// if (!process.browser) { require('./bn') } // big integer tests
 test(require('../js'), 'pure js')
 
-// if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }
+if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }
