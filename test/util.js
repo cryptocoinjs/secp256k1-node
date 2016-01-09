@@ -11,7 +11,7 @@ var ec = exports.ec = new EC('secp256k1')
 exports.BN_ZERO = new BN(0)
 exports.BN_ONE = new BN(1)
 
-var prngs = {
+var prngs = exports.prngs = {
   privateKey: new PRNG(),
   tweak: new PRNG(),
   message: new PRNG()
@@ -119,18 +119,6 @@ exports.ecdh = function (publicKey, privateKey) {
   return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
-// stream for progress package
-exports.progressStream = process.stdout
-if (process.browser) {
-  exports.progressStream = {
-    isTTY: true,
-    columns: 100,
-    clearLine: function () {},
-    cursorTo: function () {},
-    write: console.log.bind(console)
-  }
-}
-
 /**
  * @param {function} it
  * @param {*[]} args
@@ -161,11 +149,29 @@ exports.repeatIt.only = function () { repeatIt(it.only, arguments) }
 exports.env = {
   repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
                    process.env.RANDOM_TESTS_REPEAT ||
-                   100, 10),
+                   100,
+                   10),
   isTravis: global.__env__ && global.__env__.TRAVIS ||
             process.env.TRAVIS ||
             false,
   seed: global.__env__ && global.__env__.SEED ||
         process.env.SEED ||
         crypto.randomBytes(32)
+}
+
+// stream for progress package
+exports.progressStream = process.stdout
+if (process.browser) {
+  exports.progressStream = {
+    isTTY: true,
+    columns: 100,
+    clearLine: function () {},
+    cursorTo: function () {},
+    write: console.log.bind(console)
+  }
+}
+
+// turn off on travis
+if (exports.env.isTravis) {
+  exports.progressStream = function () {}
 }

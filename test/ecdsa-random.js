@@ -17,18 +17,24 @@ while (repeat > 0) {
   util.repeatIt('random tests', (repeat % STEP_REPEAT) || STEP_REPEAT, function () {
     var message = util.getMessage()
     var privateKey = util.getPrivateKey()
-    var publicKey = bindings.publicKeyCreate(privateKey)
-    var expected = bindings.sign(message, privateKey)
+    try {
+      var publicKey = bindings.publicKeyCreate(privateKey)
+      var expected = bindings.sign(message, privateKey)
 
-    var sigObj = secp256k1js.sign(message, privateKey)
-    assert.equal(sigObj.signature.toString('hex'), expected.signature.toString('hex'))
-    assert.equal(sigObj.recovery, expected.recovery)
+      var sigObj = secp256k1js.sign(message, privateKey)
+      assert.equal(sigObj.signature.toString('hex'), expected.signature.toString('hex'))
+      assert.equal(sigObj.recovery, expected.recovery)
 
-    var isValid = secp256k1js.verify(message, sigObj.signature, publicKey)
-    assert.equal(isValid, true)
+      var isValid = secp256k1js.verify(message, sigObj.signature, publicKey)
+      assert.equal(isValid, true)
 
-    var publicKey2 = secp256k1js.recover(message, sigObj.signature, sigObj.recovery, true)
-    assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
+      var publicKey2 = secp256k1js.recover(message, sigObj.signature, sigObj.recovery, true)
+      assert.equal(publicKey2.toString('hex'), publicKey.toString('hex'))
+    } catch (err) {
+      console.log('\nMessage:', message.toString('hex'))
+      console.log('Private key:', privateKey.toString('hex'))
+      throw err
+    }
   })
 
   repeat -= STEP_REPEAT
