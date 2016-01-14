@@ -74,18 +74,19 @@ NAN_METHOD(secretKeyTweakAdd) {
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(seckey_buffer, EC_PRIVKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
-  unsigned char* seckey = (unsigned char *) node::Buffer::Data(seckey_buffer);
+  unsigned char seckey[32];
+  memcpy(&seckey[0], node::Buffer::Data(seckey_buffer), 32);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
 
-  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, seckey, tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, &seckey[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVKEY_TWEAK_ADD_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(seckey, 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&seckey[0], 32));
 }
 
 NAN_METHOD(secretKeyTweakMul) {
@@ -94,16 +95,17 @@ NAN_METHOD(secretKeyTweakMul) {
   v8::Local<v8::Object> seckey_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(seckey_buffer, EC_PRIVKEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(seckey_buffer, 32, EC_PRIVKEY_LENGTH_INVALID);
-  unsigned char* seckey = (unsigned char *) node::Buffer::Data(seckey_buffer);
+  unsigned char seckey[32];
+  memcpy(&seckey[0], node::Buffer::Data(seckey_buffer), 32);
 
   v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
   CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
   const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
 
-  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, seckey, tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, &seckey[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVKEY_TWEAK_MUL_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(seckey, 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&seckey[0], 32));
 }
