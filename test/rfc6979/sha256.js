@@ -3,7 +3,7 @@
 var expect = require('chai').expect
 var crypto = require('crypto')
 
-var sha256 = require('../../lib/rfc6979/sha256')
+var sha256 = require('../../lib/js/rfc6979/sha256')
 var util = require('../util')
 
 /**
