@@ -1,6 +1,6 @@
 {
   "name": "secp256k1",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "This module provides native bindings to ecdsa secp256k1 functions",
   "keywords": [
     "secp256k1",
