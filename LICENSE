@@ -2,7 +2,7 @@ The MIT License (MIT)
 
 Copyright (c) 2014-2016 secp256k1-node contributors
 
-Parts of this software are based on elliptic, hash.js
+Parts of this software are based on bn.js, elliptic, hash.js
 Copyright (c) 2014-2016 Fedor Indutny
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
