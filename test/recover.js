@@ -114,8 +114,9 @@ module.exports = function (secp256k1, opts) {
 
     it('failed invalid signature testcase', function () {
       expect(function () {
+        var msg = new Buffer('82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28', 'hex')
         var signature = new Buffer('129ff05af364204442bdb53ab6f18a99ab48acc9326fa689f228040429e3ca6699e71a99cb2270b8cac5254f9e99b6210c6c10224a1579cf389ef88b20a1abe9', 'hex')
-        secp256k1.recoverSync(new Buffer('82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28', 'hex'), signature, 0)
+        secp256k1.recoverSync(msg, signature, 0)
       }).to.throw(Error, /signature/)
     })
   })
