@@ -126,6 +126,8 @@ Additional data for [noncefn](#option-function-noncefn) (RFC 6979 3.6) (32 bytes
 
 Verify an ECDSA signature.
 
+Note: **return false for high signatures!**
+
 <hr>
 
 #####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true]` -> `Buffer`

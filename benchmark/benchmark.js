@@ -7,7 +7,7 @@ var util = require('../test/util')
 var implementations = {
   bindings: require('../bindings'),
   secp256k1js: require('../js'),
-  elliptic: require('./elliptic'),
+  elliptic: require('../elliptic'),
   ecdsa: require('./ecdsa')
 }
 
@@ -54,8 +54,6 @@ function runSuite (suiteName, testFunctionGenerator) {
       console.error(event.target.error)
     },
     onComplete: function () {
-      // console.log('--------------------------------------------------')
-      // console.log('Fastest is ' + this.filter('fastest').pluck('name'))
       console.log('==================================================')
     }
   })

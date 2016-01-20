@@ -24,5 +24,6 @@ function test (secp256k1, description) {
 
 require('./rfc6979') // rf6979 tests
 test(require('../js'), 'pure js')
+test(require('../elliptic'), 'elliptic')
 
 if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }

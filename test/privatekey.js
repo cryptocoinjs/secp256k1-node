@@ -135,7 +135,7 @@ module.exports = function (secp256k1) {
       }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
     })
 
-    it('throw Error (result is zero: (N - 1) + 1)', function () {
+    it('result is zero: (N - 1) + 1', function () {
       expect(function () {
         var privateKey = new Buffer(util.ec.curve.n.sub(util.BN_ONE).toArray(null, 32))
         var tweak = new Buffer(util.BN_ONE.toArray(null, 32))
@@ -190,7 +190,15 @@ module.exports = function (secp256k1) {
       }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
     })
 
-    it('throw Error (tweak is 0)', function () {
+    it('tweak equal N', function () {
+      expect(function () {
+        var privateKey = util.getPrivateKey()
+        var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
+        secp256k1.privateKeyTweakMul(privateKey, tweak)
+      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
+    })
+
+    it('tweak is 0', function () {
       expect(function () {
         var privateKey = util.getPrivateKey()
         var tweak = new Buffer(util.BN_ZERO.toArray(null, 32))

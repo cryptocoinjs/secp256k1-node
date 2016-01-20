@@ -24,16 +24,16 @@ module.exports = function (secp256k1) {
       }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
-    it('zero key', function () {
+    it('overflow', function () {
       expect(function () {
-        var privateKey = new Buffer(util.BN_ZERO.toArray(null, 32))
+        var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.publicKeyCreate(privateKey)
       }).to.throw(Error, messages.EC_PUBLIC_KEY_CREATE_FAIL)
     })
 
-    it('equal to N', function () {
+    it('equal zero', function () {
       expect(function () {
-        var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var privateKey = new Buffer(util.BN_ZERO.toArray(null, 32))
         secp256k1.publicKeyCreate(privateKey)
       }).to.throw(Error, messages.EC_PUBLIC_KEY_CREATE_FAIL)
     })
@@ -71,15 +71,6 @@ module.exports = function (secp256k1) {
       }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
     })
 
-    it('invalid format (version is 0x01)', function () {
-      expect(function () {
-        var privateKey = util.getPrivateKey()
-        var publicKey = util.getPublicKey(privateKey).compressed
-        publicKey[0] = 0x01
-        secp256k1.publicKeyConvert(publicKey)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
-    })
-
     it('compressed should be a boolean', function () {
       expect(function () {
         var privateKey = util.getPrivateKey()
@@ -113,10 +104,35 @@ module.exports = function (secp256k1) {
       expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
     })
 
-    it('invalid key', function () {
+    it('invalid first byte', function () {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey).compressed
       publicKey[0] = 0x01
+      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+    })
+
+    it('x overflow (first byte is 0x03)', function () {
+      var publicKey = new Buffer([0x03].concat(util.ec.curve.p.toArray(null, 32)))
+      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+    })
+
+    it('x overflow', function () {
+      var publicKey = new Buffer([0x04].concat(util.ec.curve.p.toArray(null, 32)))
+      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+    })
+
+    it('y overflow', function () {
+      var publicKey = new Buffer([0x04].concat(new Array(32)).concat(util.ec.curve.p.toArray(null, 32)))
+      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+    })
+
+    it('y is even, first byte is 0x07', function () {
+      var publicKey = new Buffer([0x07].concat(new Array(32)).concat(util.ec.curve.p.subn(1).toArray(null, 32)))
+      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+    })
+
+    it('y**2 !== x*x*x + 7', function () {
+      var publicKey = Buffer.concat([new Buffer([0x04]), util.getTweak(), util.getTweak()])
       expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
     })
 
