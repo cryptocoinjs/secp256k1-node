@@ -27,6 +27,9 @@ matrix:
   include:
     - os: linux
       node_js: "4"
+      env: CXX=clang++ TEST_SUITE=test
+    - os: linux
+      node_js: "4"
       env: CXX=g++-4.8 TEST_SUITE=coveralls
     - os: linux
       node_js: "4"
