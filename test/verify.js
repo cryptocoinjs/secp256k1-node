@@ -121,5 +121,13 @@ module.exports = function (secp256k1, opts) {
         secp256k1.verifySync(util.getMessage(), util.getSignature(), pubKey)
       }).to.throw(Error, /public/)
     })
+
+    it('Should throw error on invalid siganture', function () {
+      expect(function () {
+        var msgHash = new Buffer('fe7a79529ed5f7c3375d06b26b186a8644e0e16c373d7a12be41c62d6042b77a', 'hex')
+        var signature = new Buffer('98ff921201554726367d2be8c804a7ff89ccf285ebc57dff8ae4c44b9c19ac4a0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+        secp256k1.recoverSync(msgHash, signature, 0)
+      }).to.throw(Error, /public/)
+    })
   })
 }
