@@ -56,6 +56,44 @@ var sigObj = secp256k1.sign(msg, privKey)
 console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
 ```
 
+# Elliptic vs "embedded"
+
+secp256k1-node has pure JavaScript implementation secp256k1 based on [elliptic](http://github.com/indutny/elliptic), [bn.js](http://github.com/indutny/bn.js), [hash.js](http://github.com/indutny/hash.js).
+The main purpose of this implementation is more high performance, smaller size and simple code audit.
+
+##### Code size:
+|        | browserifiable | + uglified | + gzipped |
+|:------:|:--------------:|:----------:|:---------:|
+|elliptic|303555          |211777      |62124      |
+|embedded|129498          |88958       |20188      |
+
+##### Performance:
+```
+$ node benchmark/benchmark.js
+Set seed: 3a00dcae78029d625de424ee270cf1fe65a2428f51acbabf19ec8021b5de206c
+100% (1000/1000), 2.8s elapsed, eta 0.0s
+Create 1000 fixtures
+++++++++++++++++++++++++++++++++++++++++++++++++++
+Benchmarking: publicKeyCreate
+--------------------------------------------------
+bindings x 14,035 ops/sec ±0.54% (102 runs sampled)
+secp256k1js x 987 ops/sec ±0.36% (101 runs sampled)
+elliptic x 840 ops/sec ±0.66% (99 runs sampled)
+==================================================
+Benchmarking: sign
+--------------------------------------------------
+bindings x 8,194 ops/sec ±0.17% (103 runs sampled)
+secp256k1js x 777 ops/sec ±0.30% (99 runs sampled)
+elliptic x 615 ops/sec ±0.37% (97 runs sampled)
+==================================================
+Benchmarking: verify
+--------------------------------------------------
+bindings x 5,378 ops/sec ±0.09% (103 runs sampled)
+secp256k1js x 209 ops/sec ±0.15% (91 runs sampled)
+elliptic x 115 ops/sec ±21.85% (86 runs sampled)
+==================================================
+```
+
 # LICENSE
 
 This library is free and open-source software released under the MIT license.
