@@ -59,6 +59,7 @@
   "devDependencies": {
     "benchmark": "^2.0.0",
     "bigi": "^1.3.0",
+    "bignum": "^0.11.0",
     "chai": "^3.4.0",
     "coveralls": "^2.11.4",
     "ecdsa": "^0.6.0",
