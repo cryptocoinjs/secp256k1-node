@@ -2,7 +2,7 @@
 
 [![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1)
 [![Build Status](https://img.shields.io/travis/cryptocoinjs/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/cryptocoinjs/secp256k1-node)
-[![Coverage Status](https://img.shields.io/coveralls/cryptocoinjs/secp256k1-node.svg?style=flat-square)](https://coveralls.io/r/cryptocoinjs/secp256k1-node)
+[![Dependency status](https://img.shields.io/david/cryptocoinjs/secp256k1-node.svg?style=flat-square)](https://david-dm.org/cryptocoinjs/secp256k1-node#info=dependencies)
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
