@@ -27,10 +27,10 @@ matrix:
   include:
     - os: linux
       node_js: "4"
-      env: CXX=clang++ TEST_SUITE=test
+      env: CXX=g++-4.8 TEST_SUITE=lint
     - os: linux
       node_js: "4"
-      env: CXX=g++-4.8 TEST_SUITE=lint
+      env: CXX=clang++ TEST_SUITE=test:node
     - os: linux
       node_js: "4"
       env: CXX=g++-4.8 TEST_SUITE=test:browser

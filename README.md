@@ -70,27 +70,27 @@ The main purpose of this implementation is more high performance, smaller size a
 ##### Performance:
 ```
 $ node benchmark/benchmark.js
-Set seed: 3a00dcae78029d625de424ee270cf1fe65a2428f51acbabf19ec8021b5de206c
+Set seed: 5120779d9d961dc818363811b3cf44ace2323ccf5e265749206d37442a0deac5
 100% (1000/1000), 2.8s elapsed, eta 0.0s
 Create 1000 fixtures
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 Benchmarking: publicKeyCreate
 --------------------------------------------------
-bindings x 14,035 ops/sec ±0.54% (102 runs sampled)
-secp256k1js x 987 ops/sec ±0.36% (101 runs sampled)
-elliptic x 840 ops/sec ±0.66% (99 runs sampled)
+bindings x 13,945 ops/sec ±0.76% (101 runs sampled)
+secp256k1js x 967 ops/sec ±0.41% (100 runs sampled)
+elliptic x 838 ops/sec ±0.66% (99 runs sampled)
 ==================================================
 Benchmarking: sign
 --------------------------------------------------
-bindings x 8,194 ops/sec ±0.17% (103 runs sampled)
-secp256k1js x 777 ops/sec ±0.30% (99 runs sampled)
-elliptic x 615 ops/sec ±0.37% (97 runs sampled)
+bindings x 8,219 ops/sec ±0.13% (102 runs sampled)
+secp256k1js x 773 ops/sec ±0.47% (98 runs sampled)
+elliptic x 615 ops/sec ±0.43% (97 runs sampled)
 ==================================================
 Benchmarking: verify
 --------------------------------------------------
-bindings x 5,378 ops/sec ±0.09% (103 runs sampled)
-secp256k1js x 209 ops/sec ±0.15% (91 runs sampled)
-elliptic x 115 ops/sec ±21.85% (86 runs sampled)
+bindings x 5,350 ops/sec ±0.11% (103 runs sampled)
+secp256k1js x 208 ops/sec ±0.19% (91 runs sampled)
+elliptic x 131 ops/sec ±2.05% (87 runs sampled)
 ==================================================
 ```
 
