@@ -108,7 +108,7 @@ Parse a DER ECDSA *signature*.
 
 #####`.sign(Buffer message, Buffer privateKey [, Object options])` -> `{signature: Buffer, recovery: number}`
 
-Create an ECDSA signature.
+Create an ECDSA signature. Always return low-S signature.
 
 ######Option: `Function noncefn`
 

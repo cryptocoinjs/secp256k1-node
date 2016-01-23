@@ -9,9 +9,9 @@
 This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.
 This library is experimental, so use at your own risk. Works on node version 0.11 or greater and in the Browser via browserify.
 
-# Installation
+## Installation
 
-If you have gmp installed secp256k1 will use it. Otherwise it should fallback to openssl.
+If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/bitcoin/secp256k1) will use it. Otherwise it should fallback to [OpenSSL](https://www.openssl.org/).
 * arch `pacman -S gmp`
 * ubuntu `sudo apt-get install libgmp-dev`
 
@@ -27,7 +27,7 @@ cd secp256k1-node
 npm install
 ```
 
-# Usage
+## Usage
 
 * [API Reference (v3.x)](API.md)
 
@@ -56,10 +56,21 @@ var sigObj = secp256k1.sign(msg, privKey)
 console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
 ```
 
-# Elliptic vs "embedded"
+\* **.verify return false for high signatures**
+
+\* ECDH is not be available while [bitcoin/secp256k1#352](https://github.com/bitcoin/secp256k1/issues/352) not resolved. Right now you can use next code:
+```js
+var BN = require('secp256k1/lib/js/bn')
+var ECPoint = require('secp256k1/lib/js/ecpoint')
+var d = BN.fromBuffer(privateKey)
+var Q = ECPoint.fromPublicKey(publicKey)
+return Q.mul(d).toPublicKey(true)
+```
+
+## Elliptic vs "embedded"
 
 secp256k1-node has pure JavaScript implementation secp256k1 based on [elliptic](http://github.com/indutny/elliptic), [bn.js](http://github.com/indutny/bn.js), [hash.js](http://github.com/indutny/hash.js).
-The main purpose of this implementation is more high performance, smaller size and simple code audit.
+The main purpose of this implementation is more [high performance](#performance), [smaller size](#code-size) and simple code audit.
 
 ##### Code size:
 |        | browserifiable | + uglified | + gzipped |
@@ -94,6 +105,6 @@ elliptic x 131 ops/sec ±2.05% (87 runs sampled)
 ==================================================
 ```
 
-# LICENSE
+## LICENSE
 
 This library is free and open-source software released under the MIT license.
