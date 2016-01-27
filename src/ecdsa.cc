@@ -14,12 +14,18 @@ int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, co
   v8::Local<v8::Value> argv[] = {
     COPY_BUFFER(msg32, 32),
     COPY_BUFFER(key32, 32),
-    algo16 == NULL ? v8::Local<v8::Value>::Cast(Nan::Null()) : v8::Local<v8::Value>::Cast(COPY_BUFFER(algo16, 16)),
-    data == NULL ? v8::Local<v8::Value>::Cast(Nan::Null()) : v8::Local<v8::Value>::Cast(COPY_BUFFER(data, 32)),
+    algo16 == NULL ? v8::Local<v8::Value>(Nan::Null()) : v8::Local<v8::Value>(COPY_BUFFER(algo16, 16)),
+    data == NULL ? v8::Local<v8::Value>(Nan::Null()) : v8::Local<v8::Value>(COPY_BUFFER(data, 32)),
     Nan::New(counter)
   };
 
-  v8::Local<v8::Value> result = noncefn_callback->Call(Nan::Null(), 5, argv);
+#if (NODE_MODULE_VERSION > NODE_0_10_MODULE_VERSION)
+  v8::Isolate *isolate = v8::Isolate::GetCurrent();
+  v8::Local<v8::Value> result = noncefn_callback->Call(isolate->GetCurrentContext()->Global(), 5, argv);
+#else
+  v8::Local<v8::Value> result = noncefn_callback->Call(v8::Context::GetCurrent()->Global(), 5, argv);
+#endif
+
   if (!node::Buffer::HasInstance(result) || node::Buffer::Length(result) != 32) {
     return 0;
   }

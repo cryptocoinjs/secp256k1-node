@@ -45,7 +45,7 @@ PRNG.prototype.random = function () {
     this._count = 0
   }
 
-  this._seed.writeUInt32BE(this._count++)
+  this._seed.writeUInt32BE(this._count++, 0)
   return this._sha256(this._seed)
 }
 
