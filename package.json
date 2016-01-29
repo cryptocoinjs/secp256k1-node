@@ -81,7 +81,7 @@
   },
   "gypfile": true,
   "browser": {
-    "./bindings.js": "./js.js"
+    "./bindings.js": "./elliptic.js"
   },
   "standard": {
     "globals": [
