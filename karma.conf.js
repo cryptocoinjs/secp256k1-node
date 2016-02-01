@@ -1,11 +1,12 @@
 module.exports = function (config) {
   config.set({
+    browserNoActivityTimeout: 120000,
     frameworks: ['browserify', 'detectBrowsers', 'mocha'],
     files: [
-      'test/*.js'
+      'test/index.js'
     ],
     preprocessors: {
-      'test/*.js': ['browserify', 'env']
+      'test/index.js': ['browserify', 'env']
     },
     singleRun: true,
     plugins: [

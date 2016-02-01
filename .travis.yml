@@ -20,6 +20,7 @@ before_install:
 env:
   global:
     - DISPLAY=:99.0
+    - RANDOM_TESTS_REPEAT=100
   matrix:
     - CXX=g++-4.8 TEST_SUITE=test:node
 matrix:
@@ -27,13 +28,10 @@ matrix:
   include:
     - os: linux
       node_js: "4"
-      env: CXX=clang++ TEST_SUITE=test
-    - os: linux
-      node_js: "4"
-      env: CXX=g++-4.8 TEST_SUITE=coveralls
-    - os: linux
-      node_js: "4"
       env: CXX=g++-4.8 TEST_SUITE=lint
+    - os: linux
+      node_js: "4"
+      env: CXX=clang++ TEST_SUITE=test:node
     - os: linux
       node_js: "4"
       env: CXX=g++-4.8 TEST_SUITE=test:browser

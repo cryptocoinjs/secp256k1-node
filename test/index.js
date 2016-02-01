@@ -1,35 +1,30 @@
-var chai = require('chai')
-var chaiAsPromised = require('chai-as-promised')
-chai.use(chaiAsPromised)
+'use strict'
 
-var repeat = global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
-             process.env.RANDOM_TESTS_REPEAT ||
-             10
-repeat = parseInt(repeat, 10)
-
-var isTravis = global.__env__ && global.__env__.TRAVIS || process.env.TRAVIS || false
+var util = require('./util')
 
 /**
  * @param {Object} secp256k1
  * @param {string} description
  */
-function runTests (secp256k1, description) {
+function test (secp256k1, description) {
   describe(description, function () {
-    this.timeout(repeat * 500 * (isTravis ? 5 : 1))
+    this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
 
-    require('./secretkey')(secp256k1, {repeat: repeat})
-    require('./publickey')(secp256k1, {repeat: repeat})
-    require('./signature')(secp256k1, {repeat: repeat})
-    require('./sign')(secp256k1, {repeat: repeat})
-    require('./verify')(secp256k1, {repeat: repeat})
-    require('./recover')(secp256k1, {repeat: repeat})
-    require('./ecdh')(secp256k1, {repeat: repeat})
-    require('./sign-verify-recover')(secp256k1, {repeat: repeat})
+    before(function () {
+      util.setSeed(util.env.seed)
+    })
+
+    require('./privatekey')(secp256k1)
+    require('./publickey')(secp256k1)
+    require('./signature')(secp256k1)
+    require('./ecdsa')(secp256k1)
+    // require('./ecdh')(secp256k1)
   })
 }
 
-if (!process.browser) {
-  runTests(require('../bindings'), 'secp256k1 bindings')
-}
+require('./rfc6979') // rf6979 tests
+if (!process.browser) { require('./bn') } // big integer tests
 
-runTests(require('../elliptic'), 'elliptic package')
+test(require('../js'), 'pure js')
+test(require('../elliptic'), 'elliptic')
+if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }

@@ -2,13 +2,11 @@
 #include <nan.h>
 #include <secp256k1.h>
 
-#include "secretkey.h"
+#include "privatekey.h"
 #include "publickey.h"
 #include "signature.h"
-#include "sign.h"
-#include "verify.h"
-#include "recover.h"
-#include "ecdh.h"
+#include "ecdsa.h"
+// #include "ecdh.h"
 
 
 secp256k1_context* secp256k1ctx;
@@ -18,11 +16,11 @@ NAN_MODULE_INIT(Init) {
     SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
   // secret key
-  Nan::Export(target, "secretKeyVerify", secretKeyVerify);
-  Nan::Export(target, "secretKeyExport", secretKeyExport);
-  Nan::Export(target, "secretKeyImport", secretKeyImport);
-  Nan::Export(target, "secretKeyTweakAdd", secretKeyTweakAdd);
-  Nan::Export(target, "secretKeyTweakMul", secretKeyTweakMul);
+  Nan::Export(target, "privateKeyVerify", privateKeyVerify);
+  Nan::Export(target, "privateKeyExport", privateKeyExport);
+  Nan::Export(target, "privateKeyImport", privateKeyImport);
+  Nan::Export(target, "privateKeyTweakAdd", privateKeyTweakAdd);
+  Nan::Export(target, "privateKeyTweakMul", privateKeyTweakMul);
 
   // public key
   Nan::Export(target, "publicKeyCreate", publicKeyCreate);
@@ -37,21 +35,13 @@ NAN_MODULE_INIT(Init) {
   Nan::Export(target, "signatureExport", signatureExport);
   Nan::Export(target, "signatureImport", signatureImport);
 
-  // sign
+  // ecdsa
   Nan::Export(target, "sign", sign);
-  Nan::Export(target, "signSync", signSync);
-
-  // verify
   Nan::Export(target, "verify", verify);
-  Nan::Export(target, "verifySync", verifySync);
-
-  // recover
   Nan::Export(target, "recover", recover);
-  Nan::Export(target, "recoverSync", recoverSync);
 
   // ecdh
-  Nan::Export(target, "ecdh", ecdh);
-  Nan::Export(target, "ecdhSync", ecdhSync);
+  // Nan::Export(target, "ecdh", ecdh);
 }
 
 NODE_MODULE(secp256k1, Init)

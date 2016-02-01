@@ -1,58 +1,54 @@
+'use strict'
+
 var expect = require('chai').expect
-var BigInteger = require('bigi')
 
 var util = require('./util')
+var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
  */
-module.exports = function (secp256k1, opts) {
+module.exports = function (secp256k1) {
   describe('signatureNormalize', function () {
     it('signature should be a Buffer', function () {
       expect(function () {
         secp256k1.signatureNormalize(null)
-      }).to.throw(TypeError)
+      }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('invalid length', function () {
       expect(function () {
-        secp256k1.signatureNormalize(util.getSignature().slice(1))
-      }).to.throw(RangeError)
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey).slice(1)
+        secp256k1.signatureNormalize(signature)
+      }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
 
     it('parse fail (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          util.ecparams.n.toBuffer(32),
-          BigInteger.ONE.toBuffer(32)
+          new Buffer(util.ec.curve.n.toArray(null, 32)),
+          util.BN_ONE.toArrayLike(Buffer, null, 32)
         ])
         secp256k1.signatureNormalize(signature)
-      }).to.throw(Error, /parse/)
+      }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
     })
 
-    it('normalize fail (s equal n/2)', function () {
-      expect(function () {
-        var signature = Buffer.concat([
-          BigInteger.ONE.toBuffer(32),
-          util.ecparams.nH.toBuffer(32)
-        ])
-        secp256k1.signatureNormalize(signature)
-      }).to.throw(Error, /normalize/)
+    it('normalize return same signature (s equal n/2)', function () {
+      var signature = Buffer.concat([
+        util.BN_ONE.toArrayLike(Buffer, null, 32),
+        new Buffer(util.ec.nh.toArray(null, 32))
+      ])
+      var result = secp256k1.signatureNormalize(signature)
+      expect(result.toString('hex')).to.equal(signature.toString('hex'))
     })
 
-    util.repeatIt('random tests', opts.repeat, function () {
-      var msg = util.getMessage()
-      var privKey = util.getPrivateKey()
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var message = util.getMessage()
+      var privateKey = util.getPrivateKey()
 
-      var sigObj = util.signSync(msg, privKey)
-      if (sigObj.signatureLowS.toString('hex') === sigObj.signature.toString('hex')) {
-        return expect(function () {
-          secp256k1.signatureNormalize(sigObj.signature)
-        }).to.throw(Error, /normalize/)
-      }
-
+      var sigObj = util.sign(message, privateKey)
       var result = secp256k1.signatureNormalize(sigObj.signature)
       expect(result.toString('hex')).to.equal(sigObj.signatureLowS.toString('hex'))
     })
@@ -62,23 +58,26 @@ module.exports = function (secp256k1, opts) {
     it('signature should be a Buffer', function () {
       expect(function () {
         secp256k1.signatureExport(null)
-      }).to.throw(TypeError)
+      }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('invalid length', function () {
       expect(function () {
-        secp256k1.signatureExport(util.getSignature().slice(1))
-      }).to.throw(RangeError)
+        var privateKey = util.getPrivateKey()
+        var message = util.getMessage()
+        var signature = util.getSignature(message, privateKey).slice(1)
+        secp256k1.signatureExport(signature)
+      }).to.throw(RangeError, messages.ECDSA_SIGNATURE_LENGTH_INVALID)
     })
 
     it('parse fail (r equal N)', function () {
       expect(function () {
         var signature = Buffer.concat([
-          util.ecparams.n.toBuffer(32),
-          BigInteger.ONE.toBuffer(32)
+          new Buffer(util.ec.n.toArray(null, 32)),
+          util.BN_ONE.toArrayLike(Buffer, null, 32)
         ])
         secp256k1.signatureExport(signature)
-      }).to.throw(Error, /parse/)
+      }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
     })
   })
 
@@ -86,26 +85,26 @@ module.exports = function (secp256k1, opts) {
     it('signature should be a Buffer', function () {
       expect(function () {
         secp256k1.signatureImport(null)
-      }).to.throw(TypeError)
+      }).to.throw(TypeError, messages.ECDSA_SIGNATURE_TYPE_INVALID)
     })
 
     it('parse fail', function () {
       expect(function () {
         secp256k1.signatureImport(new Buffer(1))
-      }).to.throw(Error, /parse/)
+      }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_DER_FAIL)
     })
   })
 
   describe('signatureExport/signatureImport', function () {
-    util.repeatIt('random tests', opts.repeat, function () {
-      var msg = util.getMessage()
-      var privKey = util.getPrivateKey()
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var message = util.getMessage()
+      var privateKey = util.getPrivateKey()
 
-      var sig = util.signSync(msg, privKey).signatureLowS
+      var signature = util.sign(message, privateKey).signatureLowS
 
-      var der = secp256k1.signatureExport(sig)
+      var der = secp256k1.signatureExport(signature)
       var result = secp256k1.signatureImport(der)
-      expect(result.toString('hex')).to.equal(sig.toString('hex'))
+      expect(result.toString('hex')).to.equal(signature.toString('hex'))
     })
   })
 }

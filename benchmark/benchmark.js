@@ -1,12 +1,47 @@
+'use strict'
+
 var benchmark = require('benchmark')
+var ProgressBar = require('progress')
 
-var bindings = require('../bindings')
-var elliptic = require('../elliptic')
+var util = require('../test/util')
+var implementations = {
+  bindings: require('../bindings'),
+  secp256k1js: require('../js'),
+  elliptic: require('../elliptic'),
+  ecdsa: require('./ecdsa')
+}
 
-var ecdsa = require('./ecdsa')
-var util = require('./util')
+var fixtureIndex = 0
+var fixtures = new Array(1000)
+var getNextFixture = function () {
+  var fixture = fixtures[fixtureIndex++]
+  if (fixtureIndex === fixtures.length) {
+    fixtureIndex = 0
+  }
 
-function createSuite (suiteName, objs) {
+  return fixture
+}
+
+var progressBar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
+  total: fixtures.length,
+  stream: util.progressStream
+})
+
+util.setSeed(util.env.seed)
+for (var i = 0; i < fixtures.length; ++i) {
+  var fixture = {}
+  fixture.privateKey = util.getPrivateKey()
+  fixture.publicKey = util.getPublicKey(fixture.privateKey).compressed
+  fixture.message = util.getMessage()
+  // fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
+  fixture.signature = implementations.secp256k1js.sign(fixture.message, fixture.privateKey).signature
+  fixtures[i] = fixture
+  progressBar.tick()
+}
+console.log('Create ' + fixtures.length + ' fixtures')
+console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')
+
+function runSuite (suiteName, testFunctionGenerator) {
   var suite = new benchmark.Suite(suiteName, {
     onStart: function () {
       console.log('Benchmarking: ' + suiteName)
@@ -19,58 +54,41 @@ function createSuite (suiteName, objs) {
       console.error(event.target.error)
     },
     onComplete: function () {
-      console.log('--------------------------------------------------')
-      console.log('Fastest is ' + this.filter('fastest').pluck('name'))
       console.log('==================================================')
     }
   })
 
-  Object.keys(objs).forEach(function (fnName) {
-    var obj = objs[fnName]
-    suite.add(fnName, obj.fn, obj.options)
+  Object.keys(implementations).forEach(function (name) {
+    suite.add(name, testFunctionGenerator(implementations[name]), {
+      onStart: function () {
+        fixtureIndex = 0
+      },
+      onCycle: function () {
+        fixtureIndex = 0
+      }
+    })
   })
 
-  return suite
+  suite.run()
 }
 
-var message = util.getMessage()
-var pair = util.generateKeyPair()
-var signature = util.createSignature(message, pair.privateKey)
-
-// sign
-createSuite('sign', {
-  bindings: {
-    fn: function () {
-      bindings.signSync(message, pair.privateKey)
-    }
-  },
-  elliptic: {
-    fn: function () {
-      elliptic.signSync(message, pair.privateKey)
-    }
-  },
-  ecdsa: {
-    fn: function () {
-      ecdsa.signSync(message, pair.privateKey)
-    }
+runSuite('publicKeyCreate', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.publicKeyCreate(fixture.privateKey)
   }
-}).run()
+})
 
-// verify
-createSuite('verify', {
-  bindings: {
-    fn: function () {
-      bindings.verifySync(message, signature, pair.publicKey)
-    }
-  },
-  elliptic: {
-    fn: function () {
-      elliptic.verifySync(message, signature, pair.publicKey)
-    }
-  },
-  ecdsa: {
-    fn: function () {
-      ecdsa.verifySync(message, signature, pair.publicKey)
-    }
+runSuite('sign', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.sign(fixture.message, fixture.privateKey)
   }
-}).run()
+})
+
+runSuite('verify', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.verify(fixture.message, fixture.signature, fixture.publicKey)
+  }
+})

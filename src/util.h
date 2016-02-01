@@ -4,107 +4,84 @@
 #include <node.h>
 #include <nan.h>
 
-#include "async.h"
+#include "messages.h"
 
 
 #define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, datalen).ToLocalChecked()
 
-// Type checks (TypeError)
-#define CHECK_TYPE_BUFFER(buffer, msg) {                                       \
-  if (!node::Buffer::HasInstance(buffer)) {                                    \
-    return Nan::ThrowTypeError(msg);                                           \
+#define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
+  if (!value->IsUndefined()) {                                                 \
+    CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
+    compressed = value->BooleanValue() ? v_true : v_false;                     \
   }                                                                            \
 }
 
-#define CHECK_TYPE_BUFFER_ASYNC(buffer, msg) {                                 \
-  if (!node::Buffer::HasInstance(buffer)) {                                    \
-    SetError(AsyncWorker::TypeError, msg);                                     \
-    return;                                                                    \
+// TypeError
+#define CHECK_TYPE_ARRAY(value, message) {                                     \
+  if (!value->IsArray()) {                                                     \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_BOOLEAN(boolean, msg) {                                     \
-  if (!boolean->IsBoolean() && !boolean->IsBooleanObject()) {                  \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_BOOLEAN(value, message) {                                   \
+  if (!value->IsBoolean() && !value->IsBooleanObject()) {                      \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_FUNCTION(function, msg) {                                   \
-  if (!function->IsFunction()) {                                               \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_BUFFER(value, message) {                                    \
+  if (!node::Buffer::HasInstance(value)) {                                     \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_NUMBER(number, msg) {                                       \
-  if (!number->IsNumber() && !number->IsNumberObject()) {                      \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_FUNCTION(value, message) {                                  \
+  if (!value->IsFunction()) {                                                  \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_NUMBER_ASYNC(number, msg) {                                 \
-  if (!number->IsNumber() && !number->IsNumberObject()) {                      \
-    SetError(AsyncWorker::TypeError, msg);                                     \
-    return;                                                                    \
+#define CHECK_TYPE_NUMBER(value, message) {                                    \
+  if (!value->IsNumber() && !value->IsNumberObject()) {                        \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-#define CHECK_TYPE_ARRAY(array, msg) {                                         \
-  if (!array->IsArray()) {                                                     \
-    return Nan::ThrowTypeError(msg);                                           \
+#define CHECK_TYPE_OBJECT(value, message) {                                    \
+  if (!value->IsObject()) {                                                    \
+    return Nan::ThrowTypeError(message);                                       \
   }                                                                            \
 }
 
-// Length checks (RangeError)
-#define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, msg) {                             \
+// RangeError
+#define CHECK_BUFFER_LENGTH(buffer, length, message) {                         \
+  if (node::Buffer::Length(buffer) != length) {                                \
+    return Nan::ThrowRangeError(message);                                      \
+  }                                                                            \
+}
+
+#define CHECK_BUFFER_LENGTH2(buffer, length1, length2, message) {              \
+  if (node::Buffer::Length(buffer) != length1 &&                               \
+      node::Buffer::Length(buffer) != length2) {                               \
+    return Nan::ThrowRangeError(message);                                      \
+  }                                                                            \
+}
+
+#define CHECK_BUFFER_LENGTH_GT_ZERO(buffer, message) {                         \
   if (node::Buffer::Length(buffer) == 0) {                                     \
-    return Nan::ThrowRangeError(msg);                                          \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 
-#define CHECK_BUFFER_LENGTH(buffer, length, msg) {                             \
-  if (node::Buffer::Length(buffer) != length) {                                \
-    return Nan::ThrowRangeError(msg);                                          \
+#define CHECK_LENGTH_GT_ZERO(value, message) {                                 \
+  if (value->Length() == 0) {                                                  \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 
-#define CHECK_BUFFER_LENGTH_ASYNC(buffer, length, msg) {                       \
-  if (node::Buffer::Length(buffer) != length) {                                \
-    SetError(AsyncWorker::RangeError, msg);                                    \
-    return;                                                                    \
-  }                                                                            \
-}
-
-#define CHECK_BUFFER_LENGTH2(buffer, length1, length2, msg) {                  \
-  if (node::Buffer::Length(buffer) != length1 &&                               \
-      node::Buffer::Length(buffer) != length2) {                               \
-    return Nan::ThrowRangeError(msg);                                          \
-  }                                                                            \
-}
-
-#define CHECK_BUFFER_LENGTH2_ASYNC(buffer, length1, length2, msg) {            \
-  if (node::Buffer::Length(buffer) != length1 &&                               \
-      node::Buffer::Length(buffer) != length2) {                               \
-    SetError(AsyncWorker::RangeError, msg);                                    \
-    return;                                                                    \
-  }                                                                            \
-}
-
-#define CHECK_LENGTH_GT_ZERO(obj, msg) {                                       \
-  if (obj->Length() == 0) {                                                    \
-    return Nan::ThrowRangeError(msg);                                          \
-  }                                                                            \
-}
-
-#define CHECK_NUMBER_IN_INTERVAL(number, x, y, msg) {                          \
+#define CHECK_NUMBER_IN_INTERVAL(number, x, y, message) {                      \
   if (number->IntegerValue() <= x || number->IntegerValue() >= y) {            \
-    return Nan::ThrowRangeError(msg);                                          \
-  }                                                                            \
-}
-
-#define CHECK_NUMBER_IN_INTERVAL_ASYNC(number, x, y, msg) {                    \
-  if (number->IntegerValue() <= x || number->IntegerValue() >= y) {            \
-    SetError(AsyncWorker::RangeError, msg);                                    \
-    return;                                                                    \
+    return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
 

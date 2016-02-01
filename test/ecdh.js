@@ -1,6 +1,9 @@
+'use strict'
+
 var expect = require('chai').expect
 
 var util = require('./util')
+var messages = require('../lib/messages')
 
 /**
  * @param {Object} secp256k1
@@ -8,105 +11,60 @@ var util = require('./util')
  * @param {number} opts.repeat
  */
 module.exports = function (secp256k1, opts) {
-  describe('ecdh', function () {
-    it('return a Promise', function () {
-      expect(secp256k1.ecdh()).to.be.instanceof(secp256k1.Promise)
-    })
-
-    it('callback should be a function', function () {
-      expect(function () {
-        secp256k1.ecdh(util.getPublicKey(), util.getPrivateKey(), null)
-      }).to.throw(TypeError, /callback/)
-    })
-
-    it('public key should be a Buffer', function () {
-      var promise = secp256k1.ecdh(null, util.getPrivateKey())
-      return expect(promise).to.be.rejectedWith(TypeError, /public/)
-    })
-
-    it('secret key should be a Buffer', function () {
-      var promise = secp256k1.ecdh(util.getPublicKey(), null)
-      return expect(promise).to.be.rejectedWith(TypeError, /secret/)
-    })
-
-    it('public key length is invalid', function () {
-      var promise = secp256k1.ecdh(util.getPublicKey().slice(1), util.getPrivateKey())
-      return expect(promise).to.be.rejectedWith(RangeError, /public/)
-    })
-
-    it('secret key invalid length', function () {
-      var promise = secp256k1.ecdh(util.getPublicKey(), util.getPrivateKey().slice(1))
-      return expect(promise).to.be.rejectedWith(RangeError, /secret/)
-    })
-
-    it('invalid public key', function () {
-      var pubKey = util.getPublicKey()
-      pubKey[0] = 0x01
-      var promise = secp256k1.ecdh(pubKey, util.getPrivateKey())
-      return expect(promise).to.be.rejectedWith(Error, /public/)
-    })
-
-    it('secret key equal N', function () {
-      var promise = secp256k1.ecdh(util.getPublicKey(), util.ecparams.n.toBuffer(32))
-      return expect(promise).to.be.rejectedWith(Error, /scalar/)
-    })
-
-    util.repeatIt('random tests', opts.repeat, function () {
-      var pubKey = util.getPublicKey()
-      var privKey = util.getPrivateKey()
-
-      var expected = util.ecdhSync(pubKey, privKey)
-      return secp256k1.ecdh(pubKey, privKey).then(function (result) {
-        expect(result.toString('hex')).to.equal(expected.toString('hex'))
-      })
-    })
-  })
-
-  describe('ecdhSync', function () {
+  describe.skip('ecdh', function () {
     it('public key should be a Buffer', function () {
       expect(function () {
-        secp256k1.ecdhSync(null, util.getPrivateKey())
-      }).to.throw(TypeError, /public/)
-    })
-
-    it('secret key should be a Buffer', function () {
-      expect(function () {
-        secp256k1.ecdhSync(util.getPublicKey(), null)
-      }).to.throw(TypeError, /secret/)
+        var privateKey = util.getPrivateKey()
+        secp256k1.ecdh(null, privateKey)
+      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
     })
 
     it('public key length is invalid', function () {
       expect(function () {
-        secp256k1.ecdhSync(util.getPublicKey().slice(1), util.getPrivateKey())
-      }).to.throw(RangeError, /public/)
-    })
-
-    it('secret key invalid length', function () {
-      expect(function () {
-        secp256k1.ecdhSync(util.getPublicKey(), util.getPrivateKey().slice(1))
-      }).to.throw(RangeError, /secret/)
+        var publicKey = util.getPublicKey().compressed.slice(1)
+        var privateKey = util.getPrivateKey()
+        secp256k1.ecdh(publicKey, privateKey)
+      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
     })
 
     it('invalid public key', function () {
       expect(function () {
-        var pubKey = util.getPublicKey()
-        pubKey[0] = 0x01
-        secp256k1.ecdhSync(pubKey, util.getPrivateKey())
-      }).to.throw(Error, /public/)
+        var publicKey = util.getPublicKey()
+        publicKey[0] = 0x01
+        var privateKey = util.getPrivateKey()
+        secp256k1.ecdh(publicKey, privateKey)
+      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
+    })
+
+    it('secret key should be a Buffer', function () {
+      expect(function () {
+        var publicKey = util.getPublicKey().compressed
+        secp256k1.ecdh(publicKey, null)
+      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+    })
+
+    it('secret key invalid length', function () {
+      expect(function () {
+        var publicKey = util.getPublicKey().compressed
+        var privateKey = util.getPrivateKey().slice(1)
+        secp256k1.ecdh(publicKey, privateKey)
+      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
     })
 
     it('secret key equal N', function () {
       expect(function () {
-        secp256k1.ecdhSync(util.getPublicKey(), util.ecparams.n.toBuffer(32))
-      }).to.throw(Error, /scalar/)
+        var publicKey = util.getPublicKey()
+        var privateKey = new Buffer(util.ec.n.toArray(null, 32))
+        secp256k1.ecdh(publicKey, privateKey)
+      }).to.throw(Error, messages.ECDH_FAIL)
     })
 
     util.repeatIt('random tests', opts.repeat, function () {
-      var pubKey = util.getPublicKey()
-      var privKey = util.getPrivateKey()
+      var publicKey = util.getPublicKey().compressed
+      var privateKey = util.getPrivateKey()
 
-      var expected = util.ecdhSync(pubKey, privKey)
-      var result = secp256k1.ecdhSync(pubKey, privKey)
+      var expected = util.ecdh(publicKey, privateKey)
+      var result = secp256k1.ecdh(publicKey, privateKey)
       expect(result.toString('hex')).to.equal(expected.toString('hex'))
     })
   })

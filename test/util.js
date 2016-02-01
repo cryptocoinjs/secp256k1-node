@@ -1,44 +1,67 @@
-var assert = require('assert')
-var randomBytes = require('crypto').randomBytes
-var createHash = require('crypto').createHash
-var BigInteger = require('bigi')
-var ecdsa = require('ecdsa')
-var ECKey = require('eckey')
-var ecurve = require('ecurve')
+'use strict'
+
+var crypto = require('crypto')
+var BN = require('bn.js')
+var EC = require('elliptic').ec
 var ProgressBar = require('progress')
 
-var Promise = require('../lib/promise')
+var PRNG = require('./prng')
 
-var ecparams = exports.ecparams = ecurve.getCurveByName('secp256k1')
-ecparams.nH = ecparams.n.shiftRight(1)
+var ec = exports.ec = new EC('secp256k1')
+exports.BN_ZERO = new BN(0)
+exports.BN_ONE = new BN(1)
+
+var prngs = exports.prngs = {
+  privateKey: new PRNG(),
+  tweak: new PRNG(),
+  message: new PRNG()
+}
+
+/**
+ * @param {(Buffer|string)} [seed]
+ */
+exports.setSeed = function (seed) {
+  console.log('Set seed: ' + (Buffer.isBuffer(seed) ? seed.toString('hex') : seed))
+
+  var prng = new PRNG(seed)
+  prngs.privateKey.setSeed(prng.random())
+  prngs.tweak.setSeed(prng.random())
+  prngs.message.setSeed(prng.random())
+}
 
 /**
  * @return {Buffer}
  */
 exports.getPrivateKey = function () {
   while (true) {
-    var privKey = randomBytes(32)
-    var bn = BigInteger.fromBuffer(privKey)
-    if (bn.compareTo(BigInteger.ZERO) !== 0 && bn.compareTo(ecparams.n) < 0) {
-      return privKey
+    var privateKey = prngs.privateKey.random()
+    var bn = new BN(privateKey)
+    if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
+      return privateKey
     }
   }
 }
 
 /**
- * @return {Buffer}
+ * @param {Buffer} privateKey
+ * @return {{compressed: Buffer, uncompressed: Buffer}}
  */
-exports.getPublicKey = function () {
-  var eckey = new ECKey(exports.getPrivateKey())
-  return eckey.publicKey
+exports.getPublicKey = function (privateKey) {
+  var publicKey = ec.keyFromPrivate(privateKey).getPublic()
+  return {
+    compressed: new Buffer(publicKey.encode(null, true)),
+    uncompressed: new Buffer(publicKey.encode(null, false))
+  }
 }
 
 /**
+ * @param {Buffer} message
+ * @param {Buffer} privateKey
  * @return {Buffer}
  */
-exports.getSignature = function () {
-  var sig = exports.signSync(exports.getMessage(), exports.getPrivateKey())
-  return sig.signature
+exports.getSignature = function (message, privateKey) {
+  var sig = exports.sign(message, privateKey)
+  return sig.signatureLowS
 }
 
 /**
@@ -46,9 +69,9 @@ exports.getSignature = function () {
  */
 exports.getTweak = function () {
   while (true) {
-    var tweak = randomBytes(32)
-    var bn = BigInteger.fromBuffer(tweak)
-    if (bn.compareTo(ecparams.n) < 0) {
+    var tweak = prngs.tweak.random()
+    var bn = new BN(tweak)
+    if (bn.cmp(ec.curve.n) === -1) {
       return tweak
     }
   }
@@ -58,58 +81,42 @@ exports.getTweak = function () {
  * @return {Buffer}
  */
 exports.getMessage = function () {
-  return randomBytes(32)
+  return prngs.message.random()
 }
 
 /**
- * @param {Buffer} msg
- * @param {Buffer} privKey
+ * @param {Buffer} message
+ * @param {Buffer} privateKey
  * @return {{signature: string, recovery: number}}
  */
-exports.signSync = function (msg, privKey) {
-  var D = BigInteger.fromBuffer(privKey)
-  var k = ecdsa.deterministicGenerateK(msg, D)
-  var Q = ecparams.G.multiply(k)
-  var e = BigInteger.fromBuffer(msg)
+exports.sign = function (message, privateKey) {
+  var ecSig = ec.sign(message, privateKey, {canonical: false})
 
-  var r = Q.affineX.mod(ecparams.n)
-  assert.notEqual(r.signum(), 0, 'Invalid R value')
-
-  var s, lowS
-  s = lowS = k.modInverse(ecparams.n).multiply(e.add(D.multiply(r))).mod(ecparams.n)
-  assert.notEqual(s.signum(), 0, 'Invalid S value')
-
-  if (lowS.compareTo(ecparams.nH) > 0) {
-    lowS = ecparams.n.subtract(lowS)
+  var signature = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
+  var recovery = ecSig.recoveryParam
+  if (ecSig.s.cmp(ec.nh) === 1) {
+    ecSig.s = ec.n.sub(ecSig.s)
+    recovery ^= 1
   }
+  var signatureLowS = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
 
   return {
-    signature: Buffer.concat([r.toBuffer(32), s.toBuffer(32)]),
-    signatureLowS: Buffer.concat([r.toBuffer(32), lowS.toBuffer(32)]),
-    recovery: null // TODO
+    signature: signature,
+    signatureLowS: signatureLowS,
+    recovery: recovery
   }
 }
 
 /**
- * @param {Buffer} pubKey
- * @param {Buffer} privKey
+ * @param {Buffer} publicKey
+ * @param {Buffer} privateKey
  * @return {Buffer}
  */
-exports.ecdhSync = function (pubKey, privKey) {
-  var point = ecurve.Point.decodeFrom(ecparams, pubKey)
-  var buf = point.multiply(BigInteger.fromBuffer(privKey)).getEncoded(true)
-  return createHash('sha256').update(buf).digest()
-}
-
-var stream = process.stdout
-if (process.browser) {
-  stream = {
-    isTTY: true,
-    columns: 100,
-    clearLine: function () {},
-    cursorTo: function () {},
-    write: console.log.bind(console)
-  }
+exports.ecdh = function (publicKey, privateKey) {
+  var secret = ec.keyFromPrivate(privateKey)
+  var point = ec.keyFromPublic(publicKey)
+  var sharedSecret = new BN(secret.derive(point).encode(null, 32))
+  return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
 /**
@@ -120,28 +127,13 @@ function repeatIt (it, args) {
   it(args[0], function () {
     var bar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
       total: args[1],
-      stream: stream
+      stream: exports.progressStream
     })
 
-    return new Promise(function (resolve, reject) {
-      function next () {
-        if (bar.curr === args[1]) {
-          return resolve()
-        }
-
-        Promise.resolve()
-          .then(function () {
-            return args[2]()
-          })
-          .then(function () {
-            bar.tick()
-          })
-          .then(next)
-          .catch(reject)
-      }
-
-      next()
-    })
+    while (bar.curr !== args[1]) {
+      args[2]()
+      bar.tick()
+    }
   })
 }
 
@@ -153,3 +145,33 @@ function repeatIt (it, args) {
 exports.repeatIt = function () { repeatIt(it, arguments) }
 exports.repeatIt.skip = function () { repeatIt(it.skip, arguments) }
 exports.repeatIt.only = function () { repeatIt(it.only, arguments) }
+
+exports.env = {
+  repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+                   process.env.RANDOM_TESTS_REPEAT ||
+                   100,
+                   10),
+  isTravis: global.__env__ && global.__env__.TRAVIS ||
+            process.env.TRAVIS ||
+            false,
+  seed: global.__env__ && global.__env__.SEED ||
+        process.env.SEED ||
+        crypto.randomBytes(32)
+}
+
+// stream for progress package
+exports.progressStream = process.stdout
+if (process.browser) {
+  exports.progressStream = {
+    isTTY: true,
+    columns: 100,
+    clearLine: function () {},
+    cursorTo: function () {},
+    write: console.log.bind(console)
+  }
+}
+
+// turn off on travis
+if (exports.env.isTravis) {
+  exports.progressStream = function () {}
+}

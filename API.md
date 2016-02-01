@@ -1,61 +1,60 @@
-# API Reference (v2.x)
+# API Reference (v3.x)
 
-- [`.secretKeyVerify(Buffer secretKey)`](#secretkeyverifybuffer-secretkey---boolean)
-- [`.secretKeyExport(Buffer secretKey [, Boolean compressed = true])`](#secretkeyexportbuffer-secretkey--boolean-compressed--true---buffer)
-- [`.secretKeyImport(Buffer secretKey)`](#secretkeyimportbuffer-secretkey---buffer)
-- [`.secretKeyTweakAdd(Buffer secretKey, Buffer tweak)`](#secretkeytweakaddbuffer-secretkey-buffer-tweak---buffer)
-- [`.secretKeyTweakMul(Buffer secretKey, Buffer tweak)`](#secretkeytweakmulbuffer-secretkey-buffer-tweak---buffer)
-- [`.publicKeyCreate(Buffer secretKey)`](#publickeycreatebuffer-secretkey---buffer)
+- [`.privateKeyVerify(Buffer privateKey)`](#privatekeyverifybuffer-privatekey---boolean)
+- [`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])`](#privatekeyexportbuffer-privatekey--boolean-compressed--true---buffer)
+- [`.privateKeyImport(Buffer privateKey)`](#privatekeyimportbuffer-privatekey---buffer)
+- [`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)`](#privatekeytweakaddbuffer-privatekey-buffer-tweak---buffer)
+- [`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)`](#privatekeytweakmulbuffer-privatekey-buffer-tweak---buffer)
+- [`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])`](#publickeycreatebuffer-privatekey--boolean-compressed--true---buffer)
 - [`.publicKeyConvert(Buffer publicKey [, Boolean compressed = true])`](#publickeyconvertbuffer-publickey--boolean-compressed--true---buffer)
 - [`.publicKeyVerify(Buffer publicKey)`](#publickeyverifybuffer-publickey---boolean)
-- [`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak)`](#publickeytweakaddbuffer-publickey-buffer-tweak---buffer)
-- [`.publicKeyTweakMul(Buffer publicKey, Buffer tweak)`](#publickeytweakmulbuffer-publickey-buffer-tweak---buffer)
-- [`.publicKeyCombine(Array<Buffer> publicKeys)`](#publickeycombinearraybuffer-publickeys---buffer)
+- [`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakaddbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
+- [`.publicKeyTweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakmulbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
+- [`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])`](#publickeycombinearraybuffer-publickeys--boolean-compressed--true---buffer)
 - [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
 - [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
 - [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
-- [`.sign(Buffer msg, Buffer secretKey [, Function callback])`](#signbuffer-msg-buffer-secretkey--function-callback---promisesignature-buffer-recovery-number)
-- [`.signSync(Buffer msg, Buffer secretKey)`](#signsyncbuffer-msg-buffer-secretkey---signature-buffer-recovery-number)
-- [`.verify(Buffer msg, Buffer signature, Buffer publicKey [, Function callback])`](#verifybuffer-msg-buffer-signature-buffer-publickey--function-callback---promiseboolean)
-- [`.verifySync(Buffer msg, Buffer signature, Buffer publicKey)`](#verifysyncbuffer-msg-buffer-signature-buffer-publickey---boolean)
-- [`.recover(Buffer msg, Buffer signature, Number recovery [, Function callback])`](#recoverbuffer-msg-buffer-signature-number-recovery--function-callback---promisebuffer)
-- [`.recoverSync(Buffer msg, Buffer signature, Number recovery)`](#recoversyncbuffer-msg-buffer-signature-number-recovery---buffer)
-- [`.ecdh(Buffer publicKey, Buffer secretKey [, Function callback])`](#ecdhbuffer-publickey-buffer-secretkey--function-callback---promisebuffer)
-- [`.ecdhSync(Buffer publicKey, Buffer secretKey)`](#ecdhsyncbuffer-publickey-buffer-secretkey---buffer)
+- [`.sign(Buffer message, Buffer privateKey [, Object options])`](#signbuffer-message-buffer-privatekey--object-options---signature-buffer-recovery-number)
+  - [Option: `Function noncefn`](#option-function-noncefn)
+  - [Option: `Buffer data`](#option-buffer-data)
+- [`.verify(Buffer message, Buffer signature, Buffer publicKey)`](#verifybuffer-message-buffer-signature-buffer-publickey---boolean)
+- [`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-message-buffer-signature-number-recovery--boolean-compressed--true---buffer)
+- [`.ecdh(Buffer publicKey, Buffer privateKey [, Object options])`](#ecdhbuffer-publickey-buffer-privatekey--object-options---buffer)
+  - [Option: `Function hashfn`](#option-function-hashfn)
 
-#####`.secretKeyVerify(Buffer secretKey)` -> `Boolean`
+#####`.privateKeyVerify(Buffer privateKey)` -> `Boolean`
 
-Verify an ECDSA *secretKey*.
-
-<hr>
-
-#####`.secretKeyExport(Buffer secretKey [, Boolean compressed = true])` -> `Buffer`
-
-Export a *secretKey* in DER format.
+Verify an ECDSA *privateKey*.
 
 <hr>
 
-#####`.secretKeyImport(Buffer secretKey)` -> `Buffer`
+#####`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
-Import a *secretKey* in DER format.
-
-<hr>
-
-#####`.secretKeyTweakAdd(Buffer secretKey, Buffer tweak)` -> `Buffer`
-
-Tweak a *secretKey* by adding *tweak* to it.
+Export a *privateKey* in DER format.
 
 <hr>
 
-#####`.secretKeyTweakMul(Buffer secretKey, Buffer tweak)` -> `Buffer`
+#####`.privateKeyImport(Buffer privateKey)` -> `Buffer`
 
-Tweak a *secretKey* by multiplying it by a *tweak*.
+Import a *privateKey* in DER format.
 
 <hr>
 
-#####`.publicKeyCreate(Buffer secretKey)` -> `Buffer`
+#####`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)` -> `Buffer`
 
-Compute the public key for a *secretKey*.
+Tweak a *privateKey* by adding *tweak* to it.
+
+<hr>
+
+#####`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)` -> `Buffer`
+
+Tweak a *privateKey* by multiplying it by a *tweak*.
+
+<hr>
+
+#####`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
+
+Compute the public key for a *privateKey*.
 
 <hr>
 
@@ -71,19 +70,19 @@ Verify an ECDSA *publicKey*.
 
 <hr>
 
-#####`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak)` -> `Buffer`
+#####`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
 
 Tweak a *publicKey* by adding *tweak* times the generator to it.
 
 <hr>
 
-#####`.publicKeyTweakMul(Buffer publicKey, Buffer tweak)` -> `Buffer`
+#####`.publicKeyTweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
 
 Tweak a *publicKey* by multiplying it by a *tweak* value.
 
 <hr>
 
-#####`.publicKeyCombine(Array<Buffer> publicKeys)` -> `Buffer`
+#####`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])` -> `Buffer`
 
 Add a given *publicKeys* together.
 
@@ -107,48 +106,42 @@ Parse a DER ECDSA *signature*.
 
 <hr>
 
-#####`.sign(Buffer msg, Buffer secretKey [, Function callback])` -> `Promise<{signature: Buffer, recovery: number}>`
+#####`.sign(Buffer message, Buffer privateKey [, Object options])` -> `{signature: Buffer, recovery: number}`
 
-Create an ECDSA signature.
+Create an ECDSA signature. Always return low-S signature.
+
+######Option: `Function noncefn`
+
+Nonce generator. By default it is [rfc6979](https://tools.ietf.org/html/rfc6979).
+
+Function signature: `noncefn(Buffer message, Buffer privateKey, ?Buffer algo, ?Buffer data, Number attempt)` -> `Buffer`
+
+######Option: `Buffer data`
+
+Additional data for [noncefn](#option-function-noncefn) (RFC 6979 3.6) (32 bytes). By default is `null`.
 
 <hr>
 
-#####`.signSync(Buffer msg, Buffer secretKey)` -> `{signature: Buffer, recovery: number}`
-
-Synchronous [.sign](#signbuffer-msg-buffer-secretkey--function-callback---promisesignature-buffer-recovery-number). Returns an object `{signature: Buffer, recovery: number}`.
-
-<hr>
-
-#####`.verify(Buffer msg, Buffer signature, Buffer publicKey [, Function callback])` -> `Promise<Boolean>`
+#####`.verify(Buffer message, Buffer signature, Buffer publicKey)` -> `Boolean`
 
 Verify an ECDSA signature.
 
-<hr>
-
-#####`.verifySync(Buffer msg, Buffer signature, Buffer publicKey` -> `Boolean`
-
-Synchronous [.verify](#verifybuffer-msg-buffer-signature-buffer-publickey--function-callback---promiseboolean). Returns a `Boolean`.
+Note: **return false for high signatures!**
 
 <hr>
 
-#####`.recover(Buffer msg, Buffer signature, Number recovery [, Function callback]` -> `Promise<Buffer>`
+#####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true]` -> `Buffer`
 
 Recover an ECDSA public key from a signature.
 
 <hr>
 
-#####`.recoverSync(Buffer msg, Buffer signature, Number recovery)` -> `Buffer`
-
-Synchronous [.recover](#recoverbuffer-msg-buffer-signature-number-recovery--function-callback---promisebuffer). Returns an instance of `Buffer`.
-
-<hr>
-
-#####`.ecdh(Buffer publicKey, Buffer secretKey [, Function callback])` -> `Promise<Buffer>`
+#####`.ecdh(Buffer publicKey, Buffer privateKey [, Object options])` -> `Buffer`
 
 Compute an EC Diffie-Hellman secret.
 
-<hr>
+######Option: `Function hashfn`
 
-#####`.ecdhSync(Buffer publicKey, Buffer secretKey)` -> `Buffer`
+Hash function that is applied to a point that is result of ecdh. By default it is sha256 that applied to compressed public key.
 
-Synchronous [.ecdh](#ecdhbuffer-publickey-buffer-secretkey--function-callback---promisebuffer). Returns an instance of `Buffer`.
+Function signature: `hashfn(Buffer x, Buffer y)` -> `Buffer`

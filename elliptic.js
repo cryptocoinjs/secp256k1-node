@@ -1,1 +1,3 @@
-module.exports = require('./lib/elliptic')
+'use strict'
+
+module.exports = require('./lib')(require('./lib/elliptic'))

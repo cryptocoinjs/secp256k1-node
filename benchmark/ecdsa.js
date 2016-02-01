@@ -1,17 +1,29 @@
+'use strict'
+
 var assert = require('assert')
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
 var ecurve = require('ecurve')
+var ECKey = require('eckey')
 
 var ecparams = ecurve.getCurveByName('secp256k1')
 ecparams.nH = ecparams.n.shiftRight(1)
+
+/**
+ * @param {Buffer} privateKey
+ * @return {Buffer}
+ */
+exports.publicKeyCreate = function (privateKey) {
+  var eckey = new ECKey(privateKey)
+  return eckey.publicKey
+}
 
 /**
  * @param {Buffer} message
  * @param {Buffer} privateKey
  * @return {{signature: string, recovery: number}}
  */
-exports.signSync = function (message, privateKey) {
+exports.sign = function (message, privateKey) {
   var D = BigInteger.fromBuffer(privateKey)
   var k = ecdsa.deterministicGenerateK(message, D)
   var Q = ecparams.G.multiply(k)
@@ -39,7 +51,7 @@ exports.signSync = function (message, privateKey) {
  * @param {Buffer} publicKey
  * @return {boolean}
  */
-exports.verifySync = function (message, signature, publicKey) {
+exports.verify = function (message, signature, publicKey) {
   var e = BigInteger.fromBuffer(message)
   var r = BigInteger.fromBuffer(signature.slice(0, 32))
   var s = BigInteger.fromBuffer(signature.slice(32, 64))
