@@ -29,7 +29,7 @@ module.exports = function (secp256k1) {
       expect(function () {
         var signature = Buffer.concat([
           new Buffer(util.ec.curve.n.toArray(null, 32)),
-          new Buffer(util.BN_ONE.toArray(null, 32))
+          util.BN_ONE.toArrayLike(Buffer, null, 32)
         ])
         secp256k1.signatureNormalize(signature)
       }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)
@@ -37,7 +37,7 @@ module.exports = function (secp256k1) {
 
     it('normalize return same signature (s equal n/2)', function () {
       var signature = Buffer.concat([
-        new Buffer(util.BN_ONE.toArray(null, 32)),
+        util.BN_ONE.toArrayLike(Buffer, null, 32),
         new Buffer(util.ec.nh.toArray(null, 32))
       ])
       var result = secp256k1.signatureNormalize(signature)
@@ -74,7 +74,7 @@ module.exports = function (secp256k1) {
       expect(function () {
         var signature = Buffer.concat([
           new Buffer(util.ec.n.toArray(null, 32)),
-          new Buffer(util.BN_ONE.toArray(null, 32))
+          util.BN_ONE.toArrayLike(Buffer, null, 32)
         ])
         secp256k1.signatureExport(signature)
       }).to.throw(Error, messages.ECDSA_SIGNATURE_PARSE_FAIL)

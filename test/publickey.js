@@ -33,7 +33,7 @@ module.exports = function (secp256k1) {
 
     it('equal zero', function () {
       expect(function () {
-        var privateKey = new Buffer(util.BN_ZERO.toArray(null, 32))
+        var privateKey = util.BN_ZERO.toArrayLike(Buffer, null, 32)
         secp256k1.publicKeyCreate(privateKey)
       }).to.throw(Error, messages.EC_PUBLIC_KEY_CREATE_FAIL)
     })
@@ -270,7 +270,7 @@ module.exports = function (secp256k1) {
       expect(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = new Buffer(util.BN_ZERO.toArray(null, 32))
+        var tweak = util.BN_ZERO.toArrayLike(Buffer, null, 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
       }).to.throw(Error, messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
     })
