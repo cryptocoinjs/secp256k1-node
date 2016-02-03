@@ -22,9 +22,11 @@ function test (secp256k1, description) {
   })
 }
 
-require('./rfc6979') // rf6979 tests
-if (!process.browser) { require('./bn') } // big integer tests
+if (!process.browser) { require('./bn') }
+require('./rfc6979/sha256')
+require('./rfc6979/hmac-sha256')
+require('./rfc6979')
 
-test(require('../js'), 'pure js')
-test(require('../elliptic'), 'elliptic')
 if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }
+test(require('../elliptic'), 'elliptic')
+test(require('../js'), 'pure js')
