@@ -540,17 +540,49 @@ describe('BN', function () {
     })
 
     util.repeatIt('random tests', util.env.repeat, function () {
-      var b32A = util.getMessage()
-      var b32B = util.getTweak()
+      var b32a = util.getMessage()
+      var b32b = util.getTweak()
 
-      var a = BN.fromBuffer(b32A)
-      var b = BN.fromBuffer(b32B)
+      var a = BN.fromBuffer(b32a)
+      var b = BN.fromBuffer(b32b)
 
-      bnUtil.testBN(a.umul(b).ureduce(), BigNum.fromBuffer(b32A).mul(BigNum.fromBuffer(b32B)).mod(bnUtil.N))
+      bnUtil.testBN(a.umul(b).ureduce(), BigNum.fromBuffer(b32a).mul(BigNum.fromBuffer(b32b)).mod(bnUtil.N))
+    })
+  })
+
+  describe('ishrn', function () {
+    it('51 bits eq 1, shift from 0 to 26', function () {
+      var b32 = bnUtil.fillZeros(new Buffer('07ffffffffffff', 'hex'))
+      for (var i = 0; i < 26; ++i) {
+        bnUtil.testBN(BN.fromBuffer(b32).ishrn(i), BigNum.fromBuffer(b32).shiftRight(i))
+      }
+    })
+
+    it('256 bits eq 1, shift from 0 to 26', function () {
+      var b32 = new Buffer(32)
+      b32.fill(0xff)
+      for (var i = 0; i < 26; ++i) {
+        bnUtil.testBN(BN.fromBuffer(b32).ishrn(i), BigNum.fromBuffer(b32).shiftRight(i))
+      }
+    })
+
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var b32 = util.getMessage()
+      var shift = b32[0] % 26
+      bnUtil.testBN(BN.fromBuffer(b32).ishrn(shift), BigNum.fromBuffer(b32).shiftRight(shift))
     })
   })
 
   describe('uinvm', function () {
+    it('0', function () {
+      bnUtil.testBN(BN.fromNumber(0).uinvm(), BigNum(0).invertm(bnUtil.N))
+    })
+
+    it('n - 1', function () {
+      var b32 = bnUtil.N.sub(1).toBuffer()
+      bnUtil.testBN(BN.fromBuffer(b32).uinvm(), BigNum.fromBuffer(b32).invertm(bnUtil.N))
+    })
+
     util.repeatIt('random tests', util.env.repeat, function () {
       var b32 = util.getMessage()
       bnUtil.testBN(BN.fromBuffer(b32).uinvm(), BigNum.fromBuffer(b32).invertm(bnUtil.N))
