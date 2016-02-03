@@ -447,17 +447,106 @@ describe('BN', function () {
     })
   })
 
+  describe('isplit', function () {
+    var tmp = new BN()
+    tmp.words = new Array(10)
+
+    it('0 bits', function () {
+      var bn = BN.fromNumber(0)
+      bn.isplit(tmp)
+      bnUtil.testBN(tmp, BigNum(0))
+      bnUtil.testBN(bn, BigNum(0))
+    })
+
+    it('255 bits', function () {
+      var bn = new BN()
+      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x001fffff]
+      bn.length = 10
+      bn.isplit(tmp)
+      bnUtil.testBN(tmp, BigNum(1).shiftLeft(255).sub(1))
+      bnUtil.testBN(bn, BigNum(0))
+    })
+
+    it('256 bits', function () {
+      var bn = new BN()
+      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x003fffff]
+      bn.length = 10
+      bn.isplit(tmp)
+      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
+      bnUtil.testBN(bn, BigNum(0))
+    })
+
+    it('257 bits', function () {
+      var bn = new BN()
+      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x007fffff]
+      bn.length = 10
+      bn.isplit(tmp)
+      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
+      bnUtil.testBN(bn, BigNum(1))
+    })
+
+    it('512 bits', function () {
+      var bn = new BN()
+      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
+                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x0003ffff]
+      bn.length = 20
+      bn.isplit(tmp)
+      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
+      bnUtil.testBN(bn, BigNum(1).shiftLeft(256).sub(1))
+    })
+  })
+
+  describe('fireduce', function () {
+    it('n - 1 -> n - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.N.sub(1).toBuffer())
+      bnUtil.testBN(bn.fireduce(), bnUtil.N.sub(1))
+    })
+
+    it('n -> 0', function () {
+      var bn = BN.fromBuffer(bnUtil.N.toBuffer())
+      bnUtil.testBN(bn.fireduce(), BigNum(0))
+    })
+
+    it('2*n - 1 -> n - 1', function () {
+      var bn = BN.umulnTo(BN.fromBuffer(bnUtil.N.toBuffer()), 2, BN.fromNumber(0)).isub(BN.fromNumber(1))
+      bnUtil.testBN(bn.fireduce(), bnUtil.N.sub(1))
+    })
+
+    it('2*n -> n', function () {
+      var bn = BN.umulnTo(BN.fromBuffer(bnUtil.N.toBuffer()), 2, BN.fromNumber(0))
+      bnUtil.testBN(bn.fireduce(), bnUtil.N)
+    })
+  })
+
   describe('ureduce', function () {
+    it('n - 1 -> n - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.N.sub(1).toBuffer())
+      bnUtil.testBN(bn.ureduce(), bnUtil.N.sub(1))
+    })
+
+    it('n -> 0', function () {
+      var bn = BN.fromBuffer(bnUtil.N.toBuffer())
+      bnUtil.testBN(bn.ureduce(), BigNum(0))
+    })
+
+    it('n*n - 1 -> n - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.N.toBuffer())
+      bnUtil.testBN(bn.umul(bn).sub(BN.fromNumber(1)).ureduce(), bnUtil.N.sub(1))
+    })
+
     util.repeatIt('random tests', util.env.repeat, function () {
       var b32A = util.getMessage()
       var b32B = util.getTweak()
-      var bnR = BigNum.fromBuffer(b32A).mul(BigNum.fromBuffer(b32B)).mod(bnUtil.N)
 
       var a = BN.fromBuffer(b32A)
       var b = BN.fromBuffer(b32B)
-      var r = a.umul(b).ureduce()
 
-      bnUtil.testBN(r, bnR)
+      bnUtil.testBN(a.umul(b).ureduce(), BigNum.fromBuffer(b32A).mul(BigNum.fromBuffer(b32B)).mod(bnUtil.N))
     })
   })
 
