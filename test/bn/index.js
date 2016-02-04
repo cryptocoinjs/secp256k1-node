@@ -448,56 +448,23 @@ describe('BN', function () {
   })
 
   describe('isplit', function () {
-    var tmp = new BN()
-    tmp.words = new Array(10)
+    it('from 0 to 512 bits', function () {
+      var tmp = new BN()
+      tmp.words = new Array(10)
+      var bignum256 = BigNum(1).shiftLeft(256).sub(1)
 
-    it('0 bits', function () {
-      var bn = BN.fromNumber(0)
-      bn.isplit(tmp)
-      bnUtil.testBN(tmp, BigNum(0))
-      bnUtil.testBN(bn, BigNum(0))
-    })
+      for (var i = 0; i <= 512; ++i) {
+        var bignum = BigNum(1).shiftLeft(i).sub(1)
+        var bn = BN.fromNumber(0)
+        bn.length = Math.max(Math.ceil(bignum.bitLength() / 26), 1)
+        for (var j = 0, bign = bignum; j < bn.length; ++j, bign = bign.shiftRight(26)) {
+          bn.words[j] = bign.and(0x03ffffff).toNumber()
+        }
 
-    it('255 bits', function () {
-      var bn = new BN()
-      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x001fffff]
-      bn.length = 10
-      bn.isplit(tmp)
-      bnUtil.testBN(tmp, BigNum(1).shiftLeft(255).sub(1))
-      bnUtil.testBN(bn, BigNum(0))
-    })
-
-    it('256 bits', function () {
-      var bn = new BN()
-      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x003fffff]
-      bn.length = 10
-      bn.isplit(tmp)
-      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
-      bnUtil.testBN(bn, BigNum(0))
-    })
-
-    it('257 bits', function () {
-      var bn = new BN()
-      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x007fffff]
-      bn.length = 10
-      bn.isplit(tmp)
-      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
-      bnUtil.testBN(bn, BigNum(1))
-    })
-
-    it('512 bits', function () {
-      var bn = new BN()
-      bn.words = [0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff,
-                  0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff, 0x0003ffff]
-      bn.length = 20
-      bn.isplit(tmp)
-      bnUtil.testBN(tmp, BigNum(1).shiftLeft(256).sub(1))
-      bnUtil.testBN(bn, BigNum(1).shiftLeft(256).sub(1))
+        bn.isplit(tmp)
+        bnUtil.testBN(tmp, bignum.and(bignum256))
+        bnUtil.testBN(bn, bignum.shiftRight(256))
+      }
     })
   })
 
