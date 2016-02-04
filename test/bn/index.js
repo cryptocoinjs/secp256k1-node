@@ -447,6 +447,91 @@ describe('BN', function () {
     })
   })
 
+  describe('umul', function () {
+    var out = BN.fromNumber(0)
+
+    describe('umulnTo', function () {
+      it('[0x03ffffff] * 0', function () {
+        BN.umulnTo(BN.fromNumber(0x03ffffff), 0, out)
+        bnUtil.testBN(out, BigNum(0))
+      })
+
+      it('[0x03ffffff] * 0x03ffffff', function () {
+        BN.umulnTo(BN.fromNumber(0x03ffffff), 0x03ffffff, out)
+        bnUtil.testBN(out, BigNum(0x03ffffff).mul(0x03ffffff))
+      })
+
+      it('[0x03ffffff, 0x03ffffff] * 0x03ffffff', function () {
+        var bn = new BN()
+        bn.words = [0x03ffffff, 0x03ffffff]
+        bn.length = 2
+        BN.umulnTo(bn, 0x03ffffff, out)
+        bnUtil.testBN(out, BigNum.fromBuffer(bn.toBuffer()).mul(0x03ffffff))
+      })
+    })
+
+    describe('umulTo', function () {
+      util.repeatIt('random tests', util.env.repeat, function () {
+        var b32a = util.getMessage()
+        var b32b = util.getTweak()
+
+        var a = BN.fromBuffer(b32a)
+        a.length = b32a[0] % 8 + 2 // in [1,9]
+        var b = BN.fromBuffer(b32b)
+        b.length = b32b[0] % 8 + 2 // in [1,9]
+
+        BN.umulTo(a, b, out)
+        bnUtil.testBN(out, BigNum.fromBuffer(a.toBuffer()).mul(BigNum.fromBuffer(b.toBuffer())))
+      })
+    })
+
+    describe('10x * 10x', function () {
+      var min = BigNum(1).shiftLeft(235).sub(1)
+      var bnMin = BN.fromBuffer(bnUtil.fillZeros(min.toBuffer()))
+      var max = BigNum(1).shiftLeft(256).sub(1)
+      var bnMax = BN.fromBuffer(max.toBuffer())
+
+      function test (descripion, fn) {
+        describe(descripion, function () {
+          it('min * min', function () {
+            fn(bnMin, bnMin, out)
+            bnUtil.testBN(out, min.mul(min))
+          })
+
+          it('min * max', function () {
+            fn(bnMin, bnMax, out)
+            bnUtil.testBN(out, min.mul(max))
+          })
+
+          it('max * min', function () {
+            fn(bnMax, bnMin, out)
+            bnUtil.testBN(out, max.mul(min))
+          })
+
+          it('max * max', function () {
+            fn(bnMax, bnMax, out)
+            bnUtil.testBN(out, max.mul(max))
+          })
+
+          util.repeatIt('random tests', util.env.repeat, function () {
+            var a
+            var b
+            while (!a || !b || a.length !== 10 || b.length !== 10) {
+              a = BN.fromBuffer(util.getMessage())
+              b = BN.fromBuffer(util.getTweak())
+            }
+
+            BN.umulTo(a, b, out)
+            bnUtil.testBN(out, BigNum.fromBuffer(a.toBuffer()).mul(BigNum.fromBuffer(b.toBuffer())))
+          })
+        })
+      }
+
+      test('optimized', require('../../lib/js/bn/optimized').umulTo10x10)
+      test('umulTo', BN.umulTo)
+    })
+  })
+
   describe('isplit', function () {
     it('from 0 to 512 bits', function () {
       var tmp = new BN()
@@ -556,6 +641,12 @@ describe('BN', function () {
     })
   })
 
+  describe.skip('imulK', function () {
+  })
+
+  describe.skip('redIReduce', function () {
+  })
+
   describe('redNeg', function () {
     it('0 -> 0', function () {
       var bn = BN.fromBuffer(bnUtil.fillZeros(BigNum(0).toBuffer()))
@@ -612,6 +703,18 @@ describe('BN', function () {
     })
   })
 
+  describe.skip('redIAdd', function () {
+  })
+
+  describe.skip('redIAdd7', function () {
+  })
+
+  describe.skip('redSub', function () {
+  })
+
+  describe.skip('redISub', function () {
+  })
+
   describe('redMul', function () {
     util.repeatIt('random tests', util.env.repeat, function () {
       var a = BN.fromBuffer(util.getMessage())
@@ -625,6 +728,12 @@ describe('BN', function () {
     })
   })
 
+  describe.skip('redSqr', function () {
+  })
+
+  describe.skip('redSqrt', function () {
+  })
+
   describe('redInvm', function () {
     util.repeatIt('random tests', util.env.repeat, function () {
       var b32 = util.getMessage()
@@ -633,5 +742,8 @@ describe('BN', function () {
 
       bnUtil.testBN(a.redInvm(), BigNum.fromBuffer(a.toBuffer()).invertm(bnUtil.P))
     })
+  })
+
+  describe.skip('getNAF', function () {
   })
 })
