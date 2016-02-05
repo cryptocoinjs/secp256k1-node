@@ -7,6 +7,7 @@ exports.BN_MAX256 = BigNum.pow(2, 256).sub(1)
 exports.N = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 'hex'))
 exports.NH = exports.N.shiftRight(1)
 exports.P = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
+exports.K = BigNum(1).shiftLeft(256).sub(exports.P)
 
 /**
  * @param {Buffer} buffer

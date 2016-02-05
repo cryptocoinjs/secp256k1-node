@@ -641,10 +641,40 @@ describe('BN', function () {
     })
   })
 
-  describe.skip('imulK', function () {
+  describe('imulK', function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var b32 = util.getMessage()
+      var bn = BN.fromBuffer(b32)
+      bnUtil.testBN(bn.imulK(), BigNum.fromBuffer(b32).mul(bnUtil.K))
+    })
   })
 
-  describe.skip('redIReduce', function () {
+  describe('redIReduce', function () {
+    it('p - 1 -> p - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.P.sub(1).toBuffer())
+      bnUtil.testBN(bn.redIReduce(), bnUtil.P.sub(1))
+    })
+
+    it('p -> 0', function () {
+      var bn = BN.fromBuffer(bnUtil.P.toBuffer())
+      bnUtil.testBN(bn.redIReduce(), BigNum(0))
+    })
+
+    it('p*p - 1 -> p - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.P.toBuffer())
+      bnUtil.testBN(bn.umul(bn).sub(BN.fromNumber(1)).redIReduce(), bnUtil.P.sub(1))
+    })
+
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var a = BN.fromBuffer(util.getMessage())
+      if (a.ucmp(BN.p) >= 0) { a.redIReduce() }
+      var b = BN.fromBuffer(util.getTweak())
+      if (b.ucmp(BN.p) >= 0) { b.redIReduce() }
+
+      var abn = BigNum.fromBuffer(a.toBuffer())
+      var bbn = BigNum.fromBuffer(b.toBuffer())
+      bnUtil.testBN(a.umul(b).redIReduce(), abn.mul(bbn).mod(bnUtil.P))
+    })
   })
 
   describe('redNeg', function () {
@@ -672,6 +702,19 @@ describe('BN', function () {
   })
 
   describe('redAdd', function () {
+    it('source was not affected', function () {
+      var a = BN.fromBuffer(util.getMessage())
+      if (a.ucmp(BN.p) >= 0) { a.redIReduce() }
+      var b = BN.fromBuffer(util.getTweak())
+      if (b.ucmp(BN.p) >= 0) { b.redIReduce() }
+
+      var b32a = a.toBuffer()
+      bnUtil.testBN(a.redAdd(b), BigNum.fromBuffer(b32a).add(BigNum.fromBuffer(b.toBuffer())).mod(bnUtil.P))
+      expect(a.toBuffer().toString('hex')).to.equal(b32a.toString('hex'))
+    })
+  })
+
+  describe('redIAdd', function () {
     it('(p - 2) + 1 -> p - 1', function () {
       var a = BN.fromBuffer(bnUtil.fillZeros(bnUtil.P.sub(2).toBuffer()))
       var b = BN.fromBuffer(bnUtil.fillZeros(BigNum(1).toBuffer()))
@@ -703,16 +746,56 @@ describe('BN', function () {
     })
   })
 
-  describe.skip('redIAdd', function () {
+  describe('redIAdd7', function () {
+    it('(p - 8) + 7 -> p - 1', function () {
+      var bn = BN.fromBuffer(bnUtil.P.sub(8).toBuffer())
+      bnUtil.testBN(bn.redIAdd7(), bnUtil.P.sub(1))
+      bnUtil.testBN(bn, bnUtil.P.sub(1))
+    })
+
+    it('(p - 7) + 7 -> 0', function () {
+      var bn = BN.fromBuffer(bnUtil.P.sub(7).toBuffer())
+      bnUtil.testBN(bn.redIAdd7(), BigNum(0))
+      bnUtil.testBN(bn, BigNum(0))
+    })
+
+    it('(p - 1) + 7 -> 6', function () {
+      var bn = BN.fromBuffer(bnUtil.P.sub(1).toBuffer())
+      bnUtil.testBN(bn.redIAdd7(), BigNum(6))
+      bnUtil.testBN(bn, BigNum(6))
+    })
   })
 
-  describe.skip('redIAdd7', function () {
+  describe('redSub', function () {
+    it('source was not affected', function () {
+      var a = BN.fromBuffer(util.getMessage())
+      if (a.ucmp(BN.p) >= 0) { a.redIReduce() }
+      var b = BN.fromBuffer(util.getTweak())
+      if (b.ucmp(BN.p) >= 0) { b.redIReduce() }
+      if (a.ucmp(b) === -1) {
+        var t = a
+        a = b
+        b = t
+      }
+
+      var b32a = a.toBuffer()
+      bnUtil.testBN(a.redSub(b), BigNum.fromBuffer(b32a).sub(BigNum.fromBuffer(b.toBuffer())).mod(bnUtil.P))
+      expect(a.toBuffer().toString('hex')).to.equal(b32a.toString('hex'))
+    })
   })
 
-  describe.skip('redSub', function () {
-  })
+  describe('redISub', function () {
+    it('0 - 1 -> p - 1', function () {
+      var a = BN.fromNumber(0)
+      var b = BN.fromNumber(1)
+      bnUtil.testBN(a.redISub(b), bnUtil.P.sub(1))
+    })
 
-  describe.skip('redISub', function () {
+    it('(p - 2) - (p - 1) -> p - 1', function () {
+      var a = BN.fromBuffer(bnUtil.fillZeros(bnUtil.P.sub(2).toBuffer()))
+      var b = BN.fromBuffer(bnUtil.fillZeros(bnUtil.P.sub(1).toBuffer()))
+      bnUtil.testBN(a.redISub(b), bnUtil.P.sub(1))
+    })
   })
 
   describe('redMul', function () {
@@ -728,10 +811,34 @@ describe('BN', function () {
     })
   })
 
-  describe.skip('redSqr', function () {
+  describe('redSqr', function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var bn = BN.fromBuffer(util.getMessage())
+      if (bn.ucmp(BN.p) >= 0) { bn.redIReduce() }
+
+      bnUtil.testBN(bn.redSqr(), BigNum.fromBuffer(bn.toBuffer()).pow(2).mod(bnUtil.P))
+    })
   })
 
-  describe.skip('redSqrt', function () {
+  describe('redSqrt', function () {
+    it('return zero for zero', function () {
+      bnUtil.testBN(BN.fromNumber(0).redSqrt(), BigNum(0))
+    })
+
+    it('return null for quadratic nonresidue', function () {
+      var b32 = new Buffer('16e5f9d306371e9b876f04025fb8c8ed10f8b8864119a149803357e77bcdd3b1', 'hex')
+      expect(BN.fromBuffer(b32).redSqrt()).to.be.null
+    })
+
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var bn = BN.fromBuffer(util.getMessage())
+      if (bn.ucmp(BN.p) >= 0) { bn.redIReduce() }
+
+      var result = bn.redSqrt()
+      if (result !== null) {
+        bnUtil.testBN(bn, BigNum.fromBuffer(result.toBuffer()).pow(2).mod(bnUtil.P))
+      }
+    })
   })
 
   describe('redInvm', function () {
@@ -744,6 +851,20 @@ describe('BN', function () {
     })
   })
 
-  describe.skip('getNAF', function () {
+  describe('getNAF', function () {
+    util.repeatIt('random tests', util.env.repeat, function () {
+      var b32 = util.getMessage()
+      var w = b32[0] % 10 + 1 // [1,10]
+
+      var naf = BN.fromBuffer(b32).getNAF(w)
+      var power = BigNum(1)
+      var bignum = BigNum(0)
+      for (var i = 0; i < naf.length; ++i) {
+        bignum = bignum.add(power.mul(naf[i]))
+        power = power.mul(2)
+      }
+
+      expect(bignum.toBuffer().toString('hex')).to.equal(b32.toString('hex'))
+    })
   })
 })
