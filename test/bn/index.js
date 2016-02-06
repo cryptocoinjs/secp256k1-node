@@ -864,7 +864,7 @@ describe('BN', function () {
         power = power.mul(2)
       }
 
-      expect(bignum.toBuffer().toString('hex')).to.equal(b32.toString('hex'))
+      expect(bnUtil.fillZeros(bignum.toBuffer()).toString('hex')).to.equal(b32.toString('hex'))
     })
   })
 })

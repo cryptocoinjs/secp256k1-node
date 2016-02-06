@@ -26,6 +26,7 @@ if (!process.browser) { require('./bn') }
 require('./rfc6979/sha256')
 require('./rfc6979/hmac-sha256')
 require('./rfc6979')
+require('./ecpoints')
 
 if (!process.browser) { test(require('../bindings'), 'secp256k1 bindings') }
 test(require('../elliptic'), 'elliptic')
