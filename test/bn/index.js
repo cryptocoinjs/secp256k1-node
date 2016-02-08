@@ -528,7 +528,10 @@ describe('BN', function () {
         })
       }
 
-      test('optimized', require('../../lib/js/bn/optimized').umulTo10x10)
+      if (Math.imul !== undefined) {
+        test('optimized', require('../../lib/js/bn/optimized').umulTo10x10)
+      }
+
       test('umulTo', BN.umulTo)
     })
   })
