@@ -13,6 +13,8 @@ var zerobuf = new Buffer('000000000000000000000000000000000000000000000000000000
 var onebuf = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
 
 describe('ECPoint', function () {
+  this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
+
   describe('ECPoint.fromPublicKey', function () {
     it('length from 0 to 100 except 33 and 65', function () {
       for (var size = 0; size < 100; ++size) {

@@ -9,6 +9,8 @@ var BN = require('../lib/js/bn')
 var util = require('./util')
 
 describe('ECJPoint', function () {
+  this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
+
   describe('neg', function () {
     it('return infinity for infinity', function () {
       var ecjpoint = new ECJPoint(null, null, null)
