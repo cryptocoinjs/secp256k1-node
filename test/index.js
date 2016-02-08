@@ -1,4 +1,5 @@
 'use strict'
+/* global before, describe */
 
 var util = require('./util')
 

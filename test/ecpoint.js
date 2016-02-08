@@ -1,4 +1,5 @@
 'use strict'
+/* global describe, it */
 
 var expect = require('chai').expect
 var ECPoint = require('../lib/js/ecpoint')
@@ -12,10 +13,6 @@ var zerobuf = new Buffer('000000000000000000000000000000000000000000000000000000
 var onebuf = new Buffer('0000000000000000000000000000000000000000000000000000000000000001', 'hex')
 
 describe('ECPoint', function () {
-  before(function () {
-    util.setSeed(util.env.seed)
-  })
-
   describe('ECPoint.fromPublicKey', function () {
     it('length from 0 to 100 except 33 and 65', function () {
       for (var size = 0; size < 100; ++size) {

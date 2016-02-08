@@ -1,4 +1,5 @@
 'use strict'
+/* global describe, it */
 
 var expect = require('chai').expect
 var ECPoint = require('../lib/js/ecpoint')
@@ -8,10 +9,6 @@ var BN = require('../lib/js/bn')
 var util = require('./util')
 
 describe('ECJPoint', function () {
-  before(function () {
-    util.setSeed(util.env.seed)
-  })
-
   describe('neg', function () {
     it('return infinity for infinity', function () {
       var ecjpoint = new ECJPoint(null, null, null)

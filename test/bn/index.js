@@ -1,4 +1,5 @@
 'use strict'
+/* global before, describe, it */
 
 var expect = require('chai').expect
 var BigNum = require('bignum')

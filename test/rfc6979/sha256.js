@@ -1,4 +1,5 @@
 'use strict'
+/* global before, describe */
 
 var expect = require('chai').expect
 var crypto = require('crypto')
