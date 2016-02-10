@@ -1,6 +1,7 @@
 'use strict'
 
-var crypto = require('crypto')
+var randomBytes = require('crypto').randomBytes
+var createHash = require('create-hash/browser')
 
 var MAX_COUNT = Math.pow(2, 32)
 
@@ -18,7 +19,7 @@ function PRNG (seed) {
  * @return {Buffer}
  */
 PRNG.prototype._sha256 = function (data) {
-  return crypto.createHash('sha256').update(data).digest()
+  return createHash('sha256').update(data).digest()
 }
 
 /**
@@ -26,7 +27,7 @@ PRNG.prototype._sha256 = function (data) {
  */
 PRNG.prototype.setSeed = function (seed) {
   if (seed === undefined) {
-    seed = crypto.randomBytes(32)
+    seed = randomBytes(32)
   }
 
   if (typeof seed === 'string' && seed.length % 2 === 0 && seed.match(/^[0-1]*$/) !== null) {

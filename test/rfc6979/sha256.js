@@ -2,7 +2,7 @@
 /* global before, describe */
 
 var expect = require('chai').expect
-var crypto = require('crypto')
+var createHash = require('create-hash/browser')
 
 var sha256 = require('../../lib/js/rfc6979/sha256')
 var util = require('../util')
@@ -12,7 +12,7 @@ var util = require('../util')
  * @return {Buffer}
  */
 function cryptoSHA256 (data) {
-  return crypto.createHash('sha256').update(data).digest()
+  return createHash('sha256').update(data).digest()
 }
 
 describe('sha256', function () {
