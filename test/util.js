@@ -1,4 +1,5 @@
 'use strict'
+/* global it */
 
 var crypto = require('crypto')
 var BN = require('bn.js')
