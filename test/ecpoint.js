@@ -1,5 +1,5 @@
 'use strict'
-/* global describe, it */
+/* global describe, before, it */
 
 var expect = require('chai').expect
 var ECPoint = require('../lib/js/ecpoint')
@@ -14,6 +14,10 @@ var onebuf = new Buffer('0000000000000000000000000000000000000000000000000000000
 
 describe('ECPoint', function () {
   this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
+
+  before(function () {
+    util.setSeed(util.env.seed)
+  })
 
   describe('ECPoint.fromPublicKey', function () {
     it('length from 0 to 100 except 33 and 65', function () {

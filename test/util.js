@@ -5,29 +5,31 @@ var crypto = require('crypto')
 var BN = require('bn.js')
 var EC = require('elliptic').ec
 var ProgressBar = require('progress')
-
-var PRNG = require('./prng')
+var XorShift128Plus = require('xorshift.js').XorShift128Plus
 
 var ec = exports.ec = new EC('secp256k1')
 exports.BN_ZERO = new BN(0)
 exports.BN_ONE = new BN(1)
 
 var prngs = exports.prngs = {
-  privateKey: new PRNG(),
-  tweak: new PRNG(),
-  message: new PRNG()
+  privateKey: null,
+  tweak: null,
+  message: null
 }
 
 /**
  * @param {(Buffer|string)} [seed]
  */
 exports.setSeed = function (seed) {
-  console.log('Set seed: ' + (Buffer.isBuffer(seed) ? seed.toString('hex') : seed))
+  if (Buffer.isBuffer(seed)) seed = seed.toString('hex')
+  console.log('Set seed: ' + seed)
 
-  var prng = new PRNG(seed)
-  prngs.privateKey.setSeed(prng.random())
-  prngs.tweak.setSeed(prng.random())
-  prngs.message.setSeed(prng.random())
+  var prng = new XorShift128Plus(seed)
+  for (var i = 0; i < 100; ++i) prng.random()
+
+  prngs.privateKey = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
+  prngs.tweak = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
+  prngs.message = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
 }
 
 /**
@@ -35,7 +37,7 @@ exports.setSeed = function (seed) {
  */
 exports.getPrivateKey = function () {
   while (true) {
-    var privateKey = prngs.privateKey.random()
+    var privateKey = prngs.privateKey.randomBytes(32)
     var bn = new BN(privateKey)
     if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
       return privateKey
@@ -70,7 +72,7 @@ exports.getSignature = function (message, privateKey) {
  */
 exports.getTweak = function () {
   while (true) {
-    var tweak = prngs.tweak.random()
+    var tweak = prngs.tweak.randomBytes(32)
     var bn = new BN(tweak)
     if (bn.cmp(ec.curve.n) === -1) {
       return tweak
@@ -82,7 +84,7 @@ exports.getTweak = function () {
  * @return {Buffer}
  */
 exports.getMessage = function () {
-  return prngs.message.random()
+  return prngs.message.randomBytes(32)
 }
 
 /**

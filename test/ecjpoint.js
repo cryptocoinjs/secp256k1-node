@@ -1,5 +1,5 @@
 'use strict'
-/* global describe, it */
+/* global describe, before, it */
 
 var expect = require('chai').expect
 var ECPoint = require('../lib/js/ecpoint')
@@ -10,6 +10,10 @@ var util = require('./util')
 
 describe('ECJPoint', function () {
   this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))
+
+  before(function () {
+    util.setSeed(util.env.seed)
+  })
 
   describe('neg', function () {
     it('return infinity for infinity', function () {
