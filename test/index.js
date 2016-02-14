@@ -24,9 +24,6 @@ function test (secp256k1, description) {
 }
 
 if (!process.browser) { require('./bn') }
-require('./rfc6979/sha256')
-require('./rfc6979/hmac-sha256')
-require('./rfc6979')
 require('./ecpoint')
 require('./ecjpoint')
 

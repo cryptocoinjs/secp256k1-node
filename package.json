@@ -39,7 +39,6 @@
     "url": "https://github.com/cryptocoinjs/secp256k1-node.git"
   },
   "scripts": {
-    "benchmark:node": "node benchmark/benchmark.js",
     "clean": "node-gyp clean",
     "install": "npm run rebuild",
     "lint": "standard",
@@ -52,6 +51,7 @@
   "dependencies": {
     "bindings": "^1.2.1",
     "bn.js": "^4.10.0",
+    "drbg.js": "^1.0.0",
     "elliptic": "^6.2.3",
     "nan": "^2.2.0"
   },
