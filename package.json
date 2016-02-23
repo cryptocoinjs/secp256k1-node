@@ -28,9 +28,6 @@
     "bindings.js",
     "elliptic.js",
     "js.js",
-    "package.json",
-    "LICENSE",
-    "README.md",
     "utils/has_lib.sh"
   ],
   "main": "./bindings.js",
