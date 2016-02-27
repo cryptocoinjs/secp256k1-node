@@ -2,7 +2,17 @@
   "targets": [{
     "target_name": "secp256k1",
     "variables": {
-      "with_gmp%": "<!(./utils/has_lib.sh gmpxx && ./utils/has_lib.sh gmp)"
+      "conditions": [
+        [
+          "OS=='win'",
+          {
+            "with_gmp%": "false"
+          },
+          {
+            "with_gmp%": "<!(utils/has_lib.sh gmpxx && utils/has_lib.sh gmp)"
+          }
+        ]
+      ]
     },
     "sources": [
       "./src/addon.cc",
@@ -66,11 +76,8 @@
       [
         "target_arch=='x64'", {
           "defines": [
-            "HAVE___INT128=1"
-            "USE_ASM_X86_64=1",
-            "USE_FIELD_5X52=1",
-            "USE_FIELD_5X52_INT128=1",
-            "USE_SCALAR_4X64=1"
+            "USE_FIELD_10X26=1",
+            "USE_SCALAR_8X32=1"
           ]
         }
       ],

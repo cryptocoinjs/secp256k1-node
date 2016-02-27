@@ -43,7 +43,7 @@
     "clean": "node-gyp clean",
     "install": "npm run rebuild",
     "lint": "standard",
-    "prepublish": "node-gyp rebuild && npm run lint && npm run test",
+    "prepublish": "node-gyp rebuild && npm run lint ",
     "rebuild": "node-gyp rebuild",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "karma start karma.conf.js",
