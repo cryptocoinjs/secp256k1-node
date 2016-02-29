@@ -1,4 +1,5 @@
 'use strict'
+/* global describe, it */
 
 var expect = require('chai').expect
 var BN = require('bn.js')
