@@ -78,6 +78,6 @@
   },
   "gypfile": true,
   "browser": {
-    "./bindings.js": "./elliptic.js"
+    "./bindings.js": "./js.js"
   }
 }
