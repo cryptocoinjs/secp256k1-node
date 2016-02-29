@@ -29,7 +29,8 @@ npm install
 
 ## Usage
 
-* [API Reference (v3.x)](API.md)
+* [API Reference (v3.x)](blob/master/API.md)
+* [API Reference (v2.x)](blob/v2.x/API.md)
 
 ```js
 var crypto = require('crypto')
@@ -76,7 +77,8 @@ The main purpose of this implementation is more [high performance](#performance)
 |        | browserifiable | + uglified | + gzipped |
 |:------:|:--------------:|:----------:|:---------:|
 |elliptic|303555          |211777      |62124      |
-|embedded|129498          |88958       |20188      |
+|embedded|241829          |152989      |35908      |
+|diff    |25%             |38%         |73%        |
 
 ##### Performance:
 ```
