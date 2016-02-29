@@ -4,12 +4,19 @@
     "variables": {
       "conditions": [
         [
-          "OS=='win'",
-          {
-            "with_gmp%": "false"
+          "OS=='win'", {
+            "with_gmp%": "false",
+            "conditions": [
+              ["target_arch=='ia32'", {"openssl_root%": "C:/OpenSSL-Win32"}, {"openssl_root%": "C:/OpenSSL-Win64"}]
+            ]
           },
           {
-            "with_gmp%": "<!(utils/has_lib.sh gmpxx && utils/has_lib.sh gmp)"
+            "with_gmp%": "<!(utils/has_lib.sh gmpxx && utils/has_lib.sh gmp)",
+            "conditions": [
+              ["target_arch=='ia32'", {"openssl_config_path": "<(nodedir)/deps/openssl/config/piii"}],
+              ["target_arch=='x64'",  {"openssl_config_path": "<(nodedir)/deps/openssl/config/k8"}],
+              ["target_arch=='arm'",  {"openssl_config_path": "<(nodedir)/deps/openssl/config/arm"}],
+            ]
           }
         ]
       ]
@@ -77,8 +84,7 @@
         "target_arch=='x64'", {
           "conditions": [
             [
-              "OS=='win'",
-              {
+              "OS=='win'", {
                 "defines": [
                   "USE_FIELD_10X26=1",
                   "USE_SCALAR_8X32=1"
@@ -97,7 +103,7 @@
         }
       ],
       [
-       "OS=='mac'", {
+        "OS=='mac'", {
           "libraries": [
             "-L/usr/local/lib"
           ],
@@ -107,22 +113,10 @@
               "-stdlib=libc++"
             ]
           }
-      }],
+        }
+      ],
       [
         "OS=='win'", {
-          "conditions": [
-            [
-              "target_arch=='x64'", {
-                "variables": {
-                  "openssl_root%": "C:/OpenSSL-Win64"
-                },
-              }, {
-                "variables": {
-                  "openssl_root%": "C:/OpenSSL-Win32"
-                }
-              }
-            ]
-          ],
           "libraries": [
             "-l<(openssl_root)/lib/libeay32.lib",
           ],
@@ -130,29 +124,6 @@
             "<(openssl_root)/include",
           ],
         }, {
-          "conditions": [
-            [
-              "target_arch=='ia32'", {
-                "variables": {
-                  "openssl_config_path": "<(nodedir)/deps/openssl/config/piii"
-                }
-              }
-            ],
-            [
-              "target_arch=='x64'", {
-                "variables": {
-                  "openssl_config_path": "<(nodedir)/deps/openssl/config/k8"
-                },
-              }
-            ],
-            [
-              "target_arch=='arm'", {
-                "variables": {
-                  "openssl_config_path": "<(nodedir)/deps/openssl/config/arm"
-                }
-              }
-            ],
-          ],
           "include_dirs": [
             "<(nodedir)/deps/openssl/openssl/include",
             "<(openssl_config_path)"
