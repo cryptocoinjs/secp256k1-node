@@ -24,6 +24,8 @@ If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/
 ```
 git clone git@github.com:cryptocoinjs/secp256k1-node.git
 cd secp256k1-node
+git submodule init
+git submodule update
 npm install
 ```
 
