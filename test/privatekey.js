@@ -7,9 +7,6 @@ var BN = require('bn.js')
 var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- */
 module.exports = function (secp256k1) {
   describe('privateKeyVerify', function () {
     it('should be a Buffer', function () {

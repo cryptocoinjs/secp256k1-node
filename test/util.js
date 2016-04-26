@@ -17,9 +17,6 @@ var prngs = exports.prngs = {
   message: null
 }
 
-/**
- * @param {(Buffer|string)} [seed]
- */
 exports.setSeed = function (seed) {
   if (Buffer.isBuffer(seed)) seed = seed.toString('hex')
   console.log('Set seed: ' + seed)
@@ -32,9 +29,6 @@ exports.setSeed = function (seed) {
   prngs.message = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
 }
 
-/**
- * @return {Buffer}
- */
 exports.getPrivateKey = function () {
   while (true) {
     var privateKey = prngs.privateKey.randomBytes(32)
@@ -45,10 +39,6 @@ exports.getPrivateKey = function () {
   }
 }
 
-/**
- * @param {Buffer} privateKey
- * @return {{compressed: Buffer, uncompressed: Buffer}}
- */
 exports.getPublicKey = function (privateKey) {
   var publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
@@ -57,19 +47,11 @@ exports.getPublicKey = function (privateKey) {
   }
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} privateKey
- * @return {Buffer}
- */
 exports.getSignature = function (message, privateKey) {
   var sig = exports.sign(message, privateKey)
   return sig.signatureLowS
 }
 
-/**
- * @return {Buffer}
- */
 exports.getTweak = function () {
   while (true) {
     var tweak = prngs.tweak.randomBytes(32)
@@ -80,18 +62,10 @@ exports.getTweak = function () {
   }
 }
 
-/**
- * @return {Buffer}
- */
 exports.getMessage = function () {
   return prngs.message.randomBytes(32)
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} privateKey
- * @return {{signature: string, recovery: number}}
- */
 exports.sign = function (message, privateKey) {
   var ecSig = ec.sign(message, privateKey, {canonical: false})
 
@@ -110,11 +84,6 @@ exports.sign = function (message, privateKey) {
   }
 }
 
-/**
- * @param {Buffer} publicKey
- * @param {Buffer} privateKey
- * @return {Buffer}
- */
 exports.ecdh = function (publicKey, privateKey) {
   var secret = ec.keyFromPrivate(privateKey)
   var point = ec.keyFromPublic(publicKey)
@@ -122,10 +91,6 @@ exports.ecdh = function (publicKey, privateKey) {
   return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
-/**
- * @param {function} it
- * @param {*[]} args
- */
 function repeatIt (it, args) {
   it(args[0], function () {
     var bar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
@@ -140,11 +105,6 @@ function repeatIt (it, args) {
   })
 }
 
-/*
- * @param {string} description
- * @param {number} total
- * @param {function} fn
- */
 exports.repeatIt = function () { repeatIt(it, arguments) }
 exports.repeatIt.skip = function () { repeatIt(it.skip, arguments) }
 exports.repeatIt.only = function () { repeatIt(it.only, arguments) }

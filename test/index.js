@@ -3,10 +3,6 @@
 
 var util = require('./util')
 
-/**
- * @param {Object} secp256k1
- * @param {string} description
- */
 function test (secp256k1, description) {
   describe(description, function () {
     this.timeout(util.env.repeat * 100 * (util.env.isTravis ? 5 : 1))

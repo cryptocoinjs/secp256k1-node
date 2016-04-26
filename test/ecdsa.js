@@ -7,9 +7,6 @@ var getRandomBytes = require('crypto').randomBytes
 var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- */
 module.exports = function (secp256k1) {
   describe('sign', function () {
     it('message should be a Buffer', function () {

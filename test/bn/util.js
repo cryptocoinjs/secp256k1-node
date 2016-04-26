@@ -9,10 +9,6 @@ exports.NH = exports.N.shiftRight(1)
 exports.P = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
 exports.K = BigNum(1).shiftLeft(256).sub(exports.P)
 
-/**
- * @param {Buffer} buffer
- * @return {Buffer}
- */
 exports.fillZeros = function (buffer) {
   if (buffer.length >= 32) {
     return buffer.slice(-32)
@@ -23,10 +19,6 @@ exports.fillZeros = function (buffer) {
   return Buffer.concat([zbuf, buffer])
 }
 
-/**
- * @param {BN} bn
- * @param {BigNum} bignum
- */
 exports.testBN = function (bn, bignum) {
   var isNeg = bignum.cmp(0) < 0
   if (isNeg) {

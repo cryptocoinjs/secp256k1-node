@@ -9,20 +9,11 @@ var ECKey = require('eckey')
 var ecparams = ecurve.getCurveByName('secp256k1')
 ecparams.nH = ecparams.n.shiftRight(1)
 
-/**
- * @param {Buffer} privateKey
- * @return {Buffer}
- */
 exports.publicKeyCreate = function (privateKey) {
   var eckey = new ECKey(privateKey)
   return eckey.publicKey
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} privateKey
- * @return {{signature: string, recovery: number}}
- */
 exports.sign = function (message, privateKey) {
   var D = BigInteger.fromBuffer(privateKey)
   var k = ecdsa.deterministicGenerateK(message, D)
@@ -45,12 +36,6 @@ exports.sign = function (message, privateKey) {
   }
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} signature
- * @param {Buffer} publicKey
- * @return {boolean}
- */
 exports.verify = function (message, signature, publicKey) {
   var e = BigInteger.fromBuffer(message)
   var r = BigInteger.fromBuffer(signature.slice(0, 32))

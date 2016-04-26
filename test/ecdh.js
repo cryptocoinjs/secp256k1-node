@@ -6,11 +6,6 @@ var expect = require('chai').expect
 var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- * @param {Object} opts
- * @param {number} opts.repeat
- */
 module.exports = function (secp256k1, opts) {
   describe.skip('ecdh', function () {
     it('public key should be a Buffer', function () {

@@ -6,9 +6,6 @@ var expect = require('chai').expect
 var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- */
 module.exports = function (secp256k1) {
   describe('signatureNormalize', function () {
     it('signature should be a Buffer', function () {
