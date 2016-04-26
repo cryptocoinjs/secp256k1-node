@@ -1,12 +1,10 @@
 'use strict'
-/* global describe, it */
+// var messages = require('../lib/messages')
 
-var expect = require('chai').expect
+// var util = require('./util')
 
-var util = require('./util')
-var messages = require('../lib/messages')
-
-module.exports = function (secp256k1, opts) {
+module.exports = function (t, secp256k1) {
+  /*
   describe.skip('ecdh', function () {
     it('public key should be a Buffer', function () {
       expect(function () {
@@ -64,4 +62,5 @@ module.exports = function (secp256k1, opts) {
       expect(result.toString('hex')).to.equal(expected.toString('hex'))
     })
   })
+  */
 }

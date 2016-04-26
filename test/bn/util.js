@@ -1,41 +1,45 @@
 'use strict'
-
-var expect = require('chai').expect
 var BigNum = require('bignum')
 
-exports.BN_MAX256 = BigNum.pow(2, 256).sub(1)
-exports.N = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 'hex'))
-exports.NH = exports.N.shiftRight(1)
-exports.P = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
-exports.K = BigNum(1).shiftLeft(256).sub(exports.P)
+var BN_MAX256 = BigNum.pow(2, 256).sub(1)
+var N = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 'hex'))
+var NH = N.shiftRight(1)
+var P = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
+var K = BigNum(1).shiftLeft(256).sub(P)
 
-exports.fillZeros = function (buffer) {
-  if (buffer.length >= 32) {
-    return buffer.slice(-32)
-  }
+var ZERO_BUFFER32 = new Buffer(32)
+ZERO_BUFFER32.fill(0)
 
-  var zbuf = new Buffer(32 - buffer.length)
-  zbuf.fill(0)
-  return Buffer.concat([zbuf, buffer])
+function fillZeros (buffer) {
+  return Buffer.concat([ZERO_BUFFER32, buffer]).slice(-32)
 }
 
-exports.testBN = function (bn, bignum) {
+function testBN (t, bn, bignum) {
   var isNeg = bignum.cmp(0) < 0
-  if (isNeg) {
-    bignum = bignum.neg()
-  }
+  if (isNeg) bignum = bignum.neg()
 
   try {
-    expect(bn.negative).to.equal(isNeg ? 1 : 0)
-    expect(bn.length).to.equal(Math.max(Math.ceil(bignum.bitLength() / 26), 1))
+    t.equal(bn.negative, isNeg ? 1 : 0)
+    t.equal(bn.length, Math.max(Math.ceil(bignum.bitLength() / 26), 1))
     for (var i = 0, bign = bignum; i < bn.length; ++i) {
-      expect(bn.words[i]).to.equal(bign.and(0x03ffffff).toNumber())
+      t.equal(bn.words[i], bign.and(0x03ffffff).toNumber())
       bign = bign.shiftRight(26)
     }
   } catch (err) {
     console.log(bn)
     console.log(bn.toBuffer().toString('hex'))
-    console.log(exports.fillZeros(bignum.toBuffer()).toString('hex'), isNeg)
+    console.log(fillZeros(bignum.toBuffer()).toString('hex'), isNeg)
     throw err
   }
+}
+
+module.exports = {
+  BN_MAX256: BN_MAX256,
+  N: N,
+  NH: NH,
+  P: P,
+  K: K,
+
+  fillZeros: fillZeros,
+  testBN: testBN
 }

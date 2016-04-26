@@ -1,22 +1,26 @@
 module.exports = function (config) {
   config.set({
     browserNoActivityTimeout: 120000,
-    frameworks: ['browserify', 'detectBrowsers', 'mocha'],
     files: [
       'test/index.js'
     ],
-    preprocessors: {
-      'test/index.js': ['browserify', 'env']
-    },
-    singleRun: true,
+    frameworks: [
+      'browserify',
+      'detectBrowsers',
+      'tap'
+    ],
     plugins: [
       'karma-browserify',
       'karma-chrome-launcher',
       'karma-env-preprocessor',
       'karma-firefox-launcher',
       'karma-detect-browsers',
-      'karma-mocha'
+      'karma-tap'
     ],
+    preprocessors: {
+      'test/index.js': ['browserify', 'env']
+    },
+    singleRun: true,
     browserify: {
       debug: true
     },
