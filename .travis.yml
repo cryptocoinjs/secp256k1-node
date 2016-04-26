@@ -9,6 +9,7 @@ node_js:
   - "4"
   - "5"
 addons:
+  firefox: latest-esr
   apt:
     sources:
       - ubuntu-toolchain-r-test
@@ -22,7 +23,7 @@ env:
     - DISPLAY=:99.0
     - RANDOM_TESTS_REPEAT=100
   matrix:
-    - CXX=g++-4.8 TEST_SUITE=test:node
+    - CXX=g++-4.8 TEST_SUITE=unit:node
 matrix:
   fast_finish: true
   include:
@@ -31,8 +32,8 @@ matrix:
       env: CXX=g++-4.8 TEST_SUITE=lint
     - os: linux
       node_js: "4"
-      env: CXX=clang++ TEST_SUITE=test:node
+      env: CXX=clang++ TEST_SUITE=unit:node
     - os: linux
       node_js: "4"
-      env: CXX=g++-4.8 TEST_SUITE=test:browser
+      env: CXX=g++-4.8 TEST_SUITE=unit:browser
 script: npm run $TEST_SUITE
