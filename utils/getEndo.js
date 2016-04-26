@@ -7,10 +7,6 @@ var BN = require('bn.js')
 var ecparams = require('../lib/ecparams')
 ecparams.initG()
 
-/**
- * @param {BN} num
- * @return {[BN, BN]}
- */
 function getEndoRoots (num) {
   // Find roots of for x^2 + x + 1 in F
   // Root = (-1 +- Sqrt(-3)) / 2
@@ -26,10 +22,6 @@ function getEndoRoots (num) {
   return [l1, l2]
 }
 
-/**
- * @param {BN} lambda
- * @return {{a: BN, b: BN}, {a: BN, b: BN}}
- */
 function getEndoBasis (lambda) {
   // aprxSqrt >= sqrt(this.n)
   var aprxSqrt = ecparams.n.ushrn(Math.floor(ecparams.n.bitLength() / 2))

@@ -1,213 +1,242 @@
 'use strict'
-/* global describe, it */
-
-var expect = require('chai').expect
 var BN = require('bn.js')
-
-var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- */
-module.exports = function (secp256k1) {
-  describe('publicKeyCreate', function () {
-    it('should be a Buffer', function () {
-      expect(function () {
+var util = require('./util')
+
+module.exports = function (t, secp256k1) {
+  t.test('publicKeyCreate', function (t) {
+    t.test('should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyCreate(null)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('invalid length', function () {
-      expect(function () {
+    t.test('invalid length', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey().slice(1)
         secp256k1.publicKeyCreate(privateKey)
-      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('overflow', function () {
-      expect(function () {
+    t.test('overflow', function (t) {
+      t.throws(function () {
         var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.publicKeyCreate(privateKey)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_CREATE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
+      t.end()
     })
 
-    it('equal zero', function () {
-      expect(function () {
+    t.test('equal zero', function (t) {
+      t.throws(function () {
         var privateKey = util.BN_ZERO.toArrayLike(Buffer, null, 32)
         secp256k1.publicKeyCreate(privateKey)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_CREATE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.publicKeyCreate(privateKey, null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyCreate(privateKey, true)
-      expect(compressed.toString('hex')).to.equal(expected.compressed.toString('hex'))
+      t.deepEqual(compressed, expected.compressed)
+
       var uncompressed = secp256k1.publicKeyCreate(privateKey, false)
-      expect(uncompressed.toString('hex')).to.equal(expected.uncompressed.toString('hex'))
+      t.deepEqual(uncompressed, expected.uncompressed)
+
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('publicKeyConvert', function () {
-    it('should be a Buffer', function () {
-      expect(function () {
+  t.test('publicKeyConvert', function (t) {
+    t.test('should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyConvert(null)
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('length is invalid', function () {
-      expect(function () {
+    t.test('length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         secp256k1.publicKeyConvert(publicKey)
-      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PUBLIC_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.publicKeyConvert(publicKey, null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyConvert(expected.uncompressed, true)
-      expect(compressed.toString('hex')).to.equal(expected.compressed.toString('hex'))
+      t.deepEqual(compressed, expected.compressed)
 
       var uncompressed = secp256k1.publicKeyConvert(expected.compressed, false)
-      expect(uncompressed.toString('hex')).to.equal(expected.uncompressed.toString('hex'))
+      t.deepEqual(uncompressed, expected.uncompressed)
+
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('publicKeyVerify', function () {
-    it('should be a Buffer', function () {
-      expect(function () {
+  t.test('publicKeyVerify', function (t) {
+    t.test('should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyVerify(null)
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('invalid length', function () {
+    t.test('invalid length', function (t) {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('invalid first byte', function () {
+    t.test('invalid first byte', function (t) {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey).compressed
       publicKey[0] = 0x01
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('x overflow (first byte is 0x03)', function () {
+    t.test('x overflow (first byte is 0x03)', function (t) {
       var publicKey = new Buffer([0x03].concat(util.ec.curve.p.toArray(null, 32)))
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('x overflow', function () {
+    t.test('x overflow', function (t) {
       var publicKey = new Buffer([0x04].concat(util.ec.curve.p.toArray(null, 32)))
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('y overflow', function () {
+    t.test('y overflow', function (t) {
       var publicKey = new Buffer([0x04].concat(new Array(32)).concat(util.ec.curve.p.toArray(null, 32)))
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('y is even, first byte is 0x07', function () {
+    t.test('y is even, first byte is 0x07', function (t) {
       var publicKey = new Buffer([0x07].concat(new Array(32)).concat(util.ec.curve.p.subn(1).toArray(null, 32)))
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    it('y**2 !== x*x*x + 7', function () {
+    t.test('y**2 !== x*x*x + 7', function (t) {
       var publicKey = Buffer.concat([new Buffer([0x04]), util.getTweak(), util.getTweak()])
-      expect(secp256k1.publicKeyVerify(publicKey)).to.be.false
+      t.false(secp256k1.publicKeyVerify(publicKey))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey)
-      expect(secp256k1.publicKeyVerify(publicKey.compressed)).to.be.true
-      expect(secp256k1.publicKeyVerify(publicKey.uncompressed)).to.be.true
+      t.true(secp256k1.publicKeyVerify(publicKey.compressed))
+      t.true(secp256k1.publicKeyVerify(publicKey.uncompressed))
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('publicKeyTweakAdd', function () {
-    it('public key should be a Buffer', function () {
-      expect(function () {
+  t.test('publicKeyTweakAdd', function (t) {
+    t.test('public key should be a Buffer', function (t) {
+      t.throws(function () {
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakAdd(null, tweak)
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('public key length is invalid', function () {
-      expect(function () {
+    t.test('public key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
-      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PUBLIC_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('public key is invalid (version is 0x01)', function () {
-      expect(function () {
+    t.test('public key is invalid (version is 0x01)', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         publicKey[0] = 0x01
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_PARSE_FAIL + '$'))
+      t.end()
     })
 
-    it('tweak should be a Buffer', function () {
-      expect(function () {
+    t.test('tweak should be a Buffer', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.publicKeyTweakAdd(publicKey, null)
-      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.TWEAK_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak length length is invalid', function () {
-      expect(function () {
+    t.test('tweak length length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = util.getTweak().slice(1)
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
-      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.TWEAK_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak overflow', function () {
-      expect(function () {
+    t.test('tweak overflow', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakAdd(publicKey, tweak, null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 
@@ -216,166 +245,185 @@ module.exports = function (secp256k1) {
       var expected = util.ec.g.mul(new BN(tweak)).add(publicPoint)
 
       var compressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, true)
-      expect(compressed.toString('hex')).to.equal(expected.encode('hex', true))
+      t.equal(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, false)
-      expect(uncompressed.toString('hex')).to.equal(expected.encode('hex', false))
+      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('publicKeyTweakMul', function () {
-    it('public key should be a Buffer', function () {
-      expect(function () {
+  t.test('publicKeyTweakMul', function (t) {
+    t.test('public key should be a Buffer', function (t) {
+      t.throws(function () {
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakMul(null, tweak)
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('public key length is invalid', function () {
-      expect(function () {
+    t.test('public key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakMul(publicKey, tweak)
-      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PUBLIC_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('public key is invalid (version is 0x01)', function () {
-      expect(function () {
+    t.test('public key is invalid (version is 0x01)', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         publicKey[0] = 0x01
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakMul(publicKey, tweak)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_PARSE_FAIL + '$'))
+      t.end()
     })
 
-    it('tweak should be a Buffer', function () {
-      expect(function () {
+    t.test('tweak should be a Buffer', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.publicKeyTweakMul(publicKey, null)
-      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.TWEAK_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak length is invalid', function () {
-      expect(function () {
+    t.test('tweak length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = util.getTweak().slice(1)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
-      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.TWEAK_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak is zero', function () {
-      expect(function () {
+    t.test('tweak is zero', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = util.BN_ZERO.toArrayLike(Buffer, null, 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
+      t.end()
     })
 
-    it('tweak overflow', function () {
-      expect(function () {
+    t.test('tweak overflow', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.publicKeyTweakMul(publicKey, tweak)
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         var tweak = util.getTweak()
         secp256k1.publicKeyTweakMul(publicKey, tweak, null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var publicPoint = util.ec.g.mul(new BN(privateKey))
       var publicKey = new Buffer(publicPoint.encode(null, true))
       var tweak = util.getTweak()
 
       if (new BN(tweak).cmp(util.BN_ZERO) === 0) {
-        return expect(function () {
+        t.throws(function () {
           secp256k1.publicKeyTweakMul(publicKey, tweak)
-        }).to.throw(Error, messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
+        }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
+      } else {
+        var expected = publicPoint.mul(tweak)
+
+        var compressed = secp256k1.publicKeyTweakMul(publicKey, tweak, true)
+        t.equal(compressed.toString('hex'), expected.encode('hex', true))
+
+        var uncompressed = secp256k1.publicKeyTweakMul(publicKey, tweak, false)
+        t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
       }
 
-      var expected = publicPoint.mul(tweak)
-
-      var compressed = secp256k1.publicKeyTweakMul(publicKey, tweak, true)
-      expect(compressed.toString('hex')).to.equal(expected.encode('hex', true))
-
-      var uncompressed = secp256k1.publicKeyTweakMul(publicKey, tweak, false)
-      expect(uncompressed.toString('hex')).to.equal(expected.encode('hex', false))
+      t.end()
     })
   })
 
-  describe('publicKeyCombine', function () {
-    it('public keys should be an Array', function () {
-      expect(function () {
+  t.test('publicKeyCombine', function (t) {
+    t.test('public keys should be an Array', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyCombine(null)
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEYS_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEYS_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('public keys should have length greater that zero', function () {
-      expect(function () {
+    t.test('public keys should have length greater that zero', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyCombine([])
-      }).to.throw(RangeError, messages.EC_PUBLIC_KEYS_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PUBLIC_KEYS_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('public key should be a Buffer', function () {
-      expect(function () {
+    t.test('public key should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.publicKeyCombine([null])
-      }).to.throw(TypeError, messages.EC_PUBLIC_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PUBLIC_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('public key length is invalid', function () {
-      expect(function () {
+    t.test('public key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         secp256k1.publicKeyCombine([publicKey])
-      }).to.throw(RangeError, messages.EC_PUBLIC_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PUBLIC_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('public key is invalid (version is 0x01)', function () {
-      expect(function () {
+    t.test('public key is invalid (version is 0x01)', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         publicKey[0] = 0x01
         secp256k1.publicKeyCombine([publicKey])
-      }).to.throw(Error, messages.EC_PUBLIC_KEY_PARSE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_PARSE_FAIL + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.publicKeyCombine([publicKey], null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('P + (-P) = 0', function () {
-      expect(function () {
+    t.test('P + (-P) = 0', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey1 = util.getPublicKey(privateKey).compressed
         var publicKey2 = new Buffer(publicKey1)
         publicKey2[0] = publicKey2[0] ^ 0x01
         secp256k1.publicKeyCombine([publicKey1, publicKey2], true)
-      }).to.throw(messages.EC_PUBLIC_KEY_COMBINE_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_COMBINE_FAIL + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var cnt = 1 + Math.floor(Math.random() * 3) // 1 <= cnt <= 3
       var privateKeys = []
-      while (privateKeys.length < cnt) {
-        privateKeys.push(util.getPrivateKey())
-      }
+      while (privateKeys.length < cnt) privateKeys.push(util.getPrivateKey())
       var publicKeys = privateKeys.map(function (privateKey) {
         return util.getPublicKey(privateKey).compressed
       })
@@ -387,10 +435,14 @@ module.exports = function (secp256k1) {
       }
 
       var compressed = secp256k1.publicKeyCombine(publicKeys, true)
-      expect(compressed.toString('hex')).to.equal(expected.encode('hex', true))
+      t.equal(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyCombine(publicKeys, false)
-      expect(uncompressed.toString('hex')).to.equal(expected.encode('hex', false))
+      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+
+      t.end()
     })
+
+    t.end()
   })
 }

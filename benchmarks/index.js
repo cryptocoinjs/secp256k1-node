@@ -1,5 +1,4 @@
 'use strict'
-
 var benchmark = require('benchmark')
 var ProgressBar = require('progress')
 
@@ -15,9 +14,7 @@ var fixtureIndex = 0
 var fixtures = new Array(1000)
 var getNextFixture = function () {
   var fixture = fixtures[fixtureIndex++]
-  if (fixtureIndex === fixtures.length) {
-    fixtureIndex = 0
-  }
+  if (fixtureIndex === fixtures.length) fixtureIndex = 0
 
   return fixture
 }

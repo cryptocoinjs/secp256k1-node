@@ -1,225 +1,260 @@
 'use strict'
-/* global describe, it */
-
-var expect = require('chai').expect
 var BN = require('bn.js')
-
-var util = require('./util')
 var messages = require('../lib/messages')
 
-/**
- * @param {Object} secp256k1
- */
-module.exports = function (secp256k1) {
-  describe('privateKeyVerify', function () {
-    it('should be a Buffer', function () {
-      expect(function () {
+var util = require('./util')
+
+module.exports = function (t, secp256k1) {
+  t.test('privateKeyVerify', function (t) {
+    t.test('should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.privateKeyVerify(null)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('invalid length', function () {
+    t.test('invalid length', function (t) {
       var privateKey = util.getPrivateKey().slice(1)
-      expect(secp256k1.privateKeyVerify(privateKey)).to.be.false
+      t.false(secp256k1.privateKeyVerify(privateKey))
+      t.end()
     })
 
-    it('zero key', function () {
+    t.test('zero key', function (t) {
       var privateKey = util.BN_ZERO.toArrayLike(Buffer, null, 32)
-      expect(secp256k1.privateKeyVerify(privateKey)).to.be.false
+      t.false(secp256k1.privateKeyVerify(privateKey))
+      t.end()
     })
 
-    it('equal to N', function () {
+    t.test('equal to N', function (t) {
       var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
-      expect(secp256k1.privateKeyVerify(privateKey)).to.be.false
+      t.false(secp256k1.privateKeyVerify(privateKey))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
-      expect(secp256k1.privateKeyVerify(privateKey)).to.be.true
+      t.true(secp256k1.privateKeyVerify(privateKey))
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('privateKeyExport', function () {
-    it('private key should be a Buffer', function () {
-      expect(function () {
+  t.test('privateKeyExport', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.privateKeyExport(null)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('private key length is invalid', function () {
-      expect(function () {
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey().slice(1)
         secp256k1.privateKeyExport(privateKey)
-      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('compressed should be a boolean', function () {
-      expect(function () {
+    t.test('compressed should be a boolean', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyExport(privateKey, null)
-      }).to.throw(TypeError, messages.COMPRESSED_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.COMPRESSED_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('private key is invalid', function () {
-      expect(function () {
+    t.test('private key is invalid', function (t) {
+      t.throws(function () {
         var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.privateKeyExport(privateKey)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_EXPORT_DER_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_EXPORT_DER_FAIL + '$'))
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('privateKeyImport', function () {
-    it('should be a Buffer', function () {
-      expect(function () {
+  t.test('privateKeyImport', function (t) {
+    t.test('should be a Buffer', function (t) {
+      t.throws(function () {
         secp256k1.privateKeyImport(null)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('invalid format', function () {
-      expect(function () {
+    t.test('invalid format', function (t) {
+      t.throws(function () {
         var buffer = new Buffer([0x00])
         secp256k1.privateKeyImport(buffer)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_IMPORT_DER_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_IMPORT_DER_FAIL + '$'))
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('privateKeyExport/privateKeyImport', function () {
-    util.repeatIt('random tests', util.env.repeat, function () {
+  t.test('privateKeyExport/privateKeyImport', function (t) {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
 
       var der1 = secp256k1.privateKeyExport(privateKey, true)
       var privateKey1 = secp256k1.privateKeyImport(der1)
-      expect(privateKey1.toString('hex')).to.equal(privateKey.toString('hex'))
+      t.deepEqual(privateKey1, privateKey)
 
       var der2 = secp256k1.privateKeyExport(privateKey, false)
       var privateKey2 = secp256k1.privateKeyImport(der2)
-      expect(privateKey2.toString('hex')).to.equal(privateKey.toString('hex'))
+      t.deepEqual(privateKey2, privateKey)
+
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('privateKeyTweakAdd', function () {
-    it('private key should be a Buffer', function () {
-      expect(function () {
+  t.test('privateKeyTweakAdd', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(null, tweak)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('private key length is invalid', function () {
-      expect(function () {
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey().slice(1)
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak should be a Buffer', function () {
-      expect(function () {
+    t.test('tweak should be a Buffer', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakAdd(privateKey, null)
-      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.TWEAK_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak length is invalid', function () {
-      expect(function () {
+    t.test('tweak length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.TWEAK_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak overflow', function () {
-      expect(function () {
+    t.test('tweak overflow', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL + '$'))
+      t.end()
     })
 
-    it('result is zero: (N - 1) + 1', function () {
-      expect(function () {
+    t.test('result is zero: (N - 1) + 1', function (t) {
+      t.throws(function () {
         var privateKey = new Buffer(util.ec.curve.n.sub(util.BN_ONE).toArray(null, 32))
         var tweak = util.BN_ONE.toArrayLike(Buffer, null, 32)
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 
       var expected = new BN(privateKey).add(new BN(tweak)).mod(util.ec.curve.n)
       if (expected.cmp(util.BN_ZERO) === 0) {
-        return expect(function () {
+        t.throws(function () {
           secp256k1.privateKeyTweakAdd(privateKey, tweak)
-        }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
+        }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL + '$'))
+      } else {
+        var result = secp256k1.privateKeyTweakAdd(privateKey, tweak)
+        t.equal(result.toString('hex'), expected.toString(16, 64))
       }
 
-      var result = secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      expect(result.toString('hex')).to.equal(expected.toString(16, 64))
+      t.end()
     })
+
+    t.end()
   })
 
-  describe('privateKeyTweakMul', function () {
-    it('private key should be a Buffer', function () {
-      expect(function () {
+  t.test('privateKeyTweakMul', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(null, tweak)
-      }).to.throw(TypeError, messages.EC_PRIVATE_KEY_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('private key length is invalid', function () {
-      expect(function () {
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey().slice(1)
         var tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(RangeError, messages.EC_PRIVATE_KEY_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak should be a Buffer', function () {
-      expect(function () {
+    t.test('tweak should be a Buffer', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakMul(privateKey, null)
-      }).to.throw(TypeError, messages.TWEAK_TYPE_INVALID)
+      }, new RegExp('^TypeError: ' + messages.TWEAK_TYPE_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak length is invalid', function () {
-      expect(function () {
+    t.test('tweak length is invalid', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(RangeError, messages.TWEAK_LENGTH_INVALID)
+      }, new RegExp('^RangeError: ' + messages.TWEAK_LENGTH_INVALID + '$'))
+      t.end()
     })
 
-    it('tweak equal N', function () {
-      expect(function () {
+    t.test('tweak equal N', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL + '$'))
+      t.end()
     })
 
-    it('tweak is 0', function () {
-      expect(function () {
+    t.test('tweak is 0', function (t) {
+      t.throws(function () {
         var privateKey = util.getPrivateKey()
         var tweak = util.BN_ZERO.toArrayLike(Buffer, null, 32)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL + '$'))
+      t.end()
     })
 
-    util.repeatIt('random tests', util.env.repeat, function () {
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var tweak = util.getTweak()
 
       if (new BN(tweak).cmp(util.BN_ZERO) === 0) {
-        return expect(function () {
+        t.throws(function () {
           secp256k1.privateKeyTweakMul(privateKey, tweak)
-        }).to.throw(Error, messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
+        }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL + '$'))
+      } else {
+        var expected = new BN(privateKey).mul(new BN(tweak)).mod(util.ec.curve.n)
+        var result = secp256k1.privateKeyTweakMul(privateKey, tweak)
+        t.equal(result.toString('hex'), expected.toString(16, 64))
       }
 
-      var expected = new BN(privateKey).mul(new BN(tweak)).mod(util.ec.curve.n)
-      var result = secp256k1.privateKeyTweakMul(privateKey, tweak)
-      expect(result.toString('hex')).to.equal(expected.toString(16, 64))
+      t.end()
     })
+
+    t.end()
   })
 }

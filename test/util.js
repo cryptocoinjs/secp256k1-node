@@ -1,26 +1,16 @@
 'use strict'
-/* global it */
-
 var crypto = require('crypto')
 var BN = require('bn.js')
 var EC = require('elliptic').ec
-var ProgressBar = require('progress')
 var XorShift128Plus = require('xorshift.js').XorShift128Plus
 
-var ec = exports.ec = new EC('secp256k1')
-exports.BN_ZERO = new BN(0)
-exports.BN_ONE = new BN(1)
+var ec = new EC('secp256k1')
+var BN_ZERO = new BN(0)
+var BN_ONE = new BN(1)
 
-var prngs = exports.prngs = {
-  privateKey: null,
-  tweak: null,
-  message: null
-}
+var prngs = { privateKey: null, tweak: null, message: null }
 
-/**
- * @param {(Buffer|string)} [seed]
- */
-exports.setSeed = function (seed) {
+function setSeed (seed) {
   if (Buffer.isBuffer(seed)) seed = seed.toString('hex')
   console.log('Set seed: ' + seed)
 
@@ -32,24 +22,15 @@ exports.setSeed = function (seed) {
   prngs.message = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
 }
 
-/**
- * @return {Buffer}
- */
-exports.getPrivateKey = function () {
+function getPrivateKey () {
   while (true) {
     var privateKey = prngs.privateKey.randomBytes(32)
     var bn = new BN(privateKey)
-    if (bn.cmp(exports.BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) {
-      return privateKey
-    }
+    if (bn.cmp(BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) return privateKey
   }
 }
 
-/**
- * @param {Buffer} privateKey
- * @return {{compressed: Buffer, uncompressed: Buffer}}
- */
-exports.getPublicKey = function (privateKey) {
+function getPublicKey (privateKey) {
   var publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
     compressed: new Buffer(publicKey.encode(null, true)),
@@ -57,42 +38,23 @@ exports.getPublicKey = function (privateKey) {
   }
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} privateKey
- * @return {Buffer}
- */
-exports.getSignature = function (message, privateKey) {
-  var sig = exports.sign(message, privateKey)
-  return sig.signatureLowS
+function getSignature (message, privateKey) {
+  return sign(message, privateKey).signatureLowS
 }
 
-/**
- * @return {Buffer}
- */
-exports.getTweak = function () {
+function getTweak () {
   while (true) {
     var tweak = prngs.tweak.randomBytes(32)
     var bn = new BN(tweak)
-    if (bn.cmp(ec.curve.n) === -1) {
-      return tweak
-    }
+    if (bn.cmp(ec.curve.n) === -1) return tweak
   }
 }
 
-/**
- * @return {Buffer}
- */
-exports.getMessage = function () {
+function getMessage () {
   return prngs.message.randomBytes(32)
 }
 
-/**
- * @param {Buffer} message
- * @param {Buffer} privateKey
- * @return {{signature: string, recovery: number}}
- */
-exports.sign = function (message, privateKey) {
+function sign (message, privateKey) {
   var ecSig = ec.sign(message, privateKey, {canonical: false})
 
   var signature = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
@@ -110,71 +72,62 @@ exports.sign = function (message, privateKey) {
   }
 }
 
-/**
- * @param {Buffer} publicKey
- * @param {Buffer} privateKey
- * @return {Buffer}
- */
-exports.ecdh = function (publicKey, privateKey) {
+function ecdh (publicKey, privateKey) {
   var secret = ec.keyFromPrivate(privateKey)
   var point = ec.keyFromPublic(publicKey)
   var sharedSecret = new BN(secret.derive(point).encode(null, 32))
   return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
-/**
- * @param {function} it
- * @param {*[]} args
- */
-function repeatIt (it, args) {
-  it(args[0], function () {
-    var bar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
-      total: args[1],
-      stream: exports.progressStream
-    })
-
-    while (bar.curr !== args[1]) {
-      args[2]()
-      bar.tick()
-    }
-  })
-}
-
-/*
- * @param {string} description
- * @param {number} total
- * @param {function} fn
- */
-exports.repeatIt = function () { repeatIt(it, arguments) }
-exports.repeatIt.skip = function () { repeatIt(it.skip, arguments) }
-exports.repeatIt.only = function () { repeatIt(it.only, arguments) }
-
-exports.env = {
+var env = {
   repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
                    process.env.RANDOM_TESTS_REPEAT ||
                    100,
                    10),
-  isTravis: global.__env__ && global.__env__.TRAVIS ||
-            process.env.TRAVIS ||
-            false,
   seed: global.__env__ && global.__env__.SEED ||
         process.env.SEED ||
         crypto.randomBytes(32)
 }
 
-// stream for progress package
-exports.progressStream = process.stdout
-if (process.browser) {
-  exports.progressStream = {
-    isTTY: true,
-    columns: 100,
-    clearLine: function () {},
-    cursorTo: function () {},
-    write: console.log.bind(console)
-  }
+function _repeat (test, name, total, fn) {
+  test(name, function (t) {
+    var curr = 0
+    var _end = t.end
+
+    t.end = function () {
+      curr += 1
+      setTimeout(next, 0)
+    }
+
+    function next () {
+      if (curr >= total) return _end.call(t)
+      fn(t)
+    }
+
+    next()
+  })
 }
 
-// turn off on travis
-if (exports.env.isTravis) {
-  exports.progressStream = function () {}
+function repeat (t, name, total, fn) { _repeat(t.test, name, total, fn) }
+repeat.skip = function (t, name, total, fn) { _repeat(t.skip, name, total, fn) }
+repeat.only = function (t, name, total, fn) { _repeat(t.only, name, total, fn) }
+
+module.exports = {
+  ec: ec,
+  BN_ZERO: BN_ZERO,
+  BN_ONE: BN_ONE,
+
+  prngs: prngs,
+  setSeed: setSeed,
+  getPrivateKey: getPrivateKey,
+  getPublicKey: getPublicKey,
+  getSignature: getSignature,
+  getTweak: getTweak,
+  getMessage: getMessage,
+
+  sign: sign,
+  ecdh: ecdh,
+
+  env: env,
+  repeat: repeat
 }
