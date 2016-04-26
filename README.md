@@ -31,8 +31,8 @@ npm install
 
 ## Usage
 
-* [API Reference (v3.x)](blob/master/API.md)
-* [API Reference (v2.x)](blob/v2.x/API.md)
+* [API Reference (v3.x)](API.md)
+* [API Reference (v2.x)](v2.x/API.md)
 
 ```js
 var crypto = require('crypto')
