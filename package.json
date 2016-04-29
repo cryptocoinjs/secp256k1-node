@@ -27,10 +27,11 @@
     "binding.gyp",
     "bindings.js",
     "elliptic.js",
+    "index.js",
     "js.js",
     "utils/has_lib.sh"
   ],
-  "main": "./bindings.js",
+  "main": "./index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/cryptocoinjs/secp256k1-node.git"
@@ -78,6 +79,6 @@
   },
   "gypfile": true,
   "browser": {
-    "./bindings.js": "./elliptic.js"
+    "./index.js": "./elliptic.js"
   }
 }
