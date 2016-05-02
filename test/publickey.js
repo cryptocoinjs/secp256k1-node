@@ -23,7 +23,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('overflow', function (t) {
       t.throws(function () {
-        var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyCreate(privateKey)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
       t.end()
@@ -31,7 +31,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('equal zero', function (t) {
       t.throws(function () {
-        var privateKey = util.BN_ZERO.toArrayLike(Buffer, null, 32)
+        var privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyCreate(privateKey)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
       t.end()
@@ -127,25 +127,39 @@ module.exports = function (t, secp256k1) {
     })
 
     t.test('x overflow (first byte is 0x03)', function (t) {
-      var publicKey = new Buffer([0x03].concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x03 ]),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('x overflow', function (t) {
-      var publicKey = new Buffer([0x04].concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x04 ]),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('y overflow', function (t) {
-      var publicKey = new Buffer([0x04].concat(new Array(32)).concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x04 ]),
+        new Buffer(32),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('y is even, first byte is 0x07', function (t) {
-      var publicKey = new Buffer([0x07].concat(new Array(32)).concat(util.ec.curve.p.subn(1).toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x07 ]),
+        new Buffer(32),
+        util.ec.curve.p.subn(1).toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
@@ -220,7 +234,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL + '$'))
       t.end()
@@ -309,7 +323,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = util.BN_ZERO.toArrayLike(Buffer, null, 32)
+        var tweak = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
       t.end()
@@ -319,7 +333,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
       t.end()

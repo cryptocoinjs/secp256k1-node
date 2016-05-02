@@ -43,7 +43,7 @@ module.exports = function (t, secp256k1) {
     t.test('private key is invalid', function (t) {
       t.throws(function () {
         var message = util.getMessage()
-        var privateKey = new Buffer(util.ec.n.toArray(null, 32))
+        var privateKey = util.ec.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.sign(message, privateKey)
       }, new RegExp('^Error: ' + messages.ECDSA_SIGN_FAIL + '$'))
       t.end()
@@ -175,7 +175,7 @@ module.exports = function (t, secp256k1) {
         var privateKey = util.getPrivateKey()
         var message = util.getMessage()
         var signature = Buffer.concat([
-          new Buffer(util.ec.n.toArray(null, 32)),
+          util.ec.n.toArrayLike(Buffer, 'be', 32),
           getRandomBytes(32)
         ])
         var publicKey = util.getPublicKey(privateKey).compressed
@@ -263,7 +263,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var message = util.getMessage()
         var signature = Buffer.concat([
-          new Buffer(util.ec.n.toArray(null, 32)),
+          util.ec.n.toArrayLike(Buffer, 'be', 32),
           getRandomBytes(32)
         ])
         secp256k1.recover(message, signature, 0)

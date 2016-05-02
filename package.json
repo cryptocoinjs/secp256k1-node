@@ -54,8 +54,7 @@
     "create-hash": "^1.1.2",
     "drbg.js": "^1.0.1",
     "elliptic": "^6.2.3",
-    "nan": "^2.2.1",
-    "standard": "^6.0.8"
+    "nan": "^2.2.1"
   },
   "devDependencies": {
     "bignum": "^0.11.0",

@@ -53,7 +53,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('secret key equal zero', function (t) {
       t.throws(function () {
-        var privateKey = new Buffer(util.ec.curve.zero.fromRed().toArray(null, 32))
+        var privateKey = util.ec.curve.zero.fromRed().toArrayLike(Buffer, 'be', 32)
         var publicKey = util.getPublicKey(util.getPrivateKey()).compressed
         ecdh(publicKey, privateKey)
       }, new RegExp('^Error: scalar was invalid \\(zero or overflow\\)$'))
@@ -62,7 +62,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('secret key equal N', function (t) {
       t.throws(function () {
-        var privateKey = new Buffer(util.ec.n.toArray(null, 32))
+        var privateKey = util.ec.n.toArrayLike(Buffer, 'be', 32)
         var publicKey = util.getPublicKey(util.getPrivateKey()).compressed
         ecdh(publicKey, privateKey)
       }, new RegExp('^Error: scalar was invalid \\(zero or overflow\\)$'))
