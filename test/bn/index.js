@@ -45,7 +45,7 @@ test('BN', function (t) {
         var b32 = bnUtil.fillZeros(BigNum.pow(2, 26).sub(1).shiftLeft(26 * i).toBuffer())
         var bn = BN.fromBuffer(b32)
         bnUtil.testBN(t, bn, BigNum.fromBuffer(b32))
-        t.deepEqual(bn.toBuffer(), b32)
+        t.same(bn.toBuffer(), b32)
         t.end()
       })
     }
@@ -54,7 +54,7 @@ test('BN', function (t) {
       var b32 = util.getMessage()
       var bn = BN.fromBuffer(b32)
       bnUtil.testBN(t, bn, BigNum.fromBuffer(b32))
-      t.deepEqual(bn.toBuffer(), b32)
+      t.same(bn.toBuffer(), b32)
       t.end()
     })
 
@@ -194,7 +194,7 @@ test('BN', function (t) {
       a.length = 2
       var b = new BN()
       b.length = 1
-      t.equal(a.ucmp(b), 1)
+      t.same(a.ucmp(b), 1)
       t.end()
     })
 
@@ -203,28 +203,28 @@ test('BN', function (t) {
       a.length = 1
       var b = new BN()
       b.length = 2
-      t.equal(a.ucmp(b), -1)
+      t.same(a.ucmp(b), -1)
       t.end()
     })
 
     t.test('[2] > [1]', function (t) {
       var a = BN.fromNumber(2)
       var b = BN.fromNumber(1)
-      t.equal(a.ucmp(b), 1)
+      t.same(a.ucmp(b), 1)
       t.end()
     })
 
     t.test('[1] < [2]', function (t) {
       var a = BN.fromNumber(1)
       var b = BN.fromNumber(2)
-      t.equal(a.ucmp(b), -1)
+      t.same(a.ucmp(b), -1)
       t.end()
     })
 
     t.test('[1] = [1]', function (t) {
       var a = BN.fromNumber(1)
       var b = BN.fromNumber(1)
-      t.equal(a.ucmp(b), 0)
+      t.same(a.ucmp(b), 0)
       t.end()
     })
 
@@ -232,7 +232,7 @@ test('BN', function (t) {
       var a = BN.fromNumber(2)
       a.negative = 1
       var b = BN.fromNumber(1)
-      t.equal(a.ucmp(b), 1)
+      t.same(a.ucmp(b), 1)
       t.end()
     })
 
@@ -240,7 +240,7 @@ test('BN', function (t) {
       var a = BN.fromNumber(1)
       var b = BN.fromNumber(2)
       b.negative = 1
-      t.equal(a.ucmp(b), -1)
+      t.same(a.ucmp(b), -1)
       t.end()
     })
 
@@ -249,7 +249,7 @@ test('BN', function (t) {
       a.negative = 1
       var b = BN.fromNumber(1)
       b.negative = 1
-      t.equal(a.ucmp(b), 0)
+      t.same(a.ucmp(b), 0)
       t.end()
     })
 
@@ -258,7 +258,7 @@ test('BN', function (t) {
       var b32b = util.getTweak()
       var a = BN.fromBuffer(b32a)
       var b = BN.fromBuffer(b32b)
-      t.equal(a.ucmp(b), BigNum.fromBuffer(b32a).cmp(BigNum.fromBuffer(b32b)))
+      t.same(a.ucmp(b), BigNum.fromBuffer(b32a).cmp(BigNum.fromBuffer(b32b)))
       t.end()
     })
 
@@ -320,7 +320,7 @@ test('BN', function (t) {
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var b32 = util.getMessage()
       var bn = BN.fromBuffer(b32)
-      t.equal(bn.isOverflow(), bnUtil.N.cmp(BigNum.fromBuffer(b32)) <= 0)
+      t.same(bn.isOverflow(), bnUtil.N.cmp(BigNum.fromBuffer(b32)) <= 0)
       t.end()
     })
 
@@ -355,7 +355,7 @@ test('BN', function (t) {
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var b32 = util.getMessage()
       var bn = BN.fromBuffer(b32)
-      t.equal(bn.isHigh(), bnUtil.NH.cmp(BigNum.fromBuffer(b32)) <= 0)
+      t.same(bn.isHigh(), bnUtil.NH.cmp(BigNum.fromBuffer(b32)) <= 0)
       t.end()
     })
 
@@ -464,7 +464,7 @@ test('BN', function (t) {
       var b = BN.fromBuffer(b32b)
 
       bnUtil.testBN(t, a.add(b), BigNum.fromBuffer(b32a).add(BigNum.fromBuffer(b32b)))
-      t.deepEqual(a.toBuffer(), b32a)
+      t.same(a.toBuffer(), b32a)
       t.end()
     })
 
@@ -512,7 +512,7 @@ test('BN', function (t) {
       var b = BN.fromBuffer(b32b)
 
       bnUtil.testBN(t, a.sub(b), BigNum.fromBuffer(b32a).sub(BigNum.fromBuffer(b32b)))
-      t.deepEqual(a.toBuffer(), b32a)
+      t.same(a.toBuffer(), b32a)
       t.end()
     })
 
@@ -857,7 +857,7 @@ test('BN', function (t) {
 
       var b32a = a.toBuffer()
       bnUtil.testBN(t, a.redAdd(b), BigNum.fromBuffer(b32a).add(BigNum.fromBuffer(b.toBuffer())).mod(bnUtil.P))
-      t.deepEqual(a.toBuffer(), b32a)
+      t.same(a.toBuffer(), b32a)
       t.end()
     })
 
@@ -942,7 +942,7 @@ test('BN', function (t) {
 
       var b32a = a.toBuffer()
       bnUtil.testBN(t, a.redSub(b), BigNum.fromBuffer(b32a).sub(BigNum.fromBuffer(b.toBuffer())).mod(bnUtil.P))
-      t.deepEqual(a.toBuffer(), b32a)
+      t.same(a.toBuffer(), b32a)
       t.end()
     })
 
@@ -1003,7 +1003,7 @@ test('BN', function (t) {
 
     t.test('return null for quadratic nonresidue', function (t) {
       var b32 = new Buffer('16e5f9d306371e9b876f04025fb8c8ed10f8b8864119a149803357e77bcdd3b1', 'hex')
-      t.equal(BN.fromBuffer(b32).redSqrt(), null)
+      t.same(BN.fromBuffer(b32).redSqrt(), null)
       t.end()
     })
 
@@ -1046,7 +1046,7 @@ test('BN', function (t) {
         power = power.mul(2)
       }
 
-      t.deepEqual(bnUtil.fillZeros(bignum.toBuffer()), b32)
+      t.same(bnUtil.fillZeros(bignum.toBuffer()), b32)
       t.end()
     })
 

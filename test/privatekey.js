@@ -100,11 +100,11 @@ module.exports = function (t, secp256k1) {
 
       var der1 = secp256k1.privateKeyExport(privateKey, true)
       var privateKey1 = secp256k1.privateKeyImport(der1)
-      t.deepEqual(privateKey1, privateKey)
+      t.same(privateKey1, privateKey)
 
       var der2 = secp256k1.privateKeyExport(privateKey, false)
       var privateKey2 = secp256k1.privateKeyImport(der2)
-      t.deepEqual(privateKey2, privateKey)
+      t.same(privateKey2, privateKey)
 
       t.end()
     })
@@ -176,7 +176,7 @@ module.exports = function (t, secp256k1) {
         }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL + '$'))
       } else {
         var result = secp256k1.privateKeyTweakAdd(privateKey, tweak)
-        t.equal(result.toString('hex'), expected.toString(16, 64))
+        t.same(result.toString('hex'), expected.toString(16, 64))
       }
 
       t.end()
@@ -249,7 +249,7 @@ module.exports = function (t, secp256k1) {
       } else {
         var expected = new BN(privateKey).mul(new BN(tweak)).mod(util.ec.curve.n)
         var result = secp256k1.privateKeyTweakMul(privateKey, tweak)
-        t.equal(result.toString('hex'), expected.toString(16, 64))
+        t.same(result.toString('hex'), expected.toString(16, 64))
       }
 
       t.end()

@@ -50,10 +50,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyCreate(privateKey, true)
-      t.deepEqual(compressed, expected.compressed)
+      t.same(compressed, expected.compressed)
 
       var uncompressed = secp256k1.publicKeyCreate(privateKey, false)
-      t.deepEqual(uncompressed, expected.uncompressed)
+      t.same(uncompressed, expected.uncompressed)
 
       t.end()
     })
@@ -92,10 +92,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyConvert(expected.uncompressed, true)
-      t.deepEqual(compressed, expected.compressed)
+      t.same(compressed, expected.compressed)
 
       var uncompressed = secp256k1.publicKeyConvert(expected.compressed, false)
-      t.deepEqual(uncompressed, expected.uncompressed)
+      t.same(uncompressed, expected.uncompressed)
 
       t.end()
     })
@@ -245,10 +245,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.ec.g.mul(new BN(tweak)).add(publicPoint)
 
       var compressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, true)
-      t.equal(compressed.toString('hex'), expected.encode('hex', true))
+      t.same(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, false)
-      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+      t.same(uncompressed.toString('hex'), expected.encode('hex', false))
 
       t.end()
     })
@@ -349,10 +349,10 @@ module.exports = function (t, secp256k1) {
         var expected = publicPoint.mul(tweak)
 
         var compressed = secp256k1.publicKeyTweakMul(publicKey, tweak, true)
-        t.equal(compressed.toString('hex'), expected.encode('hex', true))
+        t.same(compressed.toString('hex'), expected.encode('hex', true))
 
         var uncompressed = secp256k1.publicKeyTweakMul(publicKey, tweak, false)
-        t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+        t.same(uncompressed.toString('hex'), expected.encode('hex', false))
       }
 
       t.end()
@@ -435,10 +435,10 @@ module.exports = function (t, secp256k1) {
       }
 
       var compressed = secp256k1.publicKeyCombine(publicKeys, true)
-      t.equal(compressed.toString('hex'), expected.encode('hex', true))
+      t.same(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyCombine(publicKeys, false)
-      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+      t.same(uncompressed.toString('hex'), expected.encode('hex', false))
 
       t.end()
     })

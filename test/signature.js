@@ -39,7 +39,7 @@ module.exports = function (t, secp256k1) {
         new Buffer(util.ec.nh.toArray(null, 32))
       ])
       var result = secp256k1.signatureNormalize(signature)
-      t.deepEqual(result, signature)
+      t.same(result, signature)
       t.end()
     })
 
@@ -49,7 +49,7 @@ module.exports = function (t, secp256k1) {
 
       var sigObj = util.sign(message, privateKey)
       var result = secp256k1.signatureNormalize(sigObj.signature)
-      t.deepEqual(result, sigObj.signatureLowS)
+      t.same(result, sigObj.signatureLowS)
       t.end()
     })
 
@@ -115,7 +115,7 @@ module.exports = function (t, secp256k1) {
 
       var der = secp256k1.signatureExport(signature)
       var result = secp256k1.signatureImport(der)
-      t.deepEqual(result, signature)
+      t.same(result, signature)
       t.end()
     })
 

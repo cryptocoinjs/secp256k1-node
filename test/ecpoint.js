@@ -18,7 +18,7 @@ test('ECPoint', function (t) {
       for (var size = 0; size < 100; ++size) {
         if (size === 33 || size === 65) continue
         var publicKey = new Buffer(size)
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
       }
 
       t.end()
@@ -30,7 +30,7 @@ test('ECPoint', function (t) {
         for (var first = 0; first < 256; ++first) {
           if (first === 0x02 || first === 0x03) continue
           publicKey[0] = first
-          t.equal(ECPoint.fromPublicKey(publicKey), null)
+          t.same(ECPoint.fromPublicKey(publicKey), null)
         }
 
         t.end()
@@ -38,13 +38,13 @@ test('ECPoint', function (t) {
 
       t.test('x eq p', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x02]), pbuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
       t.test('y is quadratic nonresidue', function (t) {
         var publicKey = new Buffer('02fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140', 'hex')
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
@@ -54,8 +54,8 @@ test('ECPoint', function (t) {
 
         t.notDeepEqual(p1, null)
         t.notDeepEqual(p2, null)
-        t.equal(p1.x.ucmp(p2.x), 0)
-        t.equal(p1.y.redNeg().ucmp(p2.y), 0)
+        t.same(p1.x.ucmp(p2.x), 0)
+        t.same(p1.y.redNeg().ucmp(p2.y), 0)
         t.end()
       })
 
@@ -68,7 +68,7 @@ test('ECPoint', function (t) {
         for (var first = 0; first < 256; ++first) {
           if (first === 0x04 || first === 0x06 || first === 0x07) continue
           publicKey[0] = first
-          t.equal(ECPoint.fromPublicKey(publicKey), null)
+          t.same(ECPoint.fromPublicKey(publicKey), null)
         }
 
         t.end()
@@ -76,31 +76,31 @@ test('ECPoint', function (t) {
 
       t.test('x eq p', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x04]), pbuf, zerobuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
       t.test('y eq p', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x04]), zerobuf, pbuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
       t.test('first byte is 0x06, y is event', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x06]), zerobuf, zerobuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
       t.test('first byte is 0x06, y is odd', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x07]), zerobuf, onebuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
       t.test('x*x*x + 7 != y*y', function (t) {
         var publicKey = Buffer.concat([new Buffer([0x04]), zerobuf, zerobuf])
-        t.equal(ECPoint.fromPublicKey(publicKey), null)
+        t.same(ECPoint.fromPublicKey(publicKey), null)
         t.end()
       })
 
@@ -114,21 +114,21 @@ test('ECPoint', function (t) {
     t.test('compressed & y is even', function (t) {
       var p = new ECPoint(BN.fromBuffer(zerobuf), BN.fromBuffer(zerobuf))
       var publicKey = p.toPublicKey(true)
-      t.deepEqual(publicKey, Buffer.concat([new Buffer([0x02]), zerobuf]))
+      t.same(publicKey, Buffer.concat([new Buffer([0x02]), zerobuf]))
       t.end()
     })
 
     t.test('compressed & y is odd', function (t) {
       var p = new ECPoint(BN.fromBuffer(zerobuf), BN.fromBuffer(onebuf))
       var publicKey = p.toPublicKey(true)
-      t.deepEqual(publicKey, Buffer.concat([new Buffer([0x03]), zerobuf]))
+      t.same(publicKey, Buffer.concat([new Buffer([0x03]), zerobuf]))
       t.end()
     })
 
     t.test('uncompressed', function (t) {
       var p = new ECPoint(BN.fromBuffer(zerobuf), BN.fromBuffer(zerobuf))
       var publicKey = p.toPublicKey(false)
-      t.deepEqual(publicKey, Buffer.concat([new Buffer([0x04]), zerobuf, zerobuf]))
+      t.same(publicKey, Buffer.concat([new Buffer([0x04]), zerobuf, zerobuf]))
       t.end()
     })
 
@@ -154,8 +154,8 @@ test('ECPoint', function (t) {
       var publicKey = util.getPublicKey(util.getPrivateKey()).compressed
       var ecpoint = ECPoint.fromPublicKey(publicKey)
       var ecpoint2 = ECPoint.fromECJPoint(ecpoint.toECJPoint())
-      t.equal(ecpoint.x.ucmp(ecpoint2.x), 0)
-      t.equal(ecpoint.y.ucmp(ecpoint2.y), 0)
+      t.same(ecpoint.x.ucmp(ecpoint2.x), 0)
+      t.same(ecpoint.y.ucmp(ecpoint2.y), 0)
       t.end()
     })
 
@@ -173,8 +173,8 @@ test('ECPoint', function (t) {
       var publicKey = util.getPublicKey(util.getPrivateKey()).compressed
       var ecpoint = ECPoint.fromPublicKey(publicKey)
       var result = ecpoint.neg()
-      t.equal(result.x.ucmp(ecpoint.x), 0)
-      t.equal(result.y.ucmp(ecpoint.y.redNeg()), 0)
+      t.same(result.x.ucmp(ecpoint.x), 0)
+      t.same(result.y.ucmp(ecpoint.y.redNeg()), 0)
       t.end()
     })
   })
@@ -185,8 +185,8 @@ test('ECPoint', function (t) {
       var ecpoint1 = new ECPoint(null, null)
       var ecpoint2 = ECPoint.fromPublicKey(publicKey)
       var result = ecpoint1.add(ecpoint2)
-      t.equal(result.x.ucmp(ecpoint2.x), 0)
-      t.equal(result.y.ucmp(ecpoint2.y), 0)
+      t.same(result.x.ucmp(ecpoint2.x), 0)
+      t.same(result.y.ucmp(ecpoint2.y), 0)
       t.end()
     })
 
@@ -195,8 +195,8 @@ test('ECPoint', function (t) {
       var ecpoint1 = ECPoint.fromPublicKey(publicKey)
       var ecpoint2 = new ECPoint(null, null)
       var result = ecpoint1.add(ecpoint2)
-      t.equal(result.x.ucmp(ecpoint1.x), 0)
-      t.equal(result.y.ucmp(ecpoint1.y), 0)
+      t.same(result.x.ucmp(ecpoint1.x), 0)
+      t.same(result.y.ucmp(ecpoint1.y), 0)
       t.end()
     })
 
@@ -205,8 +205,8 @@ test('ECPoint', function (t) {
       var ecpoint = ECPoint.fromPublicKey(publicKey)
       var expected = ecpoint.dbl()
       var result = ecpoint.add(ecpoint)
-      t.equal(result.x.ucmp(expected.x), 0)
-      t.equal(result.y.ucmp(expected.y), 0)
+      t.same(result.x.ucmp(expected.x), 0)
+      t.same(result.y.ucmp(expected.y), 0)
       t.end()
     })
 
@@ -225,8 +225,8 @@ test('ECPoint', function (t) {
       var ecpoint2 = ECPoint.fromPublicKey(publicKey2)
       var expected = ECPoint.fromECJPoint(ecpoint1.toECJPoint().add(ecpoint2.toECJPoint()))
       var result = ecpoint1.add(ecpoint2)
-      t.equal(result.x.ucmp(expected.x), 0)
-      t.equal(result.y.ucmp(expected.y), 0)
+      t.same(result.x.ucmp(expected.x), 0)
+      t.same(result.y.ucmp(expected.y), 0)
       t.end()
     })
 
@@ -252,8 +252,8 @@ test('ECPoint', function (t) {
       var ecpoint = ECPoint.fromPublicKey(publicKey)
       var expected = ecpoint.add(ecpoint)
       var result = ecpoint.dbl()
-      t.equal(result.x.ucmp(expected.x), 0)
-      t.equal(result.y.ucmp(expected.y), 0)
+      t.same(result.x.ucmp(expected.x), 0)
+      t.same(result.y.ucmp(expected.y), 0)
       t.end()
     })
 
