@@ -19,8 +19,8 @@
   - [Option: `Buffer data`](#option-buffer-data)
 - [`.verify(Buffer message, Buffer signature, Buffer publicKey)`](#verifybuffer-message-buffer-signature-buffer-publickey---boolean)
 - [`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-message-buffer-signature-number-recovery--boolean-compressed--true---buffer)
-- [`.ecdh(Buffer publicKey, Buffer privateKey [, Object options])`](#ecdhbuffer-publickey-buffer-privatekey--object-options---buffer)
-  - [Option: `Function hashfn`](#option-function-hashfn)
+- [`.ecdh(Buffer publicKey, Buffer privateKey)`](#ecdhbuffer-publickey-buffer-privatekey---buffer)
+- [`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])`](#ecdhunsafebuffer-publickey-buffer-privatekey--boolean-compressed--true---buffer)
 
 #####`.privateKeyVerify(Buffer privateKey)` -> `Boolean`
 
@@ -130,18 +130,18 @@ Note: **return false for high signatures!**
 
 <hr>
 
-#####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true]` -> `Buffer`
+#####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])` -> `Buffer`
 
 Recover an ECDSA public key from a signature.
 
 <hr>
 
-#####`.ecdh(Buffer publicKey, Buffer privateKey [, Object options])` -> `Buffer`
+#####`.ecdh(Buffer publicKey, Buffer privateKey)` -> `Buffer`
 
-Compute an EC Diffie-Hellman secret.
+Compute an EC Diffie-Hellman secret and applied sha256 to compressed public key.
 
-######Option: `Function hashfn`
+<hr>
 
-Hash function that is applied to a point that is result of ecdh. By default it is sha256 that applied to compressed public key.
+#####`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
-Function signature: `hashfn(Buffer x, Buffer y)` -> `Buffer`
+Compute an EC Diffie-Hellman secret and return public key as result.

@@ -67,7 +67,6 @@
             "USE_NUM_NONE=1",
             "USE_SCALAR_INV_BUILTIN=1",
             "USE_FIELD_INV_BUILTIN=1",
-            "ENABLE_MODULE_ECDH=1",
             "ENABLE_MODULE_RECOVERY=1"
           ]
         }

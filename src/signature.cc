@@ -5,7 +5,6 @@
 #include "messages.h"
 #include "util.h"
 
-
 extern secp256k1_context* secp256k1ctx;
 
 NAN_METHOD(signatureNormalize) {

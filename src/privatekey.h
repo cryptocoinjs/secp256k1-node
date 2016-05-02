@@ -4,7 +4,6 @@
 #include <node.h>
 #include <nan.h>
 
-
 NAN_METHOD(privateKeyVerify);
 NAN_METHOD(privateKeyExport);
 NAN_METHOD(privateKeyImport);
