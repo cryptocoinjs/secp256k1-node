@@ -23,7 +23,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('overflow', function (t) {
       t.throws(function () {
-        var privateKey = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyCreate(privateKey)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
       t.end()
@@ -31,7 +31,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('equal zero', function (t) {
       t.throws(function () {
-        var privateKey = util.BN_ZERO.toArrayLike(Buffer, null, 32)
+        var privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyCreate(privateKey)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_CREATE_FAIL + '$'))
       t.end()
@@ -50,10 +50,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyCreate(privateKey, true)
-      t.deepEqual(compressed, expected.compressed)
+      t.same(compressed, expected.compressed)
 
       var uncompressed = secp256k1.publicKeyCreate(privateKey, false)
-      t.deepEqual(uncompressed, expected.uncompressed)
+      t.same(uncompressed, expected.uncompressed)
 
       t.end()
     })
@@ -92,10 +92,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.getPublicKey(privateKey)
 
       var compressed = secp256k1.publicKeyConvert(expected.uncompressed, true)
-      t.deepEqual(compressed, expected.compressed)
+      t.same(compressed, expected.compressed)
 
       var uncompressed = secp256k1.publicKeyConvert(expected.compressed, false)
-      t.deepEqual(uncompressed, expected.uncompressed)
+      t.same(uncompressed, expected.uncompressed)
 
       t.end()
     })
@@ -127,25 +127,39 @@ module.exports = function (t, secp256k1) {
     })
 
     t.test('x overflow (first byte is 0x03)', function (t) {
-      var publicKey = new Buffer([0x03].concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x03 ]),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('x overflow', function (t) {
-      var publicKey = new Buffer([0x04].concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x04 ]),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('y overflow', function (t) {
-      var publicKey = new Buffer([0x04].concat(new Array(32)).concat(util.ec.curve.p.toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x04 ]),
+        new Buffer(32),
+        util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
 
     t.test('y is even, first byte is 0x07', function (t) {
-      var publicKey = new Buffer([0x07].concat(new Array(32)).concat(util.ec.curve.p.subn(1).toArray(null, 32)))
+      var publicKey = Buffer.concat([
+        new Buffer([ 0x07 ]),
+        new Buffer(32),
+        util.ec.curve.p.subn(1).toArrayLike(Buffer, 'be', 32)
+      ])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
@@ -220,7 +234,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakAdd(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL + '$'))
       t.end()
@@ -245,10 +259,10 @@ module.exports = function (t, secp256k1) {
       var expected = util.ec.g.mul(new BN(tweak)).add(publicPoint)
 
       var compressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, true)
-      t.equal(compressed.toString('hex'), expected.encode('hex', true))
+      t.same(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, false)
-      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+      t.same(uncompressed.toString('hex'), expected.encode('hex', false))
 
       t.end()
     })
@@ -309,7 +323,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = util.BN_ZERO.toArrayLike(Buffer, null, 32)
+        var tweak = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
       t.end()
@@ -319,7 +333,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey = util.getPublicKey(privateKey).compressed
-        var tweak = new Buffer(util.ec.curve.n.toArray(null, 32))
+        var tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.publicKeyTweakMul(publicKey, tweak)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL + '$'))
       t.end()
@@ -349,10 +363,10 @@ module.exports = function (t, secp256k1) {
         var expected = publicPoint.mul(tweak)
 
         var compressed = secp256k1.publicKeyTweakMul(publicKey, tweak, true)
-        t.equal(compressed.toString('hex'), expected.encode('hex', true))
+        t.same(compressed.toString('hex'), expected.encode('hex', true))
 
         var uncompressed = secp256k1.publicKeyTweakMul(publicKey, tweak, false)
-        t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+        t.same(uncompressed.toString('hex'), expected.encode('hex', false))
       }
 
       t.end()
@@ -435,10 +449,10 @@ module.exports = function (t, secp256k1) {
       }
 
       var compressed = secp256k1.publicKeyCombine(publicKeys, true)
-      t.equal(compressed.toString('hex'), expected.encode('hex', true))
+      t.same(compressed.toString('hex'), expected.encode('hex', true))
 
       var uncompressed = secp256k1.publicKeyCombine(publicKeys, false)
-      t.equal(uncompressed.toString('hex'), expected.encode('hex', false))
+      t.same(uncompressed.toString('hex'), expected.encode('hex', false))
 
       t.end()
     })

@@ -55,15 +55,21 @@ function getMessage () {
 }
 
 function sign (message, privateKey) {
-  var ecSig = ec.sign(message, privateKey, {canonical: false})
+  var ecSig = ec.sign(message, privateKey, { canonical: false })
 
-  var signature = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
+  var signature = Buffer.concat([
+    ecSig.r.toArrayLike(Buffer, 'be', 32),
+    ecSig.s.toArrayLike(Buffer, 'be', 32)
+  ])
   var recovery = ecSig.recoveryParam
   if (ecSig.s.cmp(ec.nh) === 1) {
     ecSig.s = ec.n.sub(ecSig.s)
     recovery ^= 1
   }
-  var signatureLowS = new Buffer(ecSig.r.toArray('null', 32).concat(ecSig.s.toArray('null', 32)))
+  var signatureLowS = Buffer.concat([
+    ecSig.r.toArrayLike(Buffer, 'be', 32),
+    ecSig.s.toArrayLike(Buffer, 'be', 32)
+  ])
 
   return {
     signature: signature,
@@ -74,9 +80,19 @@ function sign (message, privateKey) {
 
 function ecdh (publicKey, privateKey) {
   var secret = ec.keyFromPrivate(privateKey)
-  var point = ec.keyFromPublic(publicKey)
-  var sharedSecret = new BN(secret.derive(point).encode(null, 32))
+  var point = ec.keyFromPublic(publicKey).getPublic()
+  var sharedSecret = new Buffer(point.mul(secret.priv).encode(null, true))
   return crypto.createHash('sha256').update(sharedSecret).digest()
+}
+
+function ecdhUnsafe (publicKey, privateKey) {
+  var secret = ec.keyFromPrivate(privateKey)
+  var point = ec.keyFromPublic(publicKey).getPublic()
+  var shared = point.mul(secret.priv)
+  return {
+    compressed: new Buffer(shared.encode(null, true)),
+    uncompressed: new Buffer(shared.encode(null, false))
+  }
 }
 
 var env = {
@@ -127,6 +143,7 @@ module.exports = {
 
   sign: sign,
   ecdh: ecdh,
+  ecdhUnsafe: ecdhUnsafe,
 
   env: env,
   repeat: repeat

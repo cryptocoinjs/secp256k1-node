@@ -28,7 +28,7 @@ function genCombMulTo (alen, blen) {
     var minJ = Math.max(0, k - alen + 1)
     var maxJ = Math.min(k, blen - 1)
 
-    src.push('\/* k = ' + k + ' *\/')
+    src.push('/* k = ' + k + ' */')
     src.push('lo = Math.imul(al' + (k - minJ) + ', bl' + minJ + ');')
     src.push('mid = Math.imul(al' + (k - minJ) + ', bh' + minJ + ');')
     src.push('mid += Math.imul(ah' + (k - minJ) + ', bl' + minJ + ');')

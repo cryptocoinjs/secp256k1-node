@@ -4,7 +4,6 @@
 #include <node.h>
 #include <nan.h>
 
-
 NAN_METHOD(signatureNormalize);
 NAN_METHOD(signatureExport);
 NAN_METHOD(signatureImport);

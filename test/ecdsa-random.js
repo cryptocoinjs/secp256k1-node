@@ -26,14 +26,14 @@ while (repeat > 0) {
       var expected = bindings.sign(message, privateKey)
 
       var sigObj = secp256k1js.sign(message, privateKey)
-      assert.deepEqual(sigObj.signature, expected.signature)
-      assert.equal(sigObj.recovery, expected.recovery)
+      assert.same(sigObj.signature, expected.signature)
+      assert.same(sigObj.recovery, expected.recovery)
 
       var isValid = secp256k1js.verify(message, sigObj.signature, publicKey)
-      assert.equal(isValid, true)
+      assert.same(isValid, true)
 
       var publicKey2 = secp256k1js.recover(message, sigObj.signature, sigObj.recovery, true)
-      assert.deepEqual(publicKey2, publicKey)
+      assert.same(publicKey2, publicKey)
     } catch (err) {
       console.log('\nMessage:', message.toString('hex'))
       console.log('Private key:', privateKey.toString('hex'))

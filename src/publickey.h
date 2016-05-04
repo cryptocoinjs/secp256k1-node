@@ -4,7 +4,6 @@
 #include <node.h>
 #include <nan.h>
 
-
 NAN_METHOD(publicKeyCreate);
 NAN_METHOD(publicKeyConvert);
 NAN_METHOD(publicKeyVerify);

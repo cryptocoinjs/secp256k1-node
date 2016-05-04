@@ -43,7 +43,7 @@ module.exports = function (t, secp256k1) {
     t.test('private key is invalid', function (t) {
       t.throws(function () {
         var message = util.getMessage()
-        var privateKey = new Buffer(util.ec.n.toArray(null, 32))
+        var privateKey = util.ec.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.sign(message, privateKey)
       }, new RegExp('^Error: ' + messages.ECDSA_SIGN_FAIL + '$'))
       t.end()
@@ -112,11 +112,11 @@ module.exports = function (t, secp256k1) {
       var privateKey = util.getPrivateKey()
       var data = getRandomBytes(32)
       var noncefn = function (message2, privateKey2, algo, data2, attempt) {
-        t.deepEqual(message2, message)
-        t.deepEqual(privateKey, privateKey)
-        t.equal(algo, null)
-        t.deepEqual(data2, data)
-        t.equal(attempt, 0)
+        t.same(message2, message)
+        t.same(privateKey, privateKey)
+        t.same(algo, null)
+        t.same(data2, data)
+        t.same(attempt, 0)
         return getRandomBytes(32)
       }
       secp256k1.sign(message, privateKey, { data: data, noncefn: noncefn })
@@ -175,7 +175,7 @@ module.exports = function (t, secp256k1) {
         var privateKey = util.getPrivateKey()
         var message = util.getMessage()
         var signature = Buffer.concat([
-          new Buffer(util.ec.n.toArray(null, 32)),
+          util.ec.n.toArrayLike(Buffer, 'be', 32),
           getRandomBytes(32)
         ])
         var publicKey = util.getPublicKey(privateKey).compressed
@@ -263,7 +263,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var message = util.getMessage()
         var signature = Buffer.concat([
-          new Buffer(util.ec.n.toArray(null, 32)),
+          util.ec.n.toArrayLike(Buffer, 'be', 32),
           getRandomBytes(32)
         ])
         secp256k1.recover(message, signature, 0)
@@ -312,17 +312,17 @@ module.exports = function (t, secp256k1) {
       var expected = util.sign(message, privateKey)
 
       var sigObj = secp256k1.sign(message, privateKey)
-      t.deepEqual(sigObj.signature, expected.signatureLowS)
-      t.equal(sigObj.recovery, expected.recovery)
+      t.same(sigObj.signature, expected.signatureLowS)
+      t.same(sigObj.recovery, expected.recovery)
 
       var isValid = secp256k1.verify(message, sigObj.signature, publicKey.compressed)
       t.true(isValid)
 
       var compressed = secp256k1.recover(message, sigObj.signature, sigObj.recovery, true)
-      t.deepEqual(compressed, publicKey.compressed)
+      t.same(compressed, publicKey.compressed)
 
       var uncompressed = secp256k1.recover(message, sigObj.signature, sigObj.recovery, false)
-      t.deepEqual(uncompressed, publicKey.uncompressed)
+      t.same(uncompressed, publicKey.uncompressed)
 
       t.end()
     })

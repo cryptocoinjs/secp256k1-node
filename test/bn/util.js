@@ -19,10 +19,10 @@ function testBN (t, bn, bignum) {
   if (isNeg) bignum = bignum.neg()
 
   try {
-    t.equal(bn.negative, isNeg ? 1 : 0)
-    t.equal(bn.length, Math.max(Math.ceil(bignum.bitLength() / 26), 1))
+    t.same(bn.negative, isNeg ? 1 : 0)
+    t.same(bn.length, Math.max(Math.ceil(bignum.bitLength() / 26), 1))
     for (var i = 0, bign = bignum; i < bn.length; ++i) {
-      t.equal(bn.words[i], bign.and(0x03ffffff).toNumber())
+      t.same(bn.words[i], bign.and(0x03ffffff).toNumber())
       bign = bign.shiftRight(26)
     }
   } catch (err) {

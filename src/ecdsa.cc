@@ -6,7 +6,6 @@
 #include "messages.h"
 #include "util.h"
 
-
 extern secp256k1_context* secp256k1ctx;
 
 v8::Local<v8::Function> noncefn_callback;

@@ -56,6 +56,7 @@ function runSuite (suiteName, testFunctionGenerator) {
   })
 
   Object.keys(implementations).forEach(function (name) {
+    if (implementations[name][suiteName] === undefined) return
     suite.add(name, testFunctionGenerator(implementations[name]), {
       onStart: function () {
         fixtureIndex = 0
@@ -87,5 +88,12 @@ runSuite('verify', function (secp256k1) {
   return function () {
     var fixture = getNextFixture()
     secp256k1.verify(fixture.message, fixture.signature, fixture.publicKey)
+  }
+})
+
+runSuite('ecdh', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.ecdh(fixture.publicKey, fixture.privateKey)
   }
 })

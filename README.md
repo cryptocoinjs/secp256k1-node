@@ -31,8 +31,8 @@ npm install
 
 ## Usage
 
-* [API Reference (v3.x)](API.md)
-* [API Reference (v2.x)](v2.x/API.md)
+* [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
+* [API Reference (v2.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v2.x/API.md)
 
 ```js
 var crypto = require('crypto')
@@ -60,15 +60,6 @@ console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
 ```
 
 \* **.verify return false for high signatures**
-
-\* ECDH is not be available while [bitcoin/secp256k1#352](https://github.com/bitcoin/secp256k1/issues/352) not resolved. Right now you can use next code:
-```js
-var BN = require('secp256k1/lib/js/bn')
-var ECPoint = require('secp256k1/lib/js/ecpoint')
-var d = BN.fromBuffer(privateKey)
-var Q = ECPoint.fromPublicKey(publicKey)
-return Q.mul(d).toPublicKey(true)
-```
 
 ## Elliptic vs "embedded"
 
