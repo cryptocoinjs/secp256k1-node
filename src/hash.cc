@@ -44,12 +44,9 @@ NAN_METHOD(dsha256) {
   secp256k1_sha256_write(&sha, data, len);
   secp256k1_sha256_finalize(&sha, &output[0]);
 
-  secp256k1_sha256_t sha2;
-  unsigned char output2[32];
+  secp256k1_sha256_initialize(&sha);
+  secp256k1_sha256_write(&sha, output, 32);
+  secp256k1_sha256_finalize(&sha, &output[0]);
 
-  secp256k1_sha256_initialize(&sha2);
-  secp256k1_sha256_write(&sha2, output, 32);
-  secp256k1_sha256_finalize(&sha2, &output2[0]);
-
-  info.GetReturnValue().Set(COPY_BUFFER(&output2[0], 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&output[0], 32));
 }
