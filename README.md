@@ -6,12 +6,12 @@
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin/secp256k1) functions.
+This module provides native bindings to ecdsa [secp256k1](https://github.com/bitcoin-core/secp256k1) functions.
 This library is experimental, so use at your own risk. Works on node version 0.10 or greater and in the Browser via browserify.
 
 ## Installation
 
-If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/bitcoin/secp256k1) will use it. Otherwise it should fallback to [OpenSSL](https://www.openssl.org/).
+If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/bitcoin-core/secp256k1) will use it. Otherwise it should fallback to [OpenSSL](https://www.openssl.org/).
 * arch `pacman -S gmp`
 * ubuntu `sudo apt-get install libgmp-dev`
 
