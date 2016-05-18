@@ -96,10 +96,28 @@ module.exports = function (t, secp256k1) {
       t.end()
     })
 
+    t.test('strict should be a boolean', function (t) {
+      t.throws(function () {
+        secp256k1.signatureImport(new Buffer(1), null)
+      }, new RegExp('^TypeError: ' + messages.STRICT_TYPE_INVALID + '$'))
+      t.end()
+    })
+
     t.test('parse fail', function (t) {
       t.throws(function () {
         secp256k1.signatureImport(new Buffer(1))
       }, new RegExp('^Error: ' + messages.ECDSA_SIGNATURE_PARSE_DER_FAIL + '$'))
+      t.end()
+    })
+
+    t.test('parse not bip66 signature', function (t) {
+      var signature = new Buffer('308002204171936738571ff75ec0c56c010f339f1f6d510ba45ad936b0762b1b2162d8020220152670567fa3cc92a5ea1a6ead11741832f8aede5ca176f559e8a46bb858e3f6', 'hex')
+      t.throws(function () {
+        secp256k1.signatureImport(signature, true)
+      })
+      t.doesNotThrow(function () {
+        secp256k1.signatureImport(signature, false)
+      })
       t.end()
     })
 
@@ -114,8 +132,8 @@ module.exports = function (t, secp256k1) {
       var signature = util.sign(message, privateKey).signatureLowS
 
       var der = secp256k1.signatureExport(signature)
-      var result = secp256k1.signatureImport(der)
-      t.same(result, signature)
+      t.same(secp256k1.signatureImport(der, true), signature)
+      t.same(secp256k1.signatureImport(der, false), signature)
       t.end()
     })
 
