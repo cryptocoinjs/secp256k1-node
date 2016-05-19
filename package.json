@@ -43,8 +43,7 @@
     "install": "npm run rebuild",
     "lint": "standard",
     "rebuild": "node-gyp rebuild",
-    "test": "npm run unit",
-    "unit": "npm run unit:node && npm run unit:browser",
+    "test": "npm run lint && npm run unit:node",
     "unit:browser": "karma start karma.conf.js",
     "unit:node": "tape test/index.js |faucet"
   },
