@@ -29,6 +29,7 @@
       "./src/ecdsa.cc",
       "./src/ecdh.cc",
       "./src/secp256k1-src/src/secp256k1.c",
+      "./src/secp256k1-src/contrib/lax_der_parsing.c",
       "./src/secp256k1-src/contrib/lax_der_privatekey_parsing.c"
     ],
     "cflags": [

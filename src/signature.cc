@@ -1,6 +1,7 @@
 #include <node.h>
 #include <nan.h>
 #include <secp256k1.h>
+#include <lax_der_parsing.h>
 
 #include "messages.h"
 #include "util.h"
@@ -59,8 +60,21 @@ NAN_METHOD(signatureImport) {
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(input_buffer);
   size_t input_length = node::Buffer::Length(input_buffer);
 
+  bool strict = true;
+  if (!info[1]->IsUndefined()) {
+    CHECK_TYPE_BOOLEAN(info[1], STRICT_TYPE_INVALID);
+    strict = info[1]->BooleanValue();
+  }
+
   secp256k1_ecdsa_signature sig;
-  if (secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, input_length) == 0) {
+  int err;
+  if (strict) {
+    err = secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, input_length);
+  } else {
+    err = ecdsa_signature_parse_der_lax(secp256k1ctx, &sig, input, input_length);
+  }
+
+  if (err == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_DER_FAIL);
   }
 

@@ -13,7 +13,7 @@
 - [`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])`](#publickeycombinearraybuffer-publickeys--boolean-compressed--true---buffer)
 - [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
 - [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
-- [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
+- [`.signatureImport(Buffer signature [, Boolean strict = true])`](#signatureimportbuffer-signature--boolean-strict--true---buffer)
 - [`.sign(Buffer message, Buffer privateKey [, Object options])`](#signbuffer-message-buffer-privatekey--object-options---signature-buffer-recovery-number)
   - [Option: `Function noncefn`](#option-function-noncefn)
   - [Option: `Buffer data`](#option-buffer-data)
@@ -100,9 +100,11 @@ Serialize an ECDSA *signature* in DER format.
 
 <hr>
 
-#####`.signatureImport(Buffer signature)` -> `Buffer`
+#####`.signatureImport(Buffer signature [, Boolean strict = true])` -> `Buffer`
 
 Parse a DER ECDSA *signature*.
+
+If `strict` is `true` function will be follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki)
 
 <hr>
 

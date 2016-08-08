@@ -2,6 +2,7 @@
 # define _SECP256K1_NODE_MESSAGES_
 
 #define COMPRESSED_TYPE_INVALID "compressed should be a boolean"
+#define STRICT_TYPE_INVALID "strict should be a boolean"
 
 #define EC_PRIVATE_KEY_TYPE_INVALID "private key should be a Buffer"
 #define EC_PRIVATE_KEY_LENGTH_INVALID "private key length is invalid"
