@@ -33,6 +33,7 @@ NAN_MODULE_INIT(Init) {
   Nan::Export(target, "signatureNormalize", signatureNormalize);
   Nan::Export(target, "signatureExport", signatureExport);
   Nan::Export(target, "signatureImport", signatureImport);
+  Nan::Export(target, "signatureImportLax", signatureImportLax);
 
   // ecdsa
   Nan::Export(target, "sign", sign);
