@@ -60,21 +60,27 @@ NAN_METHOD(signatureImport) {
   const unsigned char* input = (const unsigned char*) node::Buffer::Data(input_buffer);
   size_t input_length = node::Buffer::Length(input_buffer);
 
-  bool strict = true;
-  if (!info[1]->IsUndefined()) {
-    CHECK_TYPE_BOOLEAN(info[1], STRICT_TYPE_INVALID);
-    strict = info[1]->BooleanValue();
+  secp256k1_ecdsa_signature sig;
+  if (secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, input_length) == 0) {
+    return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_DER_FAIL);
   }
+
+  unsigned char output[64];
+  secp256k1_ecdsa_signature_serialize_compact(secp256k1ctx, &output[0], &sig);
+  info.GetReturnValue().Set(COPY_BUFFER(&output[0], 64));
+}
+
+NAN_METHOD(signatureImportLax) {
+  Nan::HandleScope scope;
+
+  v8::Local<v8::Object> input_buffer = info[0].As<v8::Object>();
+  CHECK_TYPE_BUFFER(input_buffer, ECDSA_SIGNATURE_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH_GT_ZERO(input_buffer, ECDSA_SIGNATURE_LENGTH_INVALID);
+  const unsigned char* input = (const unsigned char*) node::Buffer::Data(input_buffer);
+  size_t input_length = node::Buffer::Length(input_buffer);
 
   secp256k1_ecdsa_signature sig;
-  int err;
-  if (strict) {
-    err = secp256k1_ecdsa_signature_parse_der(secp256k1ctx, &sig, input, input_length);
-  } else {
-    err = ecdsa_signature_parse_der_lax(secp256k1ctx, &sig, input, input_length);
-  }
-
-  if (err == 0) {
+  if (ecdsa_signature_parse_der_lax(secp256k1ctx, &sig, input, input_length) == 0) {
     return Nan::ThrowError(ECDSA_SIGNATURE_PARSE_DER_FAIL);
   }
 

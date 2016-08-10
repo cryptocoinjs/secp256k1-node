@@ -7,5 +7,6 @@
 NAN_METHOD(signatureNormalize);
 NAN_METHOD(signatureExport);
 NAN_METHOD(signatureImport);
+NAN_METHOD(signatureImportLax);
 
 #endif

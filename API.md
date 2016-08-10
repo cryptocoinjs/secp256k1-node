@@ -13,7 +13,8 @@
 - [`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])`](#publickeycombinearraybuffer-publickeys--boolean-compressed--true---buffer)
 - [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
 - [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
-- [`.signatureImport(Buffer signature [, Boolean strict = true])`](#signatureimportbuffer-signature--boolean-strict--true---buffer)
+- [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
+- [`.signatureImportLax(Buffer signature)`](#signatureimportlaxbuffer-signature---buffer)
 - [`.sign(Buffer message, Buffer privateKey [, Object options])`](#signbuffer-message-buffer-privatekey--object-options---signature-buffer-recovery-number)
   - [Option: `Function noncefn`](#option-function-noncefn)
   - [Option: `Buffer data`](#option-buffer-data)
@@ -100,11 +101,15 @@ Serialize an ECDSA *signature* in DER format.
 
 <hr>
 
-#####`.signatureImport(Buffer signature [, Boolean strict = true])` -> `Buffer`
+#####`.signatureImport(Buffer signature)` -> `Buffer`
 
-Parse a DER ECDSA *signature*.
+Parse a DER ECDSA *signature* (follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki)).
 
-If `strict` is `true` function will be follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki)
+<hr>
+
+#####`.signatureImportLax(Buffer signature)` -> `Buffer`
+
+Same as [signatureImport](#signatureimportbuffer-signature---buffer) but not follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
 
 <hr>
 
