@@ -36,7 +36,7 @@ Required software:
   * Git: https://git-scm.com/download/win
   * nvm: https://github.com/coreybutler/nvm-windows
   * Python 2.7: https://www.python.org/downloads/release/python-2712/
-  * OpenSSL: https://wiki.openssl.org/index.php/Binaries (should be installed in `C:\OpenSSL-Win32` or `C:\OpenSSL-Win64` on 64-bit system)
+  * OpenSSL: https://wiki.openssl.org/index.php/Binaries (should be installed in `C:\OpenSSL-Win32` or `C:\OpenSSL-Win64` on 64-bit system, or check https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL#windows)
   * Visual C++ Build Tools: http://landinghub.visualstudio.com/visual-cpp-build-tools (Custom Install, and select both Windows 8.1 and Windows 10 SDKs)
 
 Additional commands:
