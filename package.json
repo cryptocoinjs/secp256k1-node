@@ -40,7 +40,7 @@
     "clean": "node-gyp clean",
     "coverage": "RANDOM_TESTS_REPEAT=1 nyc tape test/index.js",
     "coverage-lcov": "npm run coverage && nyc report -r lcov",
-    "install": "npm run rebuild",
+    "install": "npm run rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
     "lint": "standard",
     "rebuild": "node-gyp rebuild",
     "test": "npm run lint && npm run unit:node",
