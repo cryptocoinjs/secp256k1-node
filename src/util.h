@@ -6,7 +6,7 @@
 
 #include "messages.h"
 
-#define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, datalen).ToLocalChecked()
+#define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, (uint32_t) datalen).ToLocalChecked()
 
 #define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
   if (!value->IsUndefined()) {                                                 \
