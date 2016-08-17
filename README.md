@@ -29,6 +29,28 @@ git submodule update
 npm install
 ```
 
+##### Windows
+
+Required software:
+
+  * Git: https://git-scm.com/download/win
+  * nvm: https://github.com/coreybutler/nvm-windows
+  * Python 2.7: https://www.python.org/downloads/release/python-2712/
+  * OpenSSL: https://wiki.openssl.org/index.php/Binaries (should be installed in `C:\OpenSSL-Win32` or `C:\OpenSSL-Win64` on 64-bit system)
+  * Visual C++ Build Tools: http://landinghub.visualstudio.com/visual-cpp-build-tools (Custom Install, and select both Windows 8.1 and Windows 10 SDKs)
+
+Additional commands:
+
+```
+npm config set msvs_version 2015 --global
+npm install npm@next -g
+```
+
+Useful resources:
+
+  * https://github.com/nodejs/node-gyp/issues/629#issuecomment-153196245
+  * https://github.com/nodejs/node-gyp/issues/972
+
 ## Usage
 
 * [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
