@@ -22,6 +22,17 @@
 - [`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-message-buffer-signature-number-recovery--boolean-compressed--true---buffer)
 - [`.ecdh(Buffer publicKey, Buffer privateKey)`](#ecdhbuffer-publickey-buffer-privatekey---buffer)
 - [`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])`](#ecdhunsafebuffer-publickey-buffer-privatekey--boolean-compressed--true---buffer)
+- [`.schnorrSign(Buffer message, Buffer privateKey [, Object options])`](#schnorrsignbuffer-message-buffer-privatekey--object-options---buffer)
+  - [Option: `Function noncefn`](#option-function-noncefn)
+  - [Option: `Buffer data`](#option-buffer-data)
+- [`.schnorrVerify(Buffer message, Buffer signature, Buffer publicKey)`](#schnorrverifybuffer-message-buffer-signature-buffer-publickey---boolean)
+- [`.schnorrRecover(Buffer message, Buffer signature [, Boolean compressed = true])`](#schnorrrecoverbuffer-message-buffer-signature--boolean-compressed--true---buffer)
+- [`.schnorrGenerateNoncePair(Buffer message, Buffer privateKey [, Object options])`](#schnorrgeneratenoncepairbuffer-message-buffer-privatekey--object-options----pubnonce-buffer-privnonce-buffer-)
+  - [Option: `Function noncefn`](#option-function-noncefn)
+  - [Option: `Buffer data`](#option-buffer-data)
+  - [Option: `Boolean compressed`](#option-boolean-compressed)
+- [`.schnorrPartialSign(Buffer message, Buffer privateKey, Buffer pubNonceOther, Buffer privNonce)`](#schnorrpartialsignbuffer-message-buffer-privatekey-buffer-pubnonceother-buffer-privnonce---buffer)
+- [`.schnorrPartialCombine(Array<Buffer> signatures)`](#schnorrpartialcombinearraybuffer-signatures---buffer)
 
 #####`.privateKeyVerify(Buffer privateKey)` -> `Boolean`
 
@@ -166,3 +177,75 @@ Compute an EC Diffie-Hellman secret and applied sha256 to compressed public key.
 #####`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
 Compute an EC Diffie-Hellman secret and return public key as result.
+
+<hr>
+
+#####`.schnorrSign(Buffer message, Buffer privateKey [, Object options])` -> `Buffer`
+
+Create a signature using a custom EC-Schnorr-SHA256 construction. It produces non-malleable 64-byte signatures which support public key recovery batch validation, and multiparty signing.
+
+Inputs: 32-byte message m, 32-byte scalar key d, 32-byte scalar nonce k.
+
+* Compute point R = k \* G. Reject nonce if R's y coordinate is odd (or negate nonce).
+* Compute 32-byte r, the serialization of R's x coordinate.
+* Compute scalar h = Hash(r || m). Reject nonce if h == 0 or h >= order.
+* Compute scalar s = k - h \* x.
+* The signature is (r, s).
+
+######Option: `Function noncefn`
+
+See [options.noncefn in ECDSA .sign](#option-function-noncefn)
+
+######Option: `Buffer data`
+
+See [options.data in ECDSA .sign](#option-buffer-data)
+
+<hr>
+
+#####`.schnorrVerify(Buffer message, Buffer signature, Buffer publicKey)` -> `Boolean`
+
+Verify a Schnorr signature.
+
+Inputs: 32-byte message m, public key point Q, signature: (32-byte r, scalar s).
+
+* Signature is invalid if s >= order.
+* Signature is invalid if r >= p.
+* Compute scalar h = Hash(r || m). Signature is invalid if h == 0 or h >= order.
+* Compute point R = h \* Q + s \* G. Signature is invalid if R is infinity or R's y coordinate is odd.
+* Signature is valid if the serialization of R's x coordinate equals r.
+
+<hr>
+
+#####`.schnorrRecover(Buffer message, Buffer signature [, Boolean compressed = true])` -> `Buffer`
+
+Recover an EC public key from a Schnorr signature.
+
+<hr>
+
+#####`.schnorrGenerateNoncePair(Buffer message, Buffer privateKey [, Object options])` -> `{ pubNonce: Buffer, privNonce: Buffer }`
+
+Generate a nonce pair deterministically for use with [.schnorrPartialSign](#schnorrpartialsignbuffer-message-buffer-privatekey-buffer-pubnonceother-buffer-privnonce---buffer).
+
+######Option: `Function noncefn`
+
+See [options.noncefn in ECDSA .sign](#option-function-noncefn)
+
+######Option: `Buffer data`
+
+See [options.data in ECDSA .sign](#option-buffer-data)
+
+######Option: `Boolean compressed`
+
+`pubNonce` serialization flag, by default -- `true`
+
+<hr>
+
+#####`.schnorrPartialSign(Buffer message, Buffer privateKey, Buffer pubNonceOther, Buffer privNonce)` -> `Buffer`
+
+Produce a partial Schnorr signature, which can be combined using [.schnorrPartialCombine](#schnorrpartialcombinearraybuffer-signatures---buffer), to end up with a full signature that is verifiable using [.schnorrVerify](#schnorrverifybuffer-message-buffer-signature-buffer-publickey---boolean).
+
+<hr>
+
+#####`.schnorrPartialCombine(Array<Buffer> signatures)` -> `Buffer`
+
+Combine multiple Schnorr partial signatures.
