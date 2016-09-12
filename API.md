@@ -117,6 +117,13 @@ Same as [signatureImport](#signatureimportbuffer-signature---buffer) but not fol
 
 Create an ECDSA signature. Always return low-S signature.
 
+Inputs: 32-byte message m, 32-byte scalar key d, 32-byte scalar nonce k.
+
+* Compute point R = k * G. Reject nonce if R's x coordinate is zero.
+* Compute 32-byte scalar r, the serialization of R's x coordinate.
+* Compose 32-byte scalar s = k^-1 \* (r \* d + m). Reject nonce if s is zero.
+* The signature is (r, s).
+
 ######Option: `Function noncefn`
 
 Nonce generator. By default it is [rfc6979](https://tools.ietf.org/html/rfc6979).
@@ -134,6 +141,13 @@ Additional data for [noncefn](#option-function-noncefn) (RFC 6979 3.6) (32 bytes
 Verify an ECDSA signature.
 
 Note: **return false for high signatures!**
+
+Inputs: 32-byte message m, public key point Q, signature: (32-byte r, scalar s).
+
+* Signature is invalid if r is zero.
+* Signature is invalid if s is zero.
+* Compute point R = (s^-1 \* m \* G + s^-1 \* r \* Q). Reject if R is infinity.
+* Signature is valid if R's x coordinate equals to r.
 
 <hr>
 
