@@ -30,8 +30,7 @@ for (var i = 0; i < fixtures.length; ++i) {
   fixture.privateKey = util.getPrivateKey()
   fixture.publicKey = util.getPublicKey(fixture.privateKey).compressed
   fixture.message = util.getMessage()
-  // fixture.signature = util.getSignature(fixture.message, fixture.privateKey)
-  fixture.signature = implementations.secp256k1js.sign(fixture.message, fixture.privateKey).signature
+  fixture.sigObj = implementations.secp256k1js.sign(fixture.message, fixture.privateKey)
   fixtures[i] = fixture
   progressBar.tick()
 }
@@ -87,7 +86,14 @@ runSuite('sign', function (secp256k1) {
 runSuite('verify', function (secp256k1) {
   return function () {
     var fixture = getNextFixture()
-    secp256k1.verify(fixture.message, fixture.signature, fixture.publicKey)
+    secp256k1.verify(fixture.message, fixture.sigObj.signature, fixture.publicKey)
+  }
+})
+
+runSuite('recover', function (secp256k1) {
+  return function () {
+    var fixture = getNextFixture()
+    secp256k1.recover(fixture.message, fixture.sigObj.signature, fixture.sigObj.recovery)
   }
 })
 
