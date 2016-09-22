@@ -1,119 +1,113 @@
-# API Reference (v3.x)
+# API Reference (v4.x)
 
-- [`.privateKeyVerify(Buffer privateKey)`](#privatekeyverifybuffer-privatekey---boolean)
-- [`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])`](#privatekeyexportbuffer-privatekey--boolean-compressed--true---buffer)
-- [`.privateKeyImport(Buffer privateKey)`](#privatekeyimportbuffer-privatekey---buffer)
-- [`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)`](#privatekeytweakaddbuffer-privatekey-buffer-tweak---buffer)
-- [`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)`](#privatekeytweakmulbuffer-privatekey-buffer-tweak---buffer)
-- [`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])`](#publickeycreatebuffer-privatekey--boolean-compressed--true---buffer)
-- [`.publicKeyConvert(Buffer publicKey [, Boolean compressed = true])`](#publickeyconvertbuffer-publickey--boolean-compressed--true---buffer)
-- [`.publicKeyVerify(Buffer publicKey)`](#publickeyverifybuffer-publickey---boolean)
-- [`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakaddbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
-- [`.publicKeyTweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakmulbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
-- [`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])`](#publickeycombinearraybuffer-publickeys--boolean-compressed--true---buffer)
-- [`.signatureNormalize(Buffer signature)`](#signaturenormalizebuffer-signature---buffer)
-- [`.signatureExport(Buffer signature)`](#signatureexportbuffer-signature---buffer)
-- [`.signatureImport(Buffer signature)`](#signatureimportbuffer-signature---buffer)
-- [`.signatureImportLax(Buffer signature)`](#signatureimportlaxbuffer-signature---buffer)
-- [`.sign(Buffer message, Buffer privateKey [, Object options])`](#signbuffer-message-buffer-privatekey--object-options---signature-buffer-recovery-number)
-  - [Option: `Function noncefn`](#option-function-noncefn)
-  - [Option: `Buffer data`](#option-buffer-data)
-- [`.verify(Buffer message, Buffer signature, Buffer publicKey)`](#verifybuffer-message-buffer-signature-buffer-publickey---boolean)
-- [`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])`](#recoverbuffer-message-buffer-signature-number-recovery--boolean-compressed--true---buffer)
-- [`.ecdh(Buffer publicKey, Buffer privateKey)`](#ecdhbuffer-publickey-buffer-privatekey---buffer)
-- [`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])`](#ecdhunsafebuffer-publickey-buffer-privatekey--boolean-compressed--true---buffer)
-
-#####`.privateKeyVerify(Buffer privateKey)` -> `Boolean`
-
-Verify an ECDSA *privateKey*.
+- [`privateKey`](#privatekey)
+  - [`verify(Buffer privateKey)`](#privatekeyverifybuffer-privatekey---boolean)
+  - [`export(Buffer privateKey [, Boolean compressed = true])`](#privatekeyexportbuffer-privatekey--boolean-compressed--true---buffer)
+  - [`import(Buffer privateKey)`](#privatekeyimportbuffer-privatekey---buffer)
+  - [`tweakAdd(Buffer privateKey, Buffer tweak)`](#privatekeytweakaddbuffer-privatekey-buffer-tweak---buffer)
+  - [`tweakMul(Buffer privateKey, Buffer tweak)`](#privatekeytweakmulbuffer-privatekey-buffer-tweak---buffer)
+- [`publicKey`](#publickey)
+  - [`create(Buffer privateKey [, Boolean compressed = true])`](#publickeycreatebuffer-privatekey--boolean-compressed--true---buffer)
+  - [`convert(Buffer publicKey [, Boolean compressed = true])`](#publickeyconvertbuffer-publickey--boolean-compressed--true---buffer)
+  - [`verify(Buffer publicKey)`](#publickeyverifybuffer-publickey---boolean)
+  - [`tweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakaddbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
+  - [`tweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])`](#publickeytweakmulbuffer-publickey-buffer-tweak--boolean-compressed--true---buffer)
+  - [`combine(Array<Buffer> publicKeys [, Boolean compressed = true])`](#publickeycombinearraybuffer-publickeys--boolean-compressed--true---buffer)
+- [`ecdsa`](#ecdsa)
+  - [`signature`](#ecdsasignature)
+    - [`normalize(Buffer signature)`](#ecdsasignaturenormalizebuffer-signature---buffer)
+    - [`export(Buffer signature)`](#ecdsasignatureexportbuffer-signature---buffer)
+    - [`import(Buffer signature)`](#ecdsasignatureimportbuffer-signature---buffer)
+    - [`importLax(Buffer signature)`](#ecdsasignatureimportlaxbuffer-signature---buffer)
+  - [`sign(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata]])`](#ecdsasignbuffer-message-buffer-privatekey--function-noncefn--buffer-noncedata----signature-buffer-recovery-number-)
+  - [`verify(Buffer signature, Buffer message, Buffer publicKey)`](#ecdsaverifybuffer-signature-buffer-message-buffer-publickey---boolean)
+  - [`recover(Buffer signature, Number recovery, Buffer message [, Boolean compressed = true])`](#ecdsarecoverbuffer-signature-number-recovery-buffer-message--boolean-compressed--true---buffer)
+- [`schnorr`](#schnorr)
+  - [`sign(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata]])`](#signbuffer-message-buffer-privatekey--function-noncefn--buffer-noncedata---buffer)
+  - [`verify(Buffer signature, Buffer message, Buffer publicKey)`](#verifybuffer-signature-buffer-message-buffer-publickey---boolean)
+  - [`recover(Buffer signature, Buffer message [, Boolean compressed = true])`](#recoverbuffer-signature-buffer-message--boolean-compressed--true---buffer)
+  - [`generateNoncePair(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata [, Boolean compressed]]])`](#generatenoncepairbuffer-message-buffer-privatekey--function-noncefn--buffer-noncedata--boolean-compressed----pubnonce-buffer-privnonce-buffer-)
+  - [`partialSign(Buffer message, Buffer privateKey, Buffer pubnonceOthers, Buffer privnonce)`](#partialsignbuffer-message-buffer-privatekey-buffer-pubnonceothers-buffer-privnonce---buffer)
+  - [`partialCombine(Array<Buffer> signatures)`](#partialcombinearraybuffer-signatures---buffer)
+- [`ecdh`](#ecdh)
+  - [`sha256(Buffer publicKey, Buffer privateKey)`](#sha256buffer-publickey-buffer-privatekey---buffer)
+  - [`unsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])`](#unsafebuffer-publickey-buffer-privatekey--boolean-compressed--true---buffer)
 
 <hr>
 
-#####`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
+###`privateKey`
+
+####`privateKey.verify(Buffer privateKey)` -> `Boolean`
+
+Verify an EC *privateKey*.
+
+####`privateKey.export(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
 Export a *privateKey* in DER format.
 
-<hr>
-
-#####`.privateKeyImport(Buffer privateKey)` -> `Buffer`
+####`privateKey.import(Buffer privateKey)` -> `Buffer`
 
 Import a *privateKey* in DER format.
 
-<hr>
-
-#####`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)` -> `Buffer`
+####`privateKey.tweakAdd(Buffer privateKey, Buffer tweak)` -> `Buffer`
 
 Tweak a *privateKey* by adding *tweak* to it.
 
-<hr>
-
-#####`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)` -> `Buffer`
+####`privateKey.tweakMul(Buffer privateKey, Buffer tweak)` -> `Buffer`
 
 Tweak a *privateKey* by multiplying it by a *tweak*.
 
 <hr>
 
-#####`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
+###`publicKey`
+
+####`publicKey.create(Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
 Compute the public key for a *privateKey*.
 
-<hr>
-
-#####`.publicKeyConvert(Buffer publicKey [, Boolean compressed = true])` -> `Buffer`
+####`publicKey.convert(Buffer publicKey [, Boolean compressed = true])` -> `Buffer`
 
 Convert a *publicKey* to *compressed* or *uncompressed* form.
 
-<hr>
+####`publicKey.verify(Buffer publicKey)` -> `Boolean`
 
-#####`.publicKeyVerify(Buffer publicKey)` -> `Boolean`
+Verify an EC *publicKey*.
 
-Verify an ECDSA *publicKey*.
-
-<hr>
-
-#####`.publicKeyTweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
+####`publicKey.tweakAdd(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
 
 Tweak a *publicKey* by adding *tweak* times the generator to it.
 
-<hr>
-
-#####`.publicKeyTweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
+####`publicKey.tweakMul(Buffer publicKey, Buffer tweak [, Boolean compressed = true])` -> `Buffer`
 
 Tweak a *publicKey* by multiplying it by a *tweak* value.
 
-<hr>
-
-#####`.publicKeyCombine(Array<Buffer> publicKeys [, Boolean compressed = true])` -> `Buffer`
+####`publicKey.combine(Array<Buffer> publicKeys [, Boolean compressed = true])` -> `Buffer`
 
 Add a given *publicKeys* together.
 
 <hr>
 
-#####`.signatureNormalize(Buffer signature)` -> `Buffer`
+###`ecdsa`
+
+####`ecdsa.signature`
+
+#####`ecdsa.signature.normalize(Buffer signature)` -> `Buffer`
 
 Convert a *signature* to a normalized lower-S form.
 
-<hr>
-
-#####`.signatureExport(Buffer signature)` -> `Buffer`
+#####`ecdsa.signature.export(Buffer signature)` -> `Buffer`
 
 Serialize an ECDSA *signature* in DER format.
 
-<hr>
-
-#####`.signatureImport(Buffer signature)` -> `Buffer`
+#####`ecdsa.signature.import(Buffer signature)` -> `Buffer`
 
 Parse a DER ECDSA *signature* (follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki)).
 
-<hr>
+#####`ecdsa.signature.importLax(Buffer signature)` -> `Buffer`
 
-#####`.signatureImportLax(Buffer signature)` -> `Buffer`
+Same as [ecdsa.signature.import](#ecdsasignatureimportbuffer-signature---buffer) but not follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
 
-Same as [signatureImport](#signatureimportbuffer-signature---buffer) but not follow by [BIP66](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki).
-
-<hr>
-
-#####`.sign(Buffer message, Buffer privateKey [, Object options])` -> `{signature: Buffer, recovery: number}`
+####`ecdsa.sign(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata]])` -> `{ signature: Buffer, recovery: number }`
 
 Create an ECDSA signature. Always return low-S signature.
 
@@ -124,19 +118,12 @@ Inputs: 32-byte message m, 32-byte scalar key d, 32-byte scalar nonce k.
 * Compose 32-byte scalar s = k^-1 \* (r \* d + m). Reject nonce if s is zero.
 * The signature is (r, s).
 
-######Option: `Function noncefn`
+By default:
 
-Nonce generator. By default it is [rfc6979](https://tools.ietf.org/html/rfc6979).
+  - noncefn is [rfc6979](https://tools.ietf.org/html/rfc6979)
+  - noncedata is empty `Buffer` (RFC 6979 3.6) (32 bytes)
 
-Function signature: `noncefn(Buffer message, Buffer privateKey, ?Buffer algo, ?Buffer data, Number attempt)` -> `Buffer`
-
-######Option: `Buffer data`
-
-Additional data for [noncefn](#option-function-noncefn) (RFC 6979 3.6) (32 bytes). By default is `null`.
-
-<hr>
-
-#####`.verify(Buffer message, Buffer signature, Buffer publicKey)` -> `Boolean`
+####`ecdsa.verify(Buffer signature, Buffer message, Buffer publicKey)` -> `Boolean`
 
 Verify an ECDSA signature.
 
@@ -149,20 +136,62 @@ Inputs: 32-byte message m, public key point Q, signature: (32-byte r, scalar s).
 * Compute point R = (s^-1 \* m \* G + s^-1 \* r \* Q). Reject if R is infinity.
 * Signature is valid if R's x coordinate equals to r.
 
-<hr>
-
-#####`.recover(Buffer message, Buffer signature, Number recovery [, Boolean compressed = true])` -> `Buffer`
+####`ecdsa.recover(Buffer signature, Number recovery, Buffer message [, Boolean compressed = true])` -> `Buffer`
 
 Recover an ECDSA public key from a signature.
 
 <hr>
 
-#####`.ecdh(Buffer publicKey, Buffer privateKey)` -> `Buffer`
+###`schnorr`
 
-Compute an EC Diffie-Hellman secret and applied sha256 to compressed public key.
+####`sign(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata]])` -> `Buffer`
+
+Create a signature using a custom EC-Schnorr-SHA256 construction. It produces non-malleable 64-byte signatures which support public key recovery batch validation, and multiparty signing.
+
+Inputs: 32-byte message m, 32-byte scalar key d, 32-byte scalar nonce k.
+
+* Compute point R = k \* G. Reject nonce if R's y coordinate is odd (or negate nonce).
+* Compute 32-byte r, the serialization of R's x coordinate.
+* Compute scalar h = Hash(r || m). Reject nonce if h == 0 or h >= order.
+* Compute scalar s = k - h \* x.
+* The signature is (r, s).
+
+####`verify(Buffer signature, Buffer message, Buffer publicKey)` -> `Boolean`
+
+Verify a Schnorr signature.
+
+Inputs: 32-byte message m, public key point Q, signature: (32-byte r, scalar s).
+
+* Signature is invalid if s >= order.
+* Signature is invalid if r >= p.
+* Compute scalar h = Hash(r || m). Signature is invalid if h == 0 or h >= order.
+* Compute point R = h \* Q + s \* G. Signature is invalid if R is infinity or R's y coordinate is odd.
+* Signature is valid if the serialization of R's x coordinate equals r.
+
+####`recover(Buffer signature, Buffer message [, Boolean compressed = true])` -> `Buffer`
+
+Recover an EC public key from a Schnorr signature.
+
+####`generateNoncePair(Buffer message, Buffer privateKey [, Function noncefn [, Buffer noncedata [, Boolean compressed]]])` -> `{ pubnonce: Buffer, privnonce: Buffer }`
+
+Generate a nonce pair deterministically for use with [schnorr.partialSign](#partialsignbuffer-message-buffer-privatekey-buffer-pubnonceothers-buffer-privnonce---buffer).
+
+####`partialSign(Buffer message, Buffer privateKey, Buffer pubnonceOthers, Buffer privnonce)` -> `Buffer`
+
+Produce a partial Schnorr signature, which can be combined using [schnorr.partialCombine](#partialcombinearraybuffer-signatures---buffer), to end up with a full signature that is verifiable using [schnorr.verify](##verifybuffer-signature-buffer-message-buffer-publickey---boolean).
+
+####`partialCombine(Array<Buffer> signatures)` -> `Buffer`
+
+Combine multiple Schnorr partial signatures.
 
 <hr>
 
-#####`.ecdhUnsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
+###`ecdh`
+
+####`sha256(Buffer publicKey, Buffer privateKey)` -> `Buffer`
+
+Compute an EC Diffie-Hellman secret and applied sha256 to compressed public key.
+
+####`unsafe(Buffer publicKey, Buffer privateKey [, Boolean compressed = true])` -> `Buffer`
 
 Compute an EC Diffie-Hellman secret and return public key as result.
