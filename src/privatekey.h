@@ -4,10 +4,10 @@
 #include <node.h>
 #include <nan.h>
 
-NAN_METHOD(privateKeyVerify);
-NAN_METHOD(privateKeyExport);
-NAN_METHOD(privateKeyImport);
-NAN_METHOD(privateKeyTweakAdd);
-NAN_METHOD(privateKeyTweakMul);
+NAN_METHOD(private_key_verify);
+NAN_METHOD(private_key_export);
+NAN_METHOD(private_key_import);
+NAN_METHOD(private_key_tweak_add);
+NAN_METHOD(private_key_tweak_mul);
 
 #endif

@@ -4,8 +4,8 @@
 #include <node.h>
 #include <nan.h>
 
-NAN_METHOD(sign);
-NAN_METHOD(verify);
-NAN_METHOD(recover);
+NAN_METHOD(ecdsa_sign);
+NAN_METHOD(ecdsa_verify);
+NAN_METHOD(ecdsa_recover);
 
 #endif

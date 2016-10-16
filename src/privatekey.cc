@@ -8,31 +8,28 @@
 
 extern secp256k1_context* secp256k1ctx;
 
-NAN_METHOD(privateKeyVerify) {
+NAN_METHOD(private_key_verify) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
-  const unsigned char* private_key = (const unsigned char*) node::Buffer::Data(private_key_buffer);
+  HANDLE_ARG_BUFFER(0, private_key, EC_PRIVATE_KEY_TYPE_INVALID)
 
   if (node::Buffer::Length(private_key_buffer) != 32) {
     return info.GetReturnValue().Set(Nan::New<v8::Boolean>(false));
   }
 
   int result = secp256k1_ec_seckey_verify(secp256k1ctx, private_key);
-  info.GetReturnValue().Set(Nan::New<v8::Boolean>(result));
+
+  RETURN_BOOLEAN(result)
 }
 
-NAN_METHOD(privateKeyExport) {
+NAN_METHOD(private_key_export) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  const unsigned char* private_key = (const unsigned char*) node::Buffer::Data(private_key_buffer);
+  HANDLE_ARG_PRIVATE_KEY(0)
+  HANDLE_ARG_COMPRESSED(1)
 
-  int compressed = 1;
-  UPDATE_COMPRESSED_VALUE(compressed, info[1], 1, 0);
+  // hack for compressed (only for ec_privkey_export_der)
+  compressed = compressed == SECP256K1_EC_COMPRESSED ? 1 : 0;
 
   unsigned char output[279];
   size_t output_length;
@@ -40,16 +37,14 @@ NAN_METHOD(privateKeyExport) {
     return Nan::ThrowError(EC_PRIVATE_KEY_EXPORT_DER_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(output, output_length));
+  RETURN_BUFFER(output, output_length)
 }
 
-NAN_METHOD(privateKeyImport) {
+NAN_METHOD(private_key_import) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> input_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(input_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH_GT_ZERO(input_buffer, EC_PRIVATE_KEY_LENGTH_INVALID);
-  const unsigned char* input = (const unsigned char*) node::Buffer::Data(input_buffer);
+  HANDLE_ARG_BUFFER(0, input, EC_PRIVATE_KEY_TYPE_INVALID)
+  CHECK_BUFFER_LENGTH_GT_ZERO(input_buffer, EC_PRIVATE_KEY_LENGTH_INVALID)
   size_t input_length = node::Buffer::Length(input_buffer);
 
   unsigned char private_key[32];
@@ -57,47 +52,37 @@ NAN_METHOD(privateKeyImport) {
     return Nan::ThrowError(EC_PRIVATE_KEY_IMPORT_DER_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(private_key, 32));
+  RETURN_BUFFER(private_key, 32)
 }
 
-NAN_METHOD(privateKeyTweakAdd) {
+NAN_METHOD(private_key_tweak_add) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  unsigned char private_key[32];
-  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
+  HANDLE_ARG_PRIVATE_KEY(0)
+  HANDLE_ARG_TWEAK(1)
 
-  v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
-  const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
+  unsigned char output[32];
+  memcpy(&output[0], &private_key[0], 32);
 
-  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, &private_key[0], tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_add(secp256k1ctx, &output[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVATE_KEY_TWEAK_ADD_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
+  RETURN_BUFFER(output, 32)
 }
 
-NAN_METHOD(privateKeyTweakMul) {
+NAN_METHOD(private_key_tweak_mul) {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
-  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  unsigned char private_key[32];
-  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
+  HANDLE_ARG_PRIVATE_KEY(0)
+  HANDLE_ARG_TWEAK(1)
 
-  v8::Local<v8::Object> tweak_buffer = info[1].As<v8::Object>();
-  CHECK_TYPE_BUFFER(tweak_buffer, TWEAK_TYPE_INVALID);
-  CHECK_BUFFER_LENGTH(tweak_buffer, 32, TWEAK_LENGTH_INVALID);
-  const unsigned char* tweak = (unsigned char *) node::Buffer::Data(tweak_buffer);
+  unsigned char output[32];
+  memcpy(&output[0], &private_key[0], 32);
 
-  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, &private_key[0], tweak) == 0) {
+  if (secp256k1_ec_privkey_tweak_mul(secp256k1ctx, &output[0], tweak) == 0) {
     return Nan::ThrowError(EC_PRIVATE_KEY_TWEAK_MUL_FAIL);
   }
 
-  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
+  RETURN_BUFFER(output, 32)
 }

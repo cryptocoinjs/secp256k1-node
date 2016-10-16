@@ -28,19 +28,28 @@
 #define ECDSA_SIGNATURE_PARSE_DER_FAIL "couldn't parse DER signature"
 #define ECDSA_SIGNATURE_SERIALIZE_DER_FAIL "couldn't serialize signature to DER format"
 
+#define ECDSA_RECOVERY_ID_TYPE_INVALID "recovery should be a Number"
+#define ECDSA_RECOVERY_ID_VALUE_INVALID "recovery should have value in [0, 3]"
+
 #define ECDSA_SIGN_FAIL "nonce generation function failed or private key is invalid"
 #define ECDSA_RECOVER_FAIL "couldn't recover public key from signature"
 
-#define MSG32_TYPE_INVALID "message should be a Buffer"
-#define MSG32_LENGTH_INVALID "message length is invalid"
+#define SCHNORR_SIGNATURE_TYPE_INVALID "signature should be a Buffer"
+#define SCHNORR_SIGNATURE_LENGTH_INVALID "signature length is invalid"
+#define SCHNORR_SIGN_FAIL "nonce generation function failed or private key is invalid"
+#define SCHNORR_RECOVER_FAIL "couldn't recover public key from signature"
+#define SCHNORR_GENERATE_NONCE_PAIR_FAIL "nonce generation function failed"
+#define SCHNORR_PARTIAL_SIGN_FAIL "invalid private key, nonce, public nonces, or no valid signature exists with this combination of keys"
+#define SCHNORR_PARTIAL_COMBINE_FAIL "some inputs were invalid or the resulting signature is not valid"
+#define SCHNORR_SIGNATURES_TYPE_INVALID "signatures should be an Array"
+#define SCHNORR_SIGNATURES_LENGTH_INVALID "signatures Array should have at least 1 element"
 
-#define OPTIONS_TYPE_INVALID "options should be an Object"
-#define OPTIONS_DATA_TYPE_INVALID "options.data should be a Buffer"
-#define OPTIONS_DATA_LENGTH_INVALID "options.data length is invalid"
-#define OPTIONS_NONCEFN_TYPE_INVALID "options.noncefn should be a Function"
+#define MESSAGE_TYPE_INVALID "message should be a Buffer"
+#define MESSAGE_LENGTH_INVALID "message length is invalid"
 
-#define RECOVERY_ID_TYPE_INVALID "recovery should be a Number"
-#define RECOVERY_ID_VALUE_INVALID "recovery should have value between -1 and 4"
+#define NONCE_FUNCTION_TYPE_INVALID "noncefn should be a Function"
+#define NONCE_DATA_TYPE_INVALID "noncedata should be a Buffer"
+#define NONCE_DATA_LENGTH_INVALID "noncedata length is invalid"
 
 #define TWEAK_TYPE_INVALID "tweak should be a Buffer"
 #define TWEAK_LENGTH_INVALID "tweak length is invalid"
