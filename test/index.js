@@ -1,24 +1,32 @@
-'use strict'
-var test = require('tape')
-var util = require('./util')
+import test from 'tape'
+import testPrivateKey from './privatekey'
+import testPublicKey from './publickey'
+import testECDSASignature from './ecdsa-signature'
+import testECDSA from './ecdsa'
+// import testSchnorr from './schnorr'
+import testECDH from './ecdh'
+import * as util from './util'
 
 function testAPI (secp256k1, description) {
-  test(description, function (t) {
-    util.setSeed(util.env.seed)
+  test(description, (t) => {
+    util.setSeed(util.env.SEED)
 
-    require('./privatekey')(t, secp256k1)
-    require('./publickey')(t, secp256k1)
-    require('./signature')(t, secp256k1)
-    require('./ecdsa')(t, secp256k1)
-    require('./ecdh')(t, secp256k1)
+    testPrivateKey(t, secp256k1)
+    testPublicKey(t, secp256k1)
+    testECDSASignature(t, secp256k1)
+    testECDSA(t, secp256k1)
+    // testSchnorr(t, secp256k1)
+    testECDH(t, secp256k1)
 
     t.end()
   })
 }
 
-if (!process.browser) require('./bn')
-require('./ecpoint')
-require('./ecjpoint')
+if (!process.browser) require('./js/bn')
+require('./js/ecpoint')
+require('./js/ecjpoint')
+require('./js/sha256')
+require('./js/sha256-hmac')
 
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
 testAPI(require('../elliptic'), 'elliptic')

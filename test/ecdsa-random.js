@@ -1,42 +1,40 @@
-'use strict'
-var assert = require('assert')
-var getRandomBytes = require('crypto').randomBytes
+import assert from 'assert'
+import { randomBytes as getRandomBytes } from 'crypto'
+import bindings from '../bindings'
+import secp256k1js from '../js'
+import * as util from './util'
 
-var bindings = require('../bindings')
-var secp256k1js = require('../js')
-var util = require('./util')
+const STEP_REPEAT = 100000
 
-var STEP_REPEAT = 100000
-
-var t = {
-  test: function (name, fn) {
-    fn({ end: function () {} })
+const t = {
+  test: (name, fn) => {
+    fn({ end: () => {} })
   }
 }
 
-var repeat = util.env.repeat
-var seed = util.env.seed
+let seed = util.env.SEED
+let repeat = util.env.REPEAT
 while (repeat > 0) {
   util.setSeed(seed)
-  util.repeat(t, 'random tests', (repeat % STEP_REPEAT) || STEP_REPEAT, function (t) {
-    var message = util.getMessage()
-    var privateKey = util.getPrivateKey()
+  util.repeat(t, 'random tests', (repeat % STEP_REPEAT) || STEP_REPEAT, (t) => {
+    const message = util.getMessage()
+    const privateKey = util.getPrivateKey()
     try {
-      var publicKey = bindings.publicKeyCreate(privateKey)
-      var expected = bindings.sign(message, privateKey)
+      const publicKey = bindings.publicKey.create(privateKey)
+      const expected = bindings.ecdsa.sign(message, privateKey)
 
-      var sigObj = secp256k1js.sign(message, privateKey)
+      const sigObj = secp256k1js.ecdsa.sign(message, privateKey)
       assert.same(sigObj.signature, expected.signature)
       assert.same(sigObj.recovery, expected.recovery)
 
-      var isValid = secp256k1js.verify(message, sigObj.signature, publicKey)
+      const isValid = secp256k1js.ecdsa.verify(message, sigObj.signature, publicKey)
       assert.same(isValid, true)
 
-      var publicKey2 = secp256k1js.recover(message, sigObj.signature, sigObj.recovery, true)
+      const publicKey2 = secp256k1js.ecdsa.recover(message, sigObj.signature, sigObj.recovery, true)
       assert.same(publicKey2, publicKey)
     } catch (err) {
-      console.log('\nMessage:', message.toString('hex'))
-      console.log('Private key:', privateKey.toString('hex'))
+      console.log(`\nMessage: ${message.toString('hex')}`)
+      console.log(`Private key: ${privateKey.toString('hex')}`)
       throw err
     }
 
