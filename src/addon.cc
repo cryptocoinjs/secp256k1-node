@@ -7,6 +7,7 @@
 #include "signature.h"
 #include "ecdsa.h"
 #include "ecdh.h"
+#include "schnorr.h"
 
 secp256k1_context* secp256k1ctx;
 
@@ -43,6 +44,14 @@ NAN_MODULE_INIT(Init) {
   // ecdh
   Nan::Export(target, "ecdh", ecdh);
   Nan::Export(target, "ecdhUnsafe", ecdhUnsafe);
+
+  // schnorr
+  Nan::Export(target, "schnorrSign", schnorrSign);
+  Nan::Export(target, "schnorrVerify", schnorrVerify);
+  Nan::Export(target, "schnorrRecover", schnorrRecover);
+  Nan::Export(target, "schnorrGenerateNoncePair", schnorrGenerateNoncePair);
+  Nan::Export(target, "schnorrPartialSign", schnorrPartialSign);
+  Nan::Export(target, "schnorrPartialCombine", schnorrPartialCombine);
 }
 
 NODE_MODULE(secp256k1, Init)

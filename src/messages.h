@@ -45,4 +45,13 @@
 #define TWEAK_TYPE_INVALID "tweak should be a Buffer"
 #define TWEAK_LENGTH_INVALID "tweak length is invalid"
 
+#define SCHNORR_SIGNATURE_TYPE_INVALID "signature should be a Buffer"
+#define SCHNORR_SIGNATURE_LENGTH_INVALID "signature length is invalid"
+#define SCHNORR_SIGN_FAIL "nonce generation function failed or private key is invalid"
+#define SCHNORR_RECOVER_FAIL "couldn't recover public key from signature"
+#define SCHNORR_PARTIAL_SIGN_FAIL "invalid private key, nonce, public nonces, or no valid signature exists with this combination of keys"
+#define SCHNORR_PARTIAL_COMBINE_FAIL "some inputs were invalid or the resulting signature is not valid"
+#define SCHNORR_SIGNATURES_TYPE_INVALID "signatures should be an Array"
+#define SCHNORR_SIGNATURES_LENGTH_INVALID "signatures Array should have at least 1 element"
+
 #endif

@@ -8,8 +8,8 @@
 
 extern secp256k1_context* secp256k1ctx;
 
-v8::Local<v8::Function> noncefn_callback;
-int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, const unsigned char *key32, const unsigned char *algo16, void *data, unsigned int counter) {
+static v8::Local<v8::Function> noncefn_callback;
+static int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, const unsigned char *key32, const unsigned char *algo16, void *data, unsigned int counter) {
   v8::Local<v8::Value> argv[] = {
     COPY_BUFFER(msg32, 32),
     COPY_BUFFER(key32, 32),

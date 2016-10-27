@@ -11,6 +11,7 @@ function testAPI (secp256k1, description) {
     require('./signature')(t, secp256k1)
     require('./ecdsa')(t, secp256k1)
     require('./ecdh')(t, secp256k1)
+    require('./schnorr')(t, secp256k1)
 
     t.end()
   })
