@@ -4,7 +4,7 @@
 #include <node.h>
 #include <nan.h>
 
-NAN_METHOD(ecdh);
-NAN_METHOD(ecdhUnsafe);
+NAN_METHOD(ecdh_sha256);
+NAN_METHOD(ecdh_unsafe);
 
 #endif

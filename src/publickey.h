@@ -4,11 +4,11 @@
 #include <node.h>
 #include <nan.h>
 
-NAN_METHOD(publicKeyCreate);
-NAN_METHOD(publicKeyConvert);
-NAN_METHOD(publicKeyVerify);
-NAN_METHOD(publicKeyTweakAdd);
-NAN_METHOD(publicKeyTweakMul);
-NAN_METHOD(publicKeyCombine);
+NAN_METHOD(public_key_create);
+NAN_METHOD(public_key_convert);
+NAN_METHOD(public_key_verify);
+NAN_METHOD(public_key_tweak_add);
+NAN_METHOD(public_key_tweak_mul);
+NAN_METHOD(public_key_combine);
 
 #endif

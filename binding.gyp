@@ -23,11 +23,14 @@
     },
     "sources": [
       "./src/addon.cc",
+      "./src/ecdh.cc",
+      "./src/ecdh_secp256k1.cc",
+      "./src/ecdsa.cc",
+      "./src/ecdsa_signature.cc",
+      "./src/nonce_function.cc",
       "./src/privatekey.cc",
       "./src/publickey.cc",
-      "./src/signature.cc",
-      "./src/ecdsa.cc",
-      "./src/ecdh.cc",
+      "./src/schnorr.cc",
       "./src/secp256k1-src/src/secp256k1.c",
       "./src/secp256k1-src/contrib/lax_der_parsing.c",
       "./src/secp256k1-src/contrib/lax_der_privatekey_parsing.c"
@@ -68,7 +71,8 @@
             "USE_NUM_NONE=1",
             "USE_SCALAR_INV_BUILTIN=1",
             "USE_FIELD_INV_BUILTIN=1",
-            "ENABLE_MODULE_RECOVERY=1"
+            "ENABLE_MODULE_RECOVERY=1",
+            "ENABLE_MODULE_SCHNORR=1"
           ]
         }
       ],

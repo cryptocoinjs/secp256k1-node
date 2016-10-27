@@ -1,114 +1,119 @@
-'use strict'
-var crypto = require('crypto')
-var BN = require('bn.js')
-var EC = require('elliptic').ec
-var XorShift128Plus = require('xorshift.js').XorShift128Plus
+import { randomBytes, createHash } from 'crypto'
+import BN from 'bn.js'
+import { ec as EC } from 'elliptic'
+import { XorShift128Plus } from 'xorshift.js'
 
-var ec = new EC('secp256k1')
-var BN_ZERO = new BN(0)
-var BN_ONE = new BN(1)
+import * as _messages from '../es/messages'
+export const messages = _messages
 
-var prngs = { privateKey: null, tweak: null, message: null }
+export const ec = new EC('secp256k1')
+export const BN_ZERO = new BN(0)
+export const BN_ONE = new BN(1)
 
-function setSeed (seed) {
+export const prngs = { privateKey: null, tweak: null, message: null }
+
+export function setSeed (seed) {
   if (Buffer.isBuffer(seed)) seed = seed.toString('hex')
-  console.log('Set seed: ' + seed)
+  console.log(`Set seed: ${seed}`)
 
-  var prng = new XorShift128Plus(seed)
-  for (var i = 0; i < 100; ++i) prng.random()
+  const prng = new XorShift128Plus(seed)
+  for (let i = 0; i < 100; ++i) prng.random()
 
   prngs.privateKey = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
   prngs.tweak = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
   prngs.message = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
 }
 
-function getPrivateKey () {
+export function getPrivateKey () {
   while (true) {
-    var privateKey = prngs.privateKey.randomBytes(32)
-    var bn = new BN(privateKey)
+    const privateKey = prngs.privateKey.randomBytes(32)
+    const bn = new BN(privateKey)
     if (bn.cmp(BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) return privateKey
   }
 }
 
-function getPublicKey (privateKey) {
-  var publicKey = ec.keyFromPrivate(privateKey).getPublic()
+export function getPublicKey (privateKey) {
+  const publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
-    compressed: new Buffer(publicKey.encode(null, true)),
-    uncompressed: new Buffer(publicKey.encode(null, false))
+    compressed: Buffer.from(publicKey.encode(null, true)),
+    uncompressed: Buffer.from(publicKey.encode(null, false))
   }
 }
 
-function getSignature (message, privateKey) {
+export function getSignature (message, privateKey) {
   return sign(message, privateKey).signatureLowS
 }
 
-function getTweak () {
+export function getTweak () {
   while (true) {
-    var tweak = prngs.tweak.randomBytes(32)
-    var bn = new BN(tweak)
+    const tweak = prngs.tweak.randomBytes(32)
+    const bn = new BN(tweak)
     if (bn.cmp(ec.curve.n) === -1) return tweak
   }
 }
 
-function getMessage () {
+export function getMessage () {
   return prngs.message.randomBytes(32)
 }
 
-function sign (message, privateKey) {
-  var ecSig = ec.sign(message, privateKey, { canonical: false })
+export function sign (message, privateKey) {
+  const ecSig = ec.sign(message, privateKey, { canonical: false })
 
-  var signature = Buffer.concat([
+  const signature = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
-  var recovery = ecSig.recoveryParam
+  let recovery = ecSig.recoveryParam
   if (ecSig.s.cmp(ec.nh) === 1) {
     ecSig.s = ec.n.sub(ecSig.s)
     recovery ^= 1
   }
-  var signatureLowS = Buffer.concat([
+  const signatureLowS = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
 
+  return { signature, signatureLowS, recovery }
+}
+
+export function ecdhSHA256x (publicKey, privateKey) {
+  const secret = ec.keyFromPrivate(privateKey)
+  const point = ec.keyFromPublic(publicKey).getPublic()
+  const sharedSecret = Buffer.from(point.mul(secret.priv).encode(null, true))
+  return createHash('sha256').update(sharedSecret).digest()
+}
+
+export function ecdhUnsafe (publicKey, privateKey) {
+  const secret = ec.keyFromPrivate(privateKey)
+  const point = ec.keyFromPublic(publicKey).getPublic()
+  const shared = point.mul(secret.priv)
   return {
-    signature: signature,
-    signatureLowS: signatureLowS,
-    recovery: recovery
+    compressed: Buffer.from(shared.encode(null, true)),
+    uncompressed: Buffer.from(shared.encode(null, false))
   }
 }
 
-function ecdh (publicKey, privateKey) {
-  var secret = ec.keyFromPrivate(privateKey)
-  var point = ec.keyFromPublic(publicKey).getPublic()
-  var sharedSecret = new Buffer(point.mul(secret.priv).encode(null, true))
-  return crypto.createHash('sha256').update(sharedSecret).digest()
-}
-
-function ecdhUnsafe (publicKey, privateKey) {
-  var secret = ec.keyFromPrivate(privateKey)
-  var point = ec.keyFromPublic(publicKey).getPublic()
-  var shared = point.mul(secret.priv)
-  return {
-    compressed: new Buffer(shared.encode(null, true)),
-    uncompressed: new Buffer(shared.encode(null, false))
-  }
-}
-
-var env = {
-  repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+export const env = {
+  EDGE_ONLY: (global.__env__ && global.__env__.EDGE_ONLY ||
+              process.env.EDGE_ONLY ||
+              'true') === 'true',
+  REPEAT: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
                    process.env.RANDOM_TESTS_REPEAT ||
                    100,
                    10),
-  seed: global.__env__ && global.__env__.SEED ||
+  SEED: global.__env__ && global.__env__.SEED ||
         process.env.SEED ||
-        crypto.randomBytes(32)
+        randomBytes(32)
 }
+
+export function repeat (t, name, total, fn) { _repeat(t.test, name, total, fn) }
+repeat.skip = function (t, name, total, fn) { _repeat(t.skip, name, total, fn) }
+repeat.only = function (t, name, total, fn) { _repeat(t.only, name, total, fn) }
 
 function _repeat (test, name, total, fn) {
   test(name, function (t) {
-    var curr = 0
-    var _end = t.end
+    const _end = t.end
+    let curr = 0
 
     t.end = function () {
       curr += 1
@@ -122,29 +127,4 @@ function _repeat (test, name, total, fn) {
 
     next()
   })
-}
-
-function repeat (t, name, total, fn) { _repeat(t.test, name, total, fn) }
-repeat.skip = function (t, name, total, fn) { _repeat(t.skip, name, total, fn) }
-repeat.only = function (t, name, total, fn) { _repeat(t.only, name, total, fn) }
-
-module.exports = {
-  ec: ec,
-  BN_ZERO: BN_ZERO,
-  BN_ONE: BN_ONE,
-
-  prngs: prngs,
-  setSeed: setSeed,
-  getPrivateKey: getPrivateKey,
-  getPublicKey: getPublicKey,
-  getSignature: getSignature,
-  getTweak: getTweak,
-  getMessage: getMessage,
-
-  sign: sign,
-  ecdh: ecdh,
-  ecdhUnsafe: ecdhUnsafe,
-
-  env: env,
-  repeat: repeat
 }
