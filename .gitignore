@@ -1,6 +1,10 @@
 .nyc_output
 coverage
 build
+es5
 node_modules
 
+bindings.js
+elliptic.js
+js.js
 npm-debug.log
