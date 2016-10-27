@@ -1,30 +1,29 @@
-'use strict'
-var createHash = require('create-hash')
-var BN = require('bn.js')
-var EC = require('elliptic').ec
+import createHash from 'create-hash'
+import BN from 'bn.js'
+import { ec as EC, hmacDRBG as HmacDRBG } from 'elliptic'
 
-var messages = require('../messages.json')
+import * as messages from '../messages.json'
 
-var ec = new EC('secp256k1')
-var ecparams = ec.curve
+const ec = new EC('secp256k1')
+const ecparams = ec.curve
 
 function loadCompressedPublicKey (first, xBuffer) {
-  var x = new BN(xBuffer)
+  let x = new BN(xBuffer)
 
   // overflow
   if (x.cmp(ecparams.p) >= 0) return null
   x = x.toRed(ecparams.red)
 
   // compute corresponding Y
-  var y = x.redSqr().redIMul(x).redIAdd(ecparams.b).redSqrt()
+  let y = x.redSqr().redIMul(x).redIAdd(ecparams.b).redSqrt()
   if ((first === 0x03) !== y.isOdd()) y = y.redNeg()
 
   return ec.keyPair({ pub: { x: x, y: y } })
 }
 
 function loadUncompressedPublicKey (first, xBuffer, yBuffer) {
-  var x = new BN(xBuffer)
-  var y = new BN(yBuffer)
+  let x = new BN(xBuffer)
+  let y = new BN(yBuffer)
 
   // overflow
   if (x.cmp(ecparams.p) >= 0 || y.cmp(ecparams.p) >= 0) return null
@@ -36,7 +35,7 @@ function loadUncompressedPublicKey (first, xBuffer, yBuffer) {
   if ((first === 0x06 || first === 0x07) && y.isOdd() !== (first === 0x07)) return null
 
   // x*x*x + b = y*y
-  var x3 = x.redSqr().redIMul(x)
+  const x3 = x.redSqr().redIMul(x)
   if (!y.redSqr().redISub(x3.redIAdd(ecparams.b)).isZero()) return null
 
   return ec.keyPair({ pub: { x: x, y: y } })
@@ -59,189 +58,272 @@ function loadPublicKey (publicKey) {
   }
 }
 
-exports.privateKeyVerify = function (privateKey) {
-  var bn = new BN(privateKey)
-  return bn.cmp(ecparams.n) < 0 && !bn.isZero()
-}
+export const privateKey = {
+  verify: (privateKey) => {
+    const bn = new BN(privateKey)
+    return bn.cmp(ecparams.n) < 0 && !bn.isZero()
+  },
 
-exports.privateKeyExport = function (privateKey, compressed) {
-  var d = new BN(privateKey)
-  if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.EC_PRIVATE_KEY_EXPORT_DER_FAIL)
+  export: (privateKey, compressed) => {
+    const d = new BN(privateKey)
+    if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.EC_PRIVATE_KEY_EXPORT_DER_FAIL)
 
-  return new Buffer(ec.keyFromPrivate(privateKey).getPublic(compressed, true))
-}
+    return Buffer.from(ec.keyFromPrivate(privateKey).getPublic(compressed, true))
+  },
 
-exports.privateKeyTweakAdd = function (privateKey, tweak) {
-  var bn = new BN(tweak)
-  if (bn.cmp(ecparams.n) >= 0) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
+  tweakAdd: (privateKey, tweak) => {
+    const bn = new BN(tweak)
+    if (bn.cmp(ecparams.n) >= 0) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
 
-  bn.iadd(new BN(privateKey))
-  if (bn.cmp(ecparams.n) >= 0) bn.isub(ecparams.n)
-  if (bn.isZero()) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
+    bn.iadd(new BN(privateKey))
+    if (bn.cmp(ecparams.n) >= 0) bn.isub(ecparams.n)
+    if (bn.isZero()) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_ADD_FAIL)
 
-  return bn.toArrayLike(Buffer, 'be', 32)
-}
+    return bn.toArrayLike(Buffer, 'be', 32)
+  },
 
-exports.privateKeyTweakMul = function (privateKey, tweak) {
-  var bn = new BN(tweak)
-  if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
+  tweakMul: (privateKey, tweak) => {
+    let bn = new BN(tweak)
+    if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) throw new Error(messages.EC_PRIVATE_KEY_TWEAK_MUL_FAIL)
 
-  bn.imul(new BN(privateKey))
-  if (bn.cmp(ecparams.n)) bn = bn.umod(ecparams.n)
+    bn.imul(new BN(privateKey))
+    if (bn.cmp(ecparams.n)) bn = bn.umod(ecparams.n)
 
-  return bn.toArrayLike(Buffer, 'be', 32)
-}
-
-exports.publicKeyCreate = function (privateKey, compressed) {
-  var d = new BN(privateKey)
-  if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.EC_PUBLIC_KEY_CREATE_FAIL)
-
-  return new Buffer(ec.keyFromPrivate(privateKey).getPublic(compressed, true))
-}
-
-exports.publicKeyConvert = function (publicKey, compressed) {
-  var pair = loadPublicKey(publicKey)
-  if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
-
-  return new Buffer(pair.getPublic(compressed, true))
-}
-
-exports.publicKeyVerify = function (publicKey) {
-  return loadPublicKey(publicKey) !== null
-}
-
-exports.publicKeyTweakAdd = function (publicKey, tweak, compressed) {
-  var pair = loadPublicKey(publicKey)
-  if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
-
-  tweak = new BN(tweak)
-  if (tweak.cmp(ecparams.n) >= 0) throw new Error(messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL)
-
-  return new Buffer(ecparams.g.mul(tweak).add(pair.pub).encode(true, compressed))
-}
-
-exports.publicKeyTweakMul = function (publicKey, tweak, compressed) {
-  var pair = loadPublicKey(publicKey)
-  if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
-
-  tweak = new BN(tweak)
-  if (tweak.cmp(ecparams.n) >= 0 || tweak.isZero()) throw new Error(messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
-
-  return new Buffer(pair.pub.mul(tweak).encode(true, compressed))
-}
-
-exports.publicKeyCombine = function (publicKeys, compressed) {
-  var pairs = new Array(publicKeys.length)
-  for (var i = 0; i < publicKeys.length; ++i) {
-    pairs[i] = loadPublicKey(publicKeys[i])
-    if (pairs[i] === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+    return bn.toArrayLike(Buffer, 'be', 32)
   }
-
-  var point = pairs[0].pub
-  for (var j = 1; j < pairs.length; ++j) point = point.add(pairs[j].pub)
-  if (point.isInfinity()) throw new Error(messages.EC_PUBLIC_KEY_COMBINE_FAIL)
-
-  return new Buffer(point.encode(true, compressed))
 }
 
-exports.signatureNormalize = function (signature) {
-  var r = new BN(signature.slice(0, 32))
-  var s = new BN(signature.slice(32, 64))
-  if (r.cmp(ecparams.n) >= 0 || s.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
+export const publicKey = {
+  create: (privateKey, compressed) => {
+    const d = new BN(privateKey)
+    if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.EC_PUBLIC_KEY_CREATE_FAIL)
 
-  var result = new Buffer(signature)
-  if (s.cmp(ec.nh) === 1) ecparams.n.sub(s).toArrayLike(Buffer, 'be', 32).copy(result, 32)
+    return Buffer.from(ec.keyFromPrivate(privateKey).getPublic(compressed, true))
+  },
 
-  return result
+  convert: (publicKey, compressed) => {
+    const pair = loadPublicKey(publicKey)
+    if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+
+    return Buffer.from(pair.getPublic(compressed, true))
+  },
+
+  verify: (publicKey) => {
+    return loadPublicKey(publicKey) !== null
+  },
+
+  tweakAdd: (publicKey, tweak, compressed) => {
+    const pair = loadPublicKey(publicKey)
+    if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+
+    tweak = new BN(tweak)
+    if (tweak.cmp(ecparams.n) >= 0) throw new Error(messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL)
+
+    return Buffer.from(ecparams.g.mul(tweak).add(pair.pub).encode(true, compressed))
+  },
+
+  tweakMul: (publicKey, tweak, compressed) => {
+    const pair = loadPublicKey(publicKey)
+    if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+
+    tweak = new BN(tweak)
+    if (tweak.cmp(ecparams.n) >= 0 || tweak.isZero()) throw new Error(messages.EC_PUBLIC_KEY_TWEAK_MUL_FAIL)
+
+    return Buffer.from(pair.pub.mul(tweak).encode(true, compressed))
+  },
+
+  combine: (publicKeys, compressed) => {
+    const pairs = new Array(publicKeys.length)
+    for (let i = 0; i < publicKeys.length; ++i) {
+      pairs[i] = loadPublicKey(publicKeys[i])
+      if (pairs[i] === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+    }
+
+    let point = pairs[0].pub
+    for (let j = 1; j < pairs.length; ++j) point = point.add(pairs[j].pub)
+    if (point.isInfinity()) throw new Error(messages.EC_PUBLIC_KEY_COMBINE_FAIL)
+
+    return Buffer.from(point.encode(true, compressed))
+  }
 }
 
-exports.signatureExport = function (signature) {
-  var r = signature.slice(0, 32)
-  var s = signature.slice(32, 64)
-  if (new BN(r).cmp(ecparams.n) >= 0 || new BN(s).cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
+export const ecdsa = {
+  signature: {
+    normalize: (signature) => {
+      const r = new BN(signature.slice(0, 32))
+      const s = new BN(signature.slice(32, 64))
+      if (r.cmp(ecparams.n) >= 0 || s.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
 
-  return { r: r, s: s }
-}
+      const result = Buffer.from(signature)
+      if (s.cmp(ec.nh) === 1) ecparams.n.sub(s).toArrayLike(Buffer, 'be', 32).copy(result, 32)
 
-exports.signatureImport = function (sigObj) {
-  var r = new BN(sigObj.r)
-  if (r.cmp(ecparams.n) >= 0) r = new BN(0)
+      return result
+    },
 
-  var s = new BN(sigObj.s)
-  if (s.cmp(ecparams.n) >= 0) s = new BN(0)
+    export: (signature) => {
+      const r = signature.slice(0, 32)
+      const s = signature.slice(32, 64)
+      if (new BN(r).cmp(ecparams.n) >= 0 || new BN(s).cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
 
-  return Buffer.concat([
-    r.toArrayLike(Buffer, 'be', 32),
-    s.toArrayLike(Buffer, 'be', 32)
-  ])
-}
+      return { r: r, s: s }
+    },
 
-exports.sign = function (message, privateKey, noncefn, data) {
-  if (typeof noncefn === 'function') {
-    var getNonce = noncefn
-    noncefn = function (counter) {
-      var nonce = getNonce(message, privateKey, null, data, counter)
-      if (!Buffer.isBuffer(nonce) || nonce.length !== 32) throw new Error(messages.ECDSA_SIGN_FAIL)
+    import: (sigObj) => {
+      let r = new BN(sigObj.r)
+      if (r.cmp(ecparams.n) >= 0) r = new BN(0)
 
-      return new BN(nonce)
+      let s = new BN(sigObj.s)
+      if (s.cmp(ecparams.n) >= 0) s = new BN(0)
+
+      return Buffer.concat([
+        r.toArrayLike(Buffer, 'be', 32),
+        s.toArrayLike(Buffer, 'be', 32)
+      ])
+    }
+  },
+
+  sign: (message, privateKey, noncefn, noncedata = null) => {
+    const d = new BN(privateKey)
+    if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.ECDSA_SIGN_FAIL)
+
+    if (noncefn !== undefined) {
+      const getNonce = noncefn
+      noncefn = function (count) {
+        const nonce = getNonce(message, privateKey, null, noncedata, count)
+        if (!Buffer.isBuffer(nonce) || nonce.length !== 32) throw new Error(messages.ECDSA_SIGN_FAIL)
+
+        return new BN(nonce)
+      }
+    }
+
+    const result = ec.sign(message, privateKey, { canonical: true, k: noncefn, pers: noncedata })
+    return {
+      signature: Buffer.concat([
+        result.r.toArrayLike(Buffer, 'be', 32),
+        result.s.toArrayLike(Buffer, 'be', 32)
+      ]),
+      recovery: result.recoveryParam
+    }
+  },
+
+  verify: (signature, message, publicKey) => {
+    const sigObj = { r: signature.slice(0, 32), s: signature.slice(32, 64) }
+
+    const sigr = new BN(sigObj.r)
+    const sigs = new BN(sigObj.s)
+    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
+    if (sigs.cmp(ec.nh) === 1 || sigr.isZero() || sigs.isZero()) return false
+
+    const pair = loadPublicKey(publicKey)
+    if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
+
+    return ec.verify(message, sigObj, { x: pair.pub.x, y: pair.pub.y })
+  },
+
+  recover: (signature, recovery, message, compressed) => {
+    const sigObj = { r: signature.slice(0, 32), s: signature.slice(32, 64) }
+
+    const sigr = new BN(sigObj.r)
+    const sigs = new BN(sigObj.s)
+    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
+
+    try {
+      if (sigr.isZero() || sigs.isZero()) throw new Error()
+
+      const point = ec.recoverPubKey(message, sigObj, recovery)
+      return Buffer.from(point.encode(true, compressed))
+    } catch (err) {
+      throw new Error(messages.ECDSA_RECOVER_FAIL)
     }
   }
+}
 
-  var d = new BN(privateKey)
-  if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.ECDSA_SIGN_FAIL)
+export const schnorr = (() => {
+  const hash = (buffer1, buffer2) => createHash('sha256').update(buffer1).update(buffer2).digest()
 
-  var result = ec.sign(message, privateKey, { canonical: true, k: noncefn, pers: data })
+  function _sign (message, d, k, pubnonce) {
+    if (k.isZero() || k.cmp(ecparams.n) >= 0) return
+
+    let r = ecparams.g.mul(k)
+    if (pubnonce !== null) r = r.add(ecparams.decodePoint(pubnonce))
+
+    if (r.y.isOdd()) k = ecparams.n.sub(k.umod(ecparams.n))
+
+    const h = hash(message, r.x.toArrayLike(Buffer, 'be', 32))
+    if (h.isZero() || h.cmp(ecparams.n) >= 0) return
+
+    let s = k.sub(h.imul(d).umod(ecparams.n)).umod(ecparams.n)
+    return Buffer.concat([
+      r.x.toArrayLike(Buffer, 'be', 32),
+      s.toArrayLike(Buffer, 'be', 32)
+    ])
+  }
+
   return {
-    signature: Buffer.concat([
-      result.r.toArrayLike(Buffer, 'be', 32),
-      result.s.toArrayLike(Buffer, 'be', 32)
-    ]),
-    recovery: result.recoveryParam
+    sign: (message, privateKey, noncefn, noncedata = null) => {
+      const d = new BN(privateKey)
+      if (d.cmp(ecparams.n) >= 0 || d.isZero()) throw new Error(messages.SCHNORR_SIGN_FAIL)
+
+      if (noncefn === undefined) {
+        const drbg = new HmacDRBG({
+          hash: ecparams.hash, // sha256
+          entropy: privateKey,
+          nonce: message,
+          pers: noncedata
+        })
+
+        noncefn = (count) => new BN(drbg.generate(32))
+      } else {
+        const getNonce = noncefn
+        noncefn = function (count) {
+          const nonce = getNonce(message, privateKey, null, noncedata, count)
+          if (!Buffer.isBuffer(nonce) || nonce.length !== 32) throw new Error(messages.SCHNORR_SIGN_FAIL)
+
+          return new BN(nonce)
+        }
+      }
+
+      for (let count = 0; true; ++count) {
+        const k = noncefn(count)
+        const signature = _sign(message, d, k, null)
+        if (signature) return signature
+      }
+    },
+
+    verify: (signature, message, publicKey) => {
+    },
+
+    recover: (signature, message, compressed = true) => {
+    },
+
+    generateNoncePair: (message, privateKey, noncefn, noncedata, compressed = true) => {
+    },
+
+    partialSign: (message, privateKey, pubnonce, privnonce) => {
+    },
+
+    partialCombine: (signatures) => {
+    }
   }
-}
+})()
 
-exports.verify = function (message, signature, publicKey) {
-  var sigObj = {r: signature.slice(0, 32), s: signature.slice(32, 64)}
+export const ecdh = (() => {
+  function unsafe (publicKey, privateKey, compressed) {
+    const pair = loadPublicKey(publicKey)
+    if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
 
-  var sigr = new BN(sigObj.r)
-  var sigs = new BN(sigObj.s)
-  if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
-  if (sigs.cmp(ec.nh) === 1 || sigr.isZero() || sigs.isZero()) return false
+    const scalar = new BN(privateKey)
+    if (scalar.cmp(ecparams.n) >= 0 || scalar.isZero()) throw new Error(messages.ECDH_FAIL)
 
-  var pair = loadPublicKey(publicKey)
-  if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
-
-  return ec.verify(message, sigObj, {x: pair.pub.x, y: pair.pub.y})
-}
-
-exports.recover = function (message, signature, recovery, compressed) {
-  var sigObj = {r: signature.slice(0, 32), s: signature.slice(32, 64)}
-
-  var sigr = new BN(sigObj.r)
-  var sigs = new BN(sigObj.s)
-  if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) throw new Error(messages.ECDSA_SIGNATURE_PARSE_FAIL)
-
-  try {
-    if (sigr.isZero() || sigs.isZero()) throw new Error()
-
-    var point = ec.recoverPubKey(message, sigObj, recovery)
-    return new Buffer(point.encode(true, compressed))
-  } catch (err) {
-    throw new Error(messages.ECDSA_RECOVER_FAIL)
+    return Buffer.from(pair.pub.mul(scalar).encode(true, compressed))
   }
-}
 
-exports.ecdh = function (publicKey, privateKey) {
-  var shared = exports.ecdhUnsafe(publicKey, privateKey, true)
-  return createHash('sha256').update(shared).digest()
-}
+  return {
+    sha256: (publicKey, privateKey) => {
+      const shared = unsafe(publicKey, privateKey, true)
+      return createHash('sha256').update(shared).digest()
+    },
 
-exports.ecdhUnsafe = function (publicKey, privateKey, compressed) {
-  var pair = loadPublicKey(publicKey)
-  if (pair === null) throw new Error(messages.EC_PUBLIC_KEY_PARSE_FAIL)
-
-  var scalar = new BN(privateKey)
-  if (scalar.cmp(ecparams.n) >= 0 || scalar.isZero()) throw new Error(messages.ECDH_FAIL)
-
-  return new Buffer(pair.pub.mul(scalar).encode(true, compressed))
-}
+    unsafe
+  }
+})()
