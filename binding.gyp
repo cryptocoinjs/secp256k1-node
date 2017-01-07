@@ -5,18 +5,9 @@
       "conditions": [
         [
           "OS=='win'", {
-            "with_gmp%": "false",
-            "conditions": [
-              ["target_arch=='ia32'", {"openssl_root%": "C:/OpenSSL-Win32"}, {"openssl_root%": "C:/OpenSSL-Win64"}]
-            ]
-          },
-          {
-            "with_gmp%": "<!(utils/has_lib.sh gmpxx && utils/has_lib.sh gmp)",
-            "conditions": [
-              ["target_arch=='ia32'", {"openssl_config_path": "<(nodedir)/deps/openssl/config/piii"}],
-              ["target_arch=='x64'",  {"openssl_config_path": "<(nodedir)/deps/openssl/config/k8"}],
-              ["target_arch=='arm'",  {"openssl_config_path": "<(nodedir)/deps/openssl/config/arm"}],
-            ]
+            "with_gmp%": "false"
+          }, {
+            "with_gmp%": "<!(utils/has_lib.sh gmpxx && utils/has_lib.sh gmp)"
           }
         ]
       ]
@@ -32,6 +23,17 @@
       "./src/secp256k1-src/contrib/lax_der_parsing.c",
       "./src/secp256k1-src/contrib/lax_der_privatekey_parsing.c"
     ],
+    "include_dirs": [
+      "/usr/local/include",
+      "./src/secp256k1-src",
+      "./src/secp256k1-src/contrib",
+      "./src/secp256k1-src/include",
+      "./src/secp256k1-src/src",
+      "<!(node -e \"require('nan')\")"
+    ],
+    "defines": [
+      "ENABLE_MODULE_RECOVERY=1"
+    ],
     "cflags": [
       "-Wall",
       "-Wno-maybe-uninitialized",
@@ -41,14 +43,6 @@
     ],
     "cflags_cc+": [
       "-std=c++0x"
-    ],
-    "include_dirs": [
-      "/usr/local/include",
-      "./src/secp256k1-src",
-      "./src/secp256k1-src/contrib",
-      "./src/secp256k1-src/include",
-      "./src/secp256k1-src/src",
-      "<!(node -e \"require('nan')\")"
     ],
     "conditions": [
       [
@@ -66,39 +60,24 @@
         }, {
           "defines": [
             "USE_NUM_NONE=1",
-            "USE_SCALAR_INV_BUILTIN=1",
             "USE_FIELD_INV_BUILTIN=1",
-            "ENABLE_MODULE_RECOVERY=1"
+            "USE_SCALAR_INV_BUILTIN=1"
           ]
         }
       ],
       [
-        "target_arch=='ia32'", {
+        "target_arch=='x64' and OS!='win'", {
+          "defines": [
+            "HAVE___INT128=1",
+            "USE_ASM_X86_64=1",
+            "USE_FIELD_5X52=1",
+            "USE_FIELD_5X52_INT128=1",
+            "USE_SCALAR_4X64=1"
+          ]
+        }, {
           "defines": [
             "USE_FIELD_10X26=1",
             "USE_SCALAR_8X32=1"
-          ]
-        }
-      ],
-      [
-        "target_arch=='x64'", {
-          "conditions": [
-            [
-              "OS=='win'", {
-                "defines": [
-                  "USE_FIELD_10X26=1",
-                  "USE_SCALAR_8X32=1"
-                ]
-              }, {
-                "defines": [
-                  "HAVE___INT128=1"
-                  "USE_ASM_X86_64=1",
-                  "USE_FIELD_5X52=1",
-                  "USE_FIELD_5X52_INT128=1",
-                  "USE_SCALAR_4X64=1"
-                ]
-              }
-            ]
           ]
         }
       ],
@@ -113,21 +92,6 @@
               "-stdlib=libc++"
             ]
           }
-        }
-      ],
-      [
-        "OS=='win'", {
-          "libraries": [
-            "-l<(openssl_root)/lib/libeay32.lib",
-          ],
-          "include_dirs": [
-            "<(openssl_root)/include",
-          ],
-        }, {
-          "include_dirs": [
-            "<(nodedir)/deps/openssl/openssl/include",
-            "<(openssl_config_path)"
-          ]
         }
       ]
     ]
