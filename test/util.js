@@ -98,7 +98,7 @@ function ecdhUnsafe (publicKey, privateKey) {
 var env = {
   repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
                    process.env.RANDOM_TESTS_REPEAT ||
-                   100,
+                   1,
                    10),
   seed: global.__env__ && global.__env__.SEED ||
         process.env.SEED ||

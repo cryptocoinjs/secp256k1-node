@@ -1,6 +1,7 @@
 sudo: false
 os:
   - linux
+  - osx
 language: node_js
 node_js:
   - "0.10"
@@ -19,8 +20,6 @@ addons:
 env:
   global:
     - JOBS=2
-    - RANDOM_TESTS_REPEAT=100
-    - CXX=g++-4.8
   matrix:
     - TEST_SUITE=unit
 matrix:
@@ -29,4 +28,6 @@ matrix:
     - os: linux
       node_js: "6"
       env: TEST_SUITE=lint
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-4.8; fi
 script: npm run $TEST_SUITE
