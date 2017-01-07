@@ -11,7 +11,7 @@ This library is experimental, so use at your own risk. Works on node version 0.1
 
 ## Installation
 
-If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/bitcoin-core/secp256k1) will use it. Otherwise it should fallback to [OpenSSL](https://www.openssl.org/).
+If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/bitcoin-core/secp256k1) will use it.
 * arch `pacman -S gmp`
 * ubuntu `sudo apt-get install libgmp-dev`
 
@@ -24,8 +24,7 @@ If you have [gmp](https://gmplib.org/) installed [secp256k1](https://github.com/
 ```
 git clone git@github.com:cryptocoinjs/secp256k1-node.git
 cd secp256k1-node
-git submodule init
-git submodule update
+git submodule update --init
 npm install
 ```
 
@@ -36,7 +35,6 @@ Required software:
   * Git: https://git-scm.com/download/win
   * nvm: https://github.com/coreybutler/nvm-windows
   * Python 2.7: https://www.python.org/downloads/release/python-2712/
-  * OpenSSL: https://wiki.openssl.org/index.php/Binaries (should be installed in `C:\OpenSSL-Win32` or `C:\OpenSSL-Win64` on 64-bit system, or check https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL#windows)
   * Visual C++ Build Tools: http://landinghub.visualstudio.com/visual-cpp-build-tools (Custom Install, and select both Windows 8.1 and Windows 10 SDKs)
 
 Additional commands:
