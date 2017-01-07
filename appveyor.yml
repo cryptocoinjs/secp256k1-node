@@ -1,0 +1,28 @@
+version: "{build}"
+build: off
+skip_tags: true
+environment:
+  matrix:
+    - nodejs_version: "0.10"
+    - nodejs_version: "0.11"
+    - nodejs_version: "0.12"
+    - nodejs_version: "4"
+    - nodejs_version: "5"
+    - nodejs_version: "6"
+    - nodejs_version: "7"
+platform:
+  - x86
+  - x64
+install:
+  - git submodule update --init --recursive
+  - ps: Start-FileDownload 'https://slproweb.com/download/Win32OpenSSL-1_0_2j.exe'
+  - ps: Start-Process "Win32OpenSSL-1_0_2j" -ArgumentList "/silent /verysilent /sp- /suppressmsgboxes" -Wait
+  - ps: Install-Product node $env:nodejs_version $env:platform
+  - npm -g install npm@latest
+  - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
+  - npm install
+  - for /f %%i in ('node -v') do set exact_nodejs_version=%%i
+test_script:
+  - npm run unit
+on_success:
+  - for %%i in (prebuilds\*) do appveyor PushArtifact %%i

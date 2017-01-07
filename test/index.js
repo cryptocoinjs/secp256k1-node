@@ -16,7 +16,7 @@ function testAPI (secp256k1, description) {
   })
 }
 
-if (!process.browser) require('./bn')
+if (!process.browser && process.platform !== 'win32') require('./bn')
 require('./ecpoint')
 require('./ecjpoint')
 
