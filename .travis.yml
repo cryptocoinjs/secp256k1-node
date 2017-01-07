@@ -9,32 +9,24 @@ node_js:
   - "4"
   - "5"
   - "6"
+  - "7"
 addons:
-  firefox: latest-esr
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.5
       - g++-4.8
-before_install:
-  - sh -e /etc/init.d/xvfb start
 env:
   global:
-    - DISPLAY=:99.0
+    - JOBS=2
     - RANDOM_TESTS_REPEAT=100
+    - CXX=g++-4.8
   matrix:
-    - CXX=g++-4.8 TEST_SUITE=unit:node
+    - TEST_SUITE=unit
 matrix:
   fast_finish: true
   include:
     - os: linux
-      node_js: "4"
-      env: CXX=g++-4.8 TEST_SUITE=lint
-    - os: linux
-      node_js: "4"
-      env: CXX=clang++ TEST_SUITE=unit:node
-    - os: linux
-      node_js: "4"
-      env: CXX=g++-4.8 TEST_SUITE=unit:browser
+      node_js: "6"
+      env: TEST_SUITE=lint
 script: npm run $TEST_SUITE

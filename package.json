@@ -43,9 +43,9 @@
     "install": "npm run rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
     "lint": "standard",
     "rebuild": "node-gyp rebuild",
-    "test": "npm run lint && npm run unit:node",
-    "unit:browser": "karma start karma.conf.js",
-    "unit:node": "tape test/index.js |faucet"
+    "test": "npm run lint && npm run unit",
+    "test:browser": "karma start karma.conf.js",
+    "unit": "tape test/index.js | faucet"
   },
   "dependencies": {
     "bindings": "^1.2.1",
