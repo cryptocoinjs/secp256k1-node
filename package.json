@@ -37,15 +37,15 @@
     "url": "https://github.com/cryptocoinjs/secp256k1-node.git"
   },
   "scripts": {
-    "clean": "node-gyp clean",
     "coverage": "RANDOM_TESTS_REPEAT=1 nyc tape test/index.js",
     "coverage-lcov": "npm run coverage && nyc report -r lcov",
-    "install": "npm run rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
+    "install": "prebuild-install || node-gyp rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
     "lint": "standard",
-    "rebuild": "node-gyp rebuild",
+    "rebuild": "prebuild --compile",
     "test": "npm run lint && npm run unit",
     "test:browser": "karma start karma.conf.js",
-    "unit": "tape test/index.js"
+    "unit": "tape test/index.js",
+    "unit-ci": "npm run unit && prebuild-ci"
   },
   "dependencies": {
     "bindings": "^1.2.1",
@@ -54,7 +54,8 @@
     "create-hash": "^1.1.2",
     "drbg.js": "^1.0.1",
     "elliptic": "^6.2.3",
-    "nan": "^2.2.1"
+    "nan": "^2.2.1",
+    "prebuild-install": "^2.0.0"
   },
   "devDependencies": {
     "bignum": "^0.12.5",
@@ -68,6 +69,8 @@
     "karma-tap": "^3.1.1",
     "node-gyp": "^3.3.1",
     "nyc": "^10.0.0",
+    "prebuild": "^6.0.0",
+    "prebuild-ci": "^1.0.9",
     "standard": "*",
     "tape": "^4.5.1",
     "xorshift.js": "^1.0.3"

@@ -21,7 +21,7 @@ env:
   global:
     - JOBS=2
   matrix:
-    - TEST_SUITE=unit
+    - TEST_SUITE=unit-ci
 matrix:
   fast_finish: true
   include:
