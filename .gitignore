@@ -2,5 +2,6 @@
 coverage
 build
 node_modules
+prebuilds
 
 npm-debug.log
