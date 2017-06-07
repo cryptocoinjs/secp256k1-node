@@ -8,7 +8,7 @@ Version | Mac/Linux | Windows
 
 This module provides native bindings to [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1). In browser [elliptic](https://github.com/indutny/elliptic) will be used.
 
-This library is experimental, so use at your own risk. Works on node version 0.10 or greater.
+This library is experimental, so use at your own risk. Works on node version 4.0.0 or greater.
 
 ## Installation
 
