@@ -1,14 +1,14 @@
 'use strict'
+var Buffer = require('safe-buffer').Buffer
 var BigNum = require('bignum')
 
 var BN_MAX256 = BigNum.pow(2, 256).sub(1)
-var N = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 'hex'))
+var N = BigNum.fromBuffer(Buffer.from('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 'hex'))
 var NH = N.shiftRight(1)
-var P = BigNum.fromBuffer(new Buffer('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
+var P = BigNum.fromBuffer(Buffer.from('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 'hex'))
 var K = BigNum(1).shiftLeft(256).sub(P)
 
-var ZERO_BUFFER32 = new Buffer(32)
-ZERO_BUFFER32.fill(0)
+var ZERO_BUFFER32 = Buffer.alloc(32, 0)
 
 function fillZeros (buffer) {
   return Buffer.concat([ZERO_BUFFER32, buffer]).slice(-32)

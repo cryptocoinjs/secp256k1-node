@@ -1,4 +1,5 @@
 'use strict'
+var Buffer = require('safe-buffer').Buffer
 var BN = require('bn.js')
 var messages = require('../lib/messages')
 
@@ -85,7 +86,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('invalid format', function (t) {
       t.throws(function () {
-        var buffer = new Buffer([0x00])
+        var buffer = Buffer.from([0x00])
         secp256k1.privateKeyImport(buffer)
       }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_IMPORT_DER_FAIL + '$'))
       t.end()

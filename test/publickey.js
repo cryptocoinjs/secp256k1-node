@@ -1,4 +1,5 @@
 'use strict'
+var Buffer = require('safe-buffer').Buffer
 var BN = require('bn.js')
 var messages = require('../lib/messages')
 
@@ -128,7 +129,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('x overflow (first byte is 0x03)', function (t) {
       var publicKey = Buffer.concat([
-        new Buffer([ 0x03 ]),
+        Buffer.from([ 0x03 ]),
         util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
       ])
       t.false(secp256k1.publicKeyVerify(publicKey))
@@ -137,7 +138,7 @@ module.exports = function (t, secp256k1) {
 
     t.test('x overflow', function (t) {
       var publicKey = Buffer.concat([
-        new Buffer([ 0x04 ]),
+        Buffer.from([ 0x04 ]),
         util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
       ])
       t.false(secp256k1.publicKeyVerify(publicKey))
@@ -146,8 +147,8 @@ module.exports = function (t, secp256k1) {
 
     t.test('y overflow', function (t) {
       var publicKey = Buffer.concat([
-        new Buffer([ 0x04 ]),
-        new Buffer(32),
+        Buffer.from([ 0x04 ]),
+        Buffer.alloc(32),
         util.ec.curve.p.toArrayLike(Buffer, 'be', 32)
       ])
       t.false(secp256k1.publicKeyVerify(publicKey))
@@ -156,8 +157,8 @@ module.exports = function (t, secp256k1) {
 
     t.test('y is even, first byte is 0x07', function (t) {
       var publicKey = Buffer.concat([
-        new Buffer([ 0x07 ]),
-        new Buffer(32),
+        Buffer.from([ 0x07 ]),
+        Buffer.alloc(32),
         util.ec.curve.p.subn(1).toArrayLike(Buffer, 'be', 32)
       ])
       t.false(secp256k1.publicKeyVerify(publicKey))
@@ -165,7 +166,7 @@ module.exports = function (t, secp256k1) {
     })
 
     t.test('y**2 !== x*x*x + 7', function (t) {
-      var publicKey = Buffer.concat([new Buffer([0x04]), util.getTweak(), util.getTweak()])
+      var publicKey = Buffer.concat([Buffer.from([0x04]), util.getTweak(), util.getTweak()])
       t.false(secp256k1.publicKeyVerify(publicKey))
       t.end()
     })
@@ -255,7 +256,7 @@ module.exports = function (t, secp256k1) {
       var tweak = util.getTweak()
 
       var publicPoint = util.ec.g.mul(new BN(privateKey))
-      var publicKey = new Buffer(publicPoint.encode(null, true))
+      var publicKey = Buffer.from(publicPoint.encode(null, true))
       var expected = util.ec.g.mul(new BN(tweak)).add(publicPoint)
 
       var compressed = secp256k1.publicKeyTweakAdd(publicKey, tweak, true)
@@ -352,7 +353,7 @@ module.exports = function (t, secp256k1) {
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var publicPoint = util.ec.g.mul(new BN(privateKey))
-      var publicKey = new Buffer(publicPoint.encode(null, true))
+      var publicKey = Buffer.from(publicPoint.encode(null, true))
       var tweak = util.getTweak()
 
       if (new BN(tweak).cmp(util.BN_ZERO) === 0) {
@@ -427,7 +428,7 @@ module.exports = function (t, secp256k1) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
         var publicKey1 = util.getPublicKey(privateKey).compressed
-        var publicKey2 = new Buffer(publicKey1)
+        var publicKey2 = Buffer.from(publicKey1)
         publicKey2[0] = publicKey2[0] ^ 0x01
         secp256k1.publicKeyCombine([publicKey1, publicKey2], true)
       }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_COMBINE_FAIL + '$'))

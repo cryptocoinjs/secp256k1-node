@@ -1,4 +1,5 @@
 'use strict'
+var Buffer = require('safe-buffer').Buffer
 var test = require('tape')
 var BigNum = require('bignum')
 
@@ -129,14 +130,14 @@ test('BN', function (t) {
     })
 
     t.test('0x04000000 -> 0x04000000', function (t) {
-      var b32 = bnUtil.fillZeros(new Buffer([0xff, 0xff, 0xff, 0xff]))
+      var b32 = bnUtil.fillZeros(Buffer.from([0xff, 0xff, 0xff, 0xff]))
       var bn = BN.fromBuffer(b32)
       bnUtil.testBN(t, bn.normSign(), BigNum.fromBuffer(b32))
       t.end()
     })
 
     t.test('-0x04000000 -> -0x04000000', function (t) {
-      var b32 = bnUtil.fillZeros(new Buffer([0xff, 0xff, 0xff, 0xff]))
+      var b32 = bnUtil.fillZeros(Buffer.from([0xff, 0xff, 0xff, 0xff]))
       var bn = BN.fromBuffer(b32)
       bn.negative = 1
       bnUtil.testBN(t, bn.normSign(), BigNum.fromBuffer(b32).neg())
@@ -726,7 +727,7 @@ test('BN', function (t) {
 
   t.test('ishrn', function (t) {
     t.test('51 bits eq 1, shift from 0 to 26', function (t) {
-      var b32 = bnUtil.fillZeros(new Buffer('07ffffffffffff', 'hex'))
+      var b32 = bnUtil.fillZeros(Buffer.from('07ffffffffffff', 'hex'))
       for (var i = 0; i < 26; ++i) {
         bnUtil.testBN(t, BN.fromBuffer(b32).ishrn(i), BigNum.fromBuffer(b32).shiftRight(i))
       }
@@ -734,7 +735,7 @@ test('BN', function (t) {
     })
 
     t.test('256 bits eq 1, shift from 0 to 26', function (t) {
-      var b32 = new Buffer(32)
+      var b32 = Buffer.alloc(32)
       b32.fill(0xff)
       for (var i = 0; i < 26; ++i) {
         bnUtil.testBN(t, BN.fromBuffer(b32).ishrn(i), BigNum.fromBuffer(b32).shiftRight(i))
@@ -1002,7 +1003,7 @@ test('BN', function (t) {
     })
 
     t.test('return null for quadratic nonresidue', function (t) {
-      var b32 = new Buffer('16e5f9d306371e9b876f04025fb8c8ed10f8b8864119a149803357e77bcdd3b1', 'hex')
+      var b32 = Buffer.from('16e5f9d306371e9b876f04025fb8c8ed10f8b8864119a149803357e77bcdd3b1', 'hex')
       t.same(BN.fromBuffer(b32).redSqrt(), null)
       t.end()
     })

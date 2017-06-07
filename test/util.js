@@ -1,4 +1,5 @@
 'use strict'
+var Buffer = require('safe-buffer').Buffer
 var crypto = require('crypto')
 var BN = require('bn.js')
 var EC = require('elliptic').ec
@@ -33,8 +34,8 @@ function getPrivateKey () {
 function getPublicKey (privateKey) {
   var publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
-    compressed: new Buffer(publicKey.encode(null, true)),
-    uncompressed: new Buffer(publicKey.encode(null, false))
+    compressed: Buffer.from(publicKey.encode(null, true)),
+    uncompressed: Buffer.from(publicKey.encode(null, false))
   }
 }
 
@@ -81,7 +82,7 @@ function sign (message, privateKey) {
 function ecdh (publicKey, privateKey) {
   var secret = ec.keyFromPrivate(privateKey)
   var point = ec.keyFromPublic(publicKey).getPublic()
-  var sharedSecret = new Buffer(point.mul(secret.priv).encode(null, true))
+  var sharedSecret = Buffer.from(point.mul(secret.priv).encode(null, true))
   return crypto.createHash('sha256').update(sharedSecret).digest()
 }
 
@@ -90,17 +91,17 @@ function ecdhUnsafe (publicKey, privateKey) {
   var point = ec.keyFromPublic(publicKey).getPublic()
   var shared = point.mul(secret.priv)
   return {
-    compressed: new Buffer(shared.encode(null, true)),
-    uncompressed: new Buffer(shared.encode(null, false))
+    compressed: Buffer.from(shared.encode(null, true)),
+    uncompressed: Buffer.from(shared.encode(null, false))
   }
 }
 
 var env = {
-  repeat: parseInt(global.__env__ && global.__env__.RANDOM_TESTS_REPEAT ||
+  repeat: parseInt((global.__env__ && global.__env__.RANDOM_TESTS_REPEAT) ||
                    process.env.RANDOM_TESTS_REPEAT ||
                    1,
                    10),
-  seed: global.__env__ && global.__env__.SEED ||
+  seed: (global.__env__ && global.__env__.SEED) ||
         process.env.SEED ||
         crypto.randomBytes(32)
 }
