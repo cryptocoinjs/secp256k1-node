@@ -7,6 +7,7 @@
 #include "signature.h"
 #include "ecdsa.h"
 #include "ecdh.h"
+#include "hash.h"
 
 secp256k1_context* secp256k1ctx;
 
@@ -43,6 +44,10 @@ NAN_MODULE_INIT(Init) {
   // ecdh
   Nan::Export(target, "ecdh", ecdh);
   Nan::Export(target, "ecdhUnsafe", ecdhUnsafe);
+
+  // hash
+  Nan::Export(target, "sha256", sha256);
+  Nan::Export(target, "dsha256", dsha256);
 }
 
 NODE_MODULE(secp256k1, Init)
