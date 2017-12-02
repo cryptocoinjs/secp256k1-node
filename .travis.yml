@@ -15,18 +15,18 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.8
+      - g++-6
 env:
   global:
     - JOBS=2
   matrix:
-    - TEST_SUITE=unit-ci
+    - TEST_SUITE=unit
 matrix:
   fast_finish: true
   include:
     - os: linux
-      node_js: "6"
+      node_js: "8"
       env: TEST_SUITE=lint
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-4.8; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-6; fi
 script: npm run $TEST_SUITE

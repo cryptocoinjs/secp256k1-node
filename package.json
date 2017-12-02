@@ -39,13 +39,12 @@
   "scripts": {
     "coverage": "RANDOM_TESTS_REPEAT=1 nyc tape test/index.js",
     "coverage-lcov": "npm run coverage && nyc report -r lcov",
-    "install": "prebuild-install || node-gyp rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
+    "install": "npm run rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
     "lint": "standard",
-    "rebuild": "prebuild --compile",
+    "rebuild": "node-gyp rebuild",
     "test": "npm run lint && npm run unit",
     "test:browser": "karma start karma.conf.js",
-    "unit": "tape test/index.js",
-    "unit-ci": "npm run unit && prebuild-ci"
+    "unit": "tape test/index.js"
   },
   "dependencies": {
     "bindings": "^1.2.1",
@@ -55,7 +54,6 @@
     "drbg.js": "^1.0.1",
     "elliptic": "^6.2.3",
     "nan": "^2.2.1",
-    "prebuild-install": "^2.0.0",
     "safe-buffer": "^5.1.0"
   },
   "devDependencies": {
@@ -70,8 +68,6 @@
     "karma-tap": "^3.1.1",
     "node-gyp": "^3.3.1",
     "nyc": "^11.0.2",
-    "prebuild": "^6.0.0",
-    "prebuild-ci": "^2.2.2",
     "standard": "*",
     "tape": "^4.5.1",
     "xorshift.js": "^1.0.3"
