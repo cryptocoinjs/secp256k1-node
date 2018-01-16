@@ -60,6 +60,20 @@ NAN_METHOD(privateKeyImport) {
   info.GetReturnValue().Set(COPY_BUFFER(private_key, 32));
 }
 
+NAN_METHOD(privateKeyNegate) {
+  Nan::HandleScope scope;
+
+  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
+  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
+
+  secp256k1_ec_privkey_negate(secp256k1ctx, &private_key[0]);
+
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
+}
+
 NAN_METHOD(privateKeyTweakAdd) {
   Nan::HandleScope scope;
 

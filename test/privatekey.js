@@ -113,6 +113,31 @@ module.exports = function (t, secp256k1) {
     t.end()
   })
 
+  t.test('privateKeyNegate', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
+        secp256k1.privateKeyNegate(null)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
+        var privateKey = util.getPrivateKey().slice(1)
+        secp256k1.privateKeyNegate(privateKey)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
+    })
+
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
+      var privateKey = util.getPrivateKey()
+      t.true(privateKey.equals(secp256k1.privateKeyNegate(secp256k1.privateKeyNegate(privateKey))))
+      t.end()
+    })
+
+    t.end()
+  })
+
   t.test('privateKeyTweakAdd', function (t) {
     t.test('private key should be a Buffer', function (t) {
       t.throws(function () {

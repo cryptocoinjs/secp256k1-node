@@ -3,6 +3,7 @@
 - [`.privateKeyVerify(Buffer privateKey)`](#privatekeyverifybuffer-privatekey---boolean)
 - [`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])`](#privatekeyexportbuffer-privatekey--boolean-compressed--true---buffer)
 - [`.privateKeyImport(Buffer privateKey)`](#privatekeyimportbuffer-privatekey---buffer)
+- [`.privateKeyNegate(Buffer privateKey)`](#privatekeynegatebuffer-privatekey---buffer)
 - [`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)`](#privatekeytweakaddbuffer-privatekey-buffer-tweak---buffer)
 - [`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)`](#privatekeytweakmulbuffer-privatekey-buffer-tweak---buffer)
 - [`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])`](#publickeycreatebuffer-privatekey--boolean-compressed--true---buffer)
@@ -40,6 +41,12 @@ Export a *privateKey* in DER format.
 ##### .privateKeyImport(Buffer privateKey) -> Buffer
 
 Import a *privateKey* in DER format.
+
+<hr>
+
+##### .privateKeyNegate(Buffer privateKey) -> Buffer
+
+Negate a *privateKey*.
 
 <hr>
 
