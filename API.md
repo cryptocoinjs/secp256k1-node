@@ -47,7 +47,7 @@ Import a *privateKey* in DER format.
 
 ##### .privateKeyNegate(Buffer privateKey) -> Buffer
 
-Negate a *privateKey*.
+Negate a *privateKey* by subtracting it from the order of the curve's base point.
 
 <hr>
 
