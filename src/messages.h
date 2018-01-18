@@ -5,6 +5,7 @@
 
 #define EC_PRIVATE_KEY_TYPE_INVALID "private key should be a Buffer"
 #define EC_PRIVATE_KEY_LENGTH_INVALID "private key length is invalid"
+#define EC_PRIVATE_KEY_RANGE_INVALID "private key range is invalid"
 #define EC_PRIVATE_KEY_TWEAK_ADD_FAIL "tweak out of range or resulting private key is invalid"
 #define EC_PRIVATE_KEY_TWEAK_MUL_FAIL "tweak out of range"
 #define EC_PRIVATE_KEY_EXPORT_DER_FAIL "couldn't export to DER format"

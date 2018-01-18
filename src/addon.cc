@@ -19,6 +19,7 @@ NAN_MODULE_INIT(Init) {
   Nan::Export(target, "privateKeyExport", privateKeyExport);
   Nan::Export(target, "privateKeyImport", privateKeyImport);
   Nan::Export(target, "privateKeyNegate", privateKeyNegate);
+  Nan::Export(target, "privateKeyModInverse", privateKeyModInverse);
   Nan::Export(target, "privateKeyTweakAdd", privateKeyTweakAdd);
   Nan::Export(target, "privateKeyTweakMul", privateKeyTweakMul);
 

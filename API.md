@@ -4,6 +4,7 @@
 - [`.privateKeyExport(Buffer privateKey [, Boolean compressed = true])`](#privatekeyexportbuffer-privatekey--boolean-compressed--true---buffer)
 - [`.privateKeyImport(Buffer privateKey)`](#privatekeyimportbuffer-privatekey---buffer)
 - [`.privateKeyNegate(Buffer privateKey)`](#privatekeynegatebuffer-privatekey---buffer)
+- [`.privateKeyModInverse(Buffer privateKey)`](#privatekeymodinversebuffer-privatekey---buffer)
 - [`.privateKeyTweakAdd(Buffer privateKey, Buffer tweak)`](#privatekeytweakaddbuffer-privatekey-buffer-tweak---buffer)
 - [`.privateKeyTweakMul(Buffer privateKey, Buffer tweak)`](#privatekeytweakmulbuffer-privatekey-buffer-tweak---buffer)
 - [`.publicKeyCreate(Buffer privateKey [, Boolean compressed = true])`](#publickeycreatebuffer-privatekey--boolean-compressed--true---buffer)
@@ -47,6 +48,12 @@ Import a *privateKey* in DER format.
 ##### .privateKeyNegate(Buffer privateKey) -> Buffer
 
 Negate a *privateKey*.
+
+<hr>
+
+##### .privateKeyModInverse(Buffer privateKey) -> Buffer
+
+Compute the inverse of a *privateKey* (modulo the order of the curve's base point).
 
 <hr>
 
