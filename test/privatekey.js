@@ -131,7 +131,11 @@ module.exports = function (t, secp256k1) {
 
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
-      t.true(privateKey.equals(secp256k1.privateKeyNegate(secp256k1.privateKeyNegate(privateKey))))
+
+      var expected = util.ec.curve.n.sub(new BN(privateKey))
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result.toString('hex'), expected.toString(16, 64))
+
       t.end()
     })
 
