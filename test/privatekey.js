@@ -129,6 +129,26 @@ module.exports = function (t, secp256k1) {
       t.end()
     })
 
+    t.test('private key is 0', function (t) {
+      var privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
+
+      var expected = Buffer.alloc(32)
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result, expected)
+
+      t.end()
+    })
+
+    t.test('private key equal to N', function (t) {
+      var privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
+
+      var expected = Buffer.alloc(32)
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result, expected)
+
+      t.end()
+    })
+
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
 
