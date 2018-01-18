@@ -81,7 +81,8 @@ NAN_METHOD(privateKeyModInverse) {
   v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
   CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
   CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
-  const unsigned char* private_key = (const unsigned char*) node::Buffer::Data(private_key_buffer);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
 
   secp256k1_scalar s;
   int overflow = 0;
@@ -93,11 +94,10 @@ NAN_METHOD(privateKeyModInverse) {
 
   secp256k1_scalar_inverse(&s, &s);
 
-  unsigned char b[32];
-  secp256k1_scalar_get_b32(b, &s);
+  secp256k1_scalar_get_b32(private_key, &s);
   secp256k1_scalar_clear(&s);
 
-  info.GetReturnValue().Set(COPY_BUFFER(&b[0], 32));
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
 }
 
 NAN_METHOD(privateKeyTweakAdd) {
