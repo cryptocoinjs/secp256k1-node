@@ -1,6 +1,7 @@
 #include <node.h>
 #include <nan.h>
 #include <secp256k1.h>
+#include <scalar_impl.h>
 #include <lax_der_privatekey_parsing.h>
 
 #include "messages.h"
@@ -58,6 +59,45 @@ NAN_METHOD(privateKeyImport) {
   }
 
   info.GetReturnValue().Set(COPY_BUFFER(private_key, 32));
+}
+
+NAN_METHOD(privateKeyNegate) {
+  Nan::HandleScope scope;
+
+  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
+  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
+
+  secp256k1_ec_privkey_negate(secp256k1ctx, &private_key[0]);
+
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
+}
+
+NAN_METHOD(privateKeyModInverse) {
+  Nan::HandleScope scope;
+
+  v8::Local<v8::Object> private_key_buffer = info[0].As<v8::Object>();
+  CHECK_TYPE_BUFFER(private_key_buffer, EC_PRIVATE_KEY_TYPE_INVALID);
+  CHECK_BUFFER_LENGTH(private_key_buffer, 32, EC_PRIVATE_KEY_LENGTH_INVALID);
+  unsigned char private_key[32];
+  memcpy(&private_key[0], node::Buffer::Data(private_key_buffer), 32);
+
+  secp256k1_scalar s;
+  int overflow = 0;
+  secp256k1_scalar_set_b32(&s, private_key, &overflow);
+  if (overflow || secp256k1_scalar_is_zero(&s)) {
+    secp256k1_scalar_clear(&s);
+    return Nan::ThrowError(EC_PRIVATE_KEY_RANGE_INVALID);
+  }
+
+  secp256k1_scalar_inverse(&s, &s);
+
+  secp256k1_scalar_get_b32(private_key, &s);
+  secp256k1_scalar_clear(&s);
+
+  info.GetReturnValue().Set(COPY_BUFFER(&private_key[0], 32));
 }
 
 NAN_METHOD(privateKeyTweakAdd) {

@@ -2,6 +2,7 @@
   "COMPRESSED_TYPE_INVALID": "compressed should be a boolean",
   "EC_PRIVATE_KEY_TYPE_INVALID": "private key should be a Buffer",
   "EC_PRIVATE_KEY_LENGTH_INVALID": "private key length is invalid",
+  "EC_PRIVATE_KEY_RANGE_INVALID": "private key range is invalid",
   "EC_PRIVATE_KEY_TWEAK_ADD_FAIL": "tweak out of range or resulting private key is invalid",
   "EC_PRIVATE_KEY_TWEAK_MUL_FAIL": "tweak out of range",
   "EC_PRIVATE_KEY_EXPORT_DER_FAIL": "couldn't export to DER format",

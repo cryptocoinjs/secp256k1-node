@@ -113,6 +113,110 @@ module.exports = function (t, secp256k1) {
     t.end()
   })
 
+  t.test('privateKeyNegate', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
+        secp256k1.privateKeyNegate(null)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
+        var privateKey = util.getPrivateKey().slice(1)
+        secp256k1.privateKeyNegate(privateKey)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key is 0', function (t) {
+      var privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
+
+      var expected = Buffer.alloc(32)
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result, expected)
+
+      t.end()
+    })
+
+    t.test('private key equal to N', function (t) {
+      var privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
+
+      var expected = Buffer.alloc(32)
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result, expected)
+
+      t.end()
+    })
+
+    t.test('private key overflow', function (t) {
+      var privateKey = util.ec.curve.n.addn(10).toArrayLike(Buffer, 'be', 32)
+
+      var expected = util.ec.curve.n.subn(10).toArrayLike(Buffer, 'be', 32)
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result, expected)
+
+      t.end()
+    })
+
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
+      var privateKey = util.getPrivateKey()
+
+      var expected = util.ec.curve.n.sub(new BN(privateKey))
+      var result = secp256k1.privateKeyNegate(privateKey)
+      t.same(result.toString('hex'), expected.toString(16, 64))
+
+      t.end()
+    })
+
+    t.end()
+  })
+
+  t.test('privateKeyModInverse', function (t) {
+    t.test('private key should be a Buffer', function (t) {
+      t.throws(function () {
+        secp256k1.privateKeyModInverse(null)
+      }, new RegExp('^TypeError: ' + messages.EC_PRIVATE_KEY_TYPE_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key length is invalid', function (t) {
+      t.throws(function () {
+        var privateKey = util.getPrivateKey().slice(1)
+        secp256k1.privateKeyModInverse(privateKey)
+      }, new RegExp('^RangeError: ' + messages.EC_PRIVATE_KEY_LENGTH_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key is 0', function (t) {
+      t.throws(function () {
+        var privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
+        secp256k1.privateKeyModInverse(privateKey)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_RANGE_INVALID + '$'))
+      t.end()
+    })
+
+    t.test('private key equal to N', function (t) {
+      t.throws(function () {
+        var privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
+        secp256k1.privateKeyModInverse(privateKey)
+      }, new RegExp('^Error: ' + messages.EC_PRIVATE_KEY_RANGE_INVALID + '$'))
+      t.end()
+    })
+
+    util.repeat(t, 'random tests', util.env.repeat, function (t) {
+      var privateKey = util.getPrivateKey()
+
+      var expected = new BN(privateKey).invm(util.ec.curve.n)
+      var result = secp256k1.privateKeyModInverse(privateKey)
+      t.same(result.toString('hex'), expected.toString(16, 64))
+
+      t.end()
+    })
+
+    t.end()
+  })
+
   t.test('privateKeyTweakAdd', function (t) {
     t.test('private key should be a Buffer', function (t) {
       t.throws(function () {
