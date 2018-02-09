@@ -27,9 +27,9 @@ npm install
 
 ##### Windows
 
-The easies way to build package on windows is install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools).
+The easiest way to build the package on windows is to install [windows-build-tools](https://github.com/felixrieseberg/windows-build-tools).
 
-Or install next software:
+Or install the following software:
 
   * Git: https://git-scm.com/download/win
   * nvm: https://github.com/coreybutler/nvm-windows
