@@ -51,11 +51,11 @@ function genCombMulTo (alen, blen) {
   for (k = 0; k < len; k++) {
     src.push('o[' + k + '] = w' + k + ';')
   }
-  src.push('if (c !== 0) {',
-           '  o[' + k + '] = c;',
-           '  out.length++;',
-           '}',
-           'return out;')
+  src.push('if (c !== 0) {')
+  src.push('  o[' + k + '] = c;')
+  src.push('  out.length++;')
+  src.push('}')
+  src.push('return out;')
 
   return src.join('\n')
 }
