@@ -24,12 +24,12 @@
       "./src/secp256k1-src/contrib/lax_der_privatekey_parsing.c"
     ],
     "include_dirs": [
-      "/usr/local/include",
       "./src/secp256k1-src",
       "./src/secp256k1-src/contrib",
       "./src/secp256k1-src/include",
       "./src/secp256k1-src/src",
-      "<!(node -e \"require('nan')\")"
+      "<!(node -e \"require('nan')\")",
+      "/usr/local/include"
     ],
     "defines": [
       "ENABLE_MODULE_ECDH=1",
