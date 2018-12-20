@@ -32,11 +32,13 @@
       "<!(node -e \"require('nan')\")"
     ],
     "defines": [
+      "ENABLE_MODULE_ECDH=1",
       "ENABLE_MODULE_RECOVERY=1"
     ],
     "cflags": [
       "-Wall",
       "-Wno-maybe-uninitialized",
+      "-Wno-nonnull-compare",
       "-Wno-uninitialized",
       "-Wno-unused-function",
       "-Wextra"
