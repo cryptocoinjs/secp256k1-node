@@ -1,5 +1,5 @@
 'use strict'
-var assert = require('assert')
+var assert = require('assert').strict
 var BigInteger = require('bigi')
 var ecdsa = require('ecdsa')
 var ecurve = require('ecurve')

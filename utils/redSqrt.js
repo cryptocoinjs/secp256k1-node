@@ -18,7 +18,7 @@ for (var i = PWR.length - 1, start = PWR.bitLength() % 26; i >= 0; --i, start = 
     if (operations.length > 0 && operations[operations.length - 1].op === 'sqr') {
       operations[operations.length - 1].v += 1
     } else {
-      operations.push({op: 'sqr', v: 1})
+      operations.push({ op: 'sqr', v: 1 })
     }
 
     if (bit === 0 && current === 0) {
@@ -33,7 +33,7 @@ for (var i = PWR.length - 1, start = PWR.bitLength() % 26; i >= 0; --i, start = 
       continue
     }
 
-    operations.push({op: 'mul', v: current})
+    operations.push({ op: 'mul', v: current })
     reqValues[current] = true
     currentLen = 0
     current = 0
