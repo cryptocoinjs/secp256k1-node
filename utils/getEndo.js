@@ -92,7 +92,7 @@ function getEndoBasis (lambda) {
     b2 = b2.neg()
   }
 
-  return [{a: a1, b: b1}, {a: a2, b: b2}]
+  return [{ a: a1, b: b1 }, { a: a2, b: b2 }]
 }
 
 // Compute beta and lambda, that lambda * P = (beta * Px; Py)

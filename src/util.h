@@ -8,12 +8,21 @@
 
 #define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, (uint32_t) datalen).ToLocalChecked()
 
+#if (NODE_MODULE_VERSION >= NODE_7_0_MODULE_VERSION)
+#define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
+  if (!value->IsUndefined()) {                                                 \
+    CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
+    compressed = value->BooleanValue(info.GetIsolate()->GetCurrentContext()).ToChecked() ? v_true : v_false;                     \
+  }                                                                            \
+}
+#else
 #define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
   if (!value->IsUndefined()) {                                                 \
     CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
     compressed = value->BooleanValue() ? v_true : v_false;                     \
   }                                                                            \
 }
+#endif
 
 // TypeError
 #define CHECK_TYPE_ARRAY(value, message) {                                     \
@@ -78,10 +87,19 @@
   }                                                                            \
 }
 
+#if (NODE_MODULE_VERSION >= NODE_7_0_MODULE_VERSION)
+#define CHECK_NUMBER_IN_INTERVAL(number, x, y, message) {                      \
+  if (number->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked() <= x || number->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked() >= y) { \
+    return Nan::ThrowRangeError(message);                                      \
+  }                                                                            \
+}
+#else
 #define CHECK_NUMBER_IN_INTERVAL(number, x, y, message) {                      \
   if (number->IntegerValue() <= x || number->IntegerValue() >= y) {            \
     return Nan::ThrowRangeError(message);                                      \
   }                                                                            \
 }
+#endif
+
 
 #endif

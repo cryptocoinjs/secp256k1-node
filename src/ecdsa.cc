@@ -130,7 +130,11 @@ NAN_METHOD(recover) {
   v8::Local<v8::Object> recid_object = info[2].As<v8::Object>();
   CHECK_TYPE_NUMBER(recid_object, RECOVERY_ID_TYPE_INVALID);
   CHECK_NUMBER_IN_INTERVAL(recid_object, -1, 4, RECOVERY_ID_VALUE_INVALID);
+#if (NODE_MODULE_VERSION >= NODE_7_0_MODULE_VERSION)
+  int recid = (int) recid_object->IntegerValue(info.GetIsolate()->GetCurrentContext()).ToChecked();
+#else
   int recid = (int) recid_object->IntegerValue();
+#endif
 
   unsigned int flags = SECP256K1_EC_COMPRESSED;
   UPDATE_COMPRESSED_VALUE(flags, info[3], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
