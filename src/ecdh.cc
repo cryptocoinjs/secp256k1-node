@@ -36,8 +36,9 @@ NAN_METHOD(ecdh) {
 }
 
 int ecdh_hash_function_unsafe(unsigned char *output, const unsigned char *x, const unsigned char *y, void *data) {
-  memcpy(output, x, 32);
-  memcpy(output + 32, y, 32);
+  output[0] = 0x04;
+  memcpy(output + 1, x, 32);
+  memcpy(output + 33, y, 32);
   return 1;
 }
 
@@ -63,12 +64,20 @@ NAN_METHOD(ecdhUnsafe) {
   unsigned int flags = SECP256K1_EC_COMPRESSED;
   UPDATE_COMPRESSED_VALUE(flags, info[2], SECP256K1_EC_COMPRESSED, SECP256K1_EC_UNCOMPRESSED);
 
-  if (secp256k1_ecdh(secp256k1ctx, &public_key.data[0], &public_key, private_key, ecdh_hash_function_unsafe, NULL) == 0) {
+  unsigned char output[65];
+  size_t output_length = flags == SECP256K1_EC_COMPRESSED ? 33 : 65;
+
+  if (secp256k1_ecdh(secp256k1ctx, &output[0], &public_key, private_key, ecdh_hash_function_unsafe, NULL) == 0) {
     return Nan::ThrowError(ECDH_FAIL);
   }
 
-  unsigned char output[65];
-  size_t output_length = flags == SECP256K1_EC_COMPRESSED ? 33 : 65;
-  secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &output_length, &public_key, flags);
+  if (output_length == 33) {
+    if (secp256k1_ec_pubkey_parse(secp256k1ctx, &public_key, output, 65) == 0) {
+      return Nan::ThrowError(EC_PUBLIC_KEY_PARSE_FAIL);
+    }
+
+    secp256k1_ec_pubkey_serialize(secp256k1ctx, &output[0], &output_length, &public_key, flags);
+  }
+
   info.GetReturnValue().Set(COPY_BUFFER(&output[0], output_length));
 }
