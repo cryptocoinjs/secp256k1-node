@@ -241,6 +241,18 @@ module.exports = function (t, secp256k1) {
       t.end()
     })
 
+    t.test('tweak produce infinity point', function (t) {
+      // G * 1 - G = 0
+      t.throws(function () {
+        var publicKey = Buffer.from(util.ec.g.encode(null, true))
+        publicKey[0] = publicKey[0] ^ 0x01 // change sign of G
+        var tweak = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
+        secp256k1.publicKeyTweakAdd(publicKey, tweak, true)
+      }, new RegExp('^Error: ' + messages.EC_PUBLIC_KEY_TWEAK_ADD_FAIL + '$'))
+
+      t.end()
+    })
+
     t.test('compressed should be a boolean', function (t) {
       t.throws(function () {
         var privateKey = util.getPrivateKey()
