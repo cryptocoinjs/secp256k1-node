@@ -41,6 +41,9 @@
       "-Wno-nonnull-compare",
       "-Wno-uninitialized",
       "-Wno-unused-function",
+# "-Wno-cast-function-type",
+# "-Wno-unused-result",
+# "-Wno-deprecated-declarations",
       "-Wextra"
     ],
     "cflags_cc+": [

@@ -8,11 +8,18 @@
 
 #define COPY_BUFFER(data, datalen) Nan::CopyBuffer((const char*) data, (uint32_t) datalen).ToLocalChecked()
 
-#if (NODE_MODULE_VERSION >= NODE_7_0_MODULE_VERSION)
+#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
 #define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
   if (!value->IsUndefined()) {                                                 \
     CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
-    compressed = value->BooleanValue(info.GetIsolate()->GetCurrentContext()).ToChecked() ? v_true : v_false;                     \
+    compressed = value->BooleanValue(info.GetIsolate()) ? v_true : v_false; \
+  }                                                                            \
+}
+#elif (NODE_MODULE_VERSION >= NODE_7_0_MODULE_VERSION)
+#define UPDATE_COMPRESSED_VALUE(compressed, value, v_true, v_false) {          \
+  if (!value->IsUndefined()) {                                                 \
+    CHECK_TYPE_BOOLEAN(value, COMPRESSED_TYPE_INVALID);                        \
+    compressed = value->BooleanValue(info.GetIsolate()->GetCurrentContext()).ToChecked() ? v_true : v_false; \
   }                                                                            \
 }
 #else

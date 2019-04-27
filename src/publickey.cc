@@ -143,7 +143,11 @@ NAN_METHOD(publicKeyCombine) {
   std::unique_ptr<secp256k1_pubkey[]> public_keys(new secp256k1_pubkey[input_buffers->Length()]);
   std::unique_ptr<secp256k1_pubkey*[]> ins(new secp256k1_pubkey*[input_buffers->Length()]);
   for (unsigned int i = 0; i < input_buffers->Length(); ++i) {
+#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
+    v8::Local<v8::Object> public_key_buffer = v8::Local<v8::Object>::Cast(input_buffers->Get(info.GetIsolate()->GetCurrentContext(), i).ToLocalChecked());
+#else
     v8::Local<v8::Object> public_key_buffer = v8::Local<v8::Object>::Cast(input_buffers->Get(i));
+#endif
     CHECK_TYPE_BUFFER(public_key_buffer, EC_PUBLIC_KEY_TYPE_INVALID);
     CHECK_BUFFER_LENGTH2(public_key_buffer, 33, 65, EC_PUBLIC_KEY_LENGTH_INVALID);
 
