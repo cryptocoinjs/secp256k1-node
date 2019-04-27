@@ -18,12 +18,8 @@ int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, co
     Nan::New(counter)
   };
 
-#if (NODE_MODULE_VERSION > NODE_0_10_MODULE_VERSION)
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   v8::Local<v8::Value> result = noncefn_callback->Call(isolate->GetCurrentContext()->Global(), 5, argv);
-#else
-  v8::Local<v8::Value> result = noncefn_callback->Call(v8::Context::GetCurrent()->Global(), 5, argv);
-#endif
 
   if (!node::Buffer::HasInstance(result) || node::Buffer::Length(result) != 32) {
     return 0;
