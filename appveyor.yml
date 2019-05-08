@@ -14,7 +14,7 @@ platform:
 install:
   - git submodule update --init --recursive
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - npm --global install npm@latest
+  # - npm --global install npm@latest
   - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
   - npm install
   - for /f %%i in ('node -v') do set exact_nodejs_version=%%i

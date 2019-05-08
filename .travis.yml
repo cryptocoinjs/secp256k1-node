@@ -10,7 +10,8 @@ node_js:
   - "7"
   - "8"
   - "9"
-  - "10"
+  - "11"
+  - "12"
 addons:
   apt:
     sources:
@@ -26,7 +27,7 @@ matrix:
   fast_finish: true
   include:
     - os: linux
-      node_js: "10"
+      node_js: "12"
       env: TEST_SUITE=lint
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CXX=g++-6; fi
