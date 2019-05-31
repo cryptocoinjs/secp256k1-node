@@ -19,7 +19,7 @@ int nonce_function_custom(unsigned char *nonce32, const unsigned char *msg32, co
   };
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
-#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
+#if (NODE_MODULE_VERSION >= NODE_12_0_MODULE_VERSION)
   v8::Local<v8::Value> result = noncefn_callback->Call(isolate->GetCurrentContext(), isolate->GetCurrentContext()->Global(), 5, argv).ToLocalChecked();
 #else
   v8::Local<v8::Value> result = noncefn_callback->Call(isolate->GetCurrentContext()->Global(), 5, argv);
@@ -52,7 +52,7 @@ NAN_METHOD(sign) {
   if (!options->IsUndefined()) {
     CHECK_TYPE_OBJECT(options, OPTIONS_TYPE_INVALID);
 
-#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
+#if (NODE_MODULE_VERSION >= NODE_12_0_MODULE_VERSION)
     v8::Local<v8::Value> data_value = options->Get(info.GetIsolate()->GetCurrentContext(), Nan::New<v8::String>("data").ToLocalChecked()).ToLocalChecked();
 #else
     v8::Local<v8::Value> data_value = options->Get(Nan::New<v8::String>("data").ToLocalChecked());
@@ -63,7 +63,7 @@ NAN_METHOD(sign) {
       data = (void*) node::Buffer::Data(data_value);
     }
 
-#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
+#if (NODE_MODULE_VERSION >= NODE_12_0_MODULE_VERSION)
     noncefn_callback = v8::Local<v8::Function>::Cast(options->Get(info.GetIsolate()->GetCurrentContext(), Nan::New<v8::String>("noncefn").ToLocalChecked()).ToLocalChecked());
 #else
     noncefn_callback = v8::Local<v8::Function>::Cast(options->Get(Nan::New<v8::String>("noncefn").ToLocalChecked()));
@@ -84,7 +84,7 @@ NAN_METHOD(sign) {
   secp256k1_ecdsa_recoverable_signature_serialize_compact(secp256k1ctx, &output[0], &recid, &sig);
 
   v8::Local<v8::Object> obj = Nan::New<v8::Object>();
-#if (NODE_MODULE_VERSION > NODE_11_0_MODULE_VERSION)
+#if (NODE_MODULE_VERSION >= NODE_12_0_MODULE_VERSION)
   obj->Set(info.GetIsolate()->GetCurrentContext(), Nan::New<v8::String>("signature").ToLocalChecked(), COPY_BUFFER(&output[0], 64));
   obj->Set(info.GetIsolate()->GetCurrentContext(), Nan::New<v8::String>("recovery").ToLocalChecked(), Nan::New<v8::Number>(recid));
 #else

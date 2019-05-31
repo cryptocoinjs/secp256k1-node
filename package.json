@@ -53,7 +53,7 @@
     "create-hash": "^1.2.0",
     "drbg.js": "^1.0.1",
     "elliptic": "^6.4.1",
-    "nan": "^2.13.2",
+    "nan": "^2.14.0",
     "safe-buffer": "^5.1.2"
   },
   "devDependencies": {
