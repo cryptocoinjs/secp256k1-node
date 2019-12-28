@@ -57,7 +57,7 @@
     "safe-buffer": "^5.1.2"
   },
   "devDependencies": {
-    "bignum": "https://github.com/fanatid/node-bignum#e688fd40dff43b03480bcdb5e4c099ee9ac27102",
+    "bignum": "^0.13.1",
     "browserify": "^16.2.3",
     "karma": "^1.3.0",
     "karma-browserify": "^5.0.4",
