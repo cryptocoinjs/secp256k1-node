@@ -1,18 +1,18 @@
-#include <node.h>
 #include <nan.h>
+#include <node.h>
 #include <secp256k1.h>
 
+#include "ecdh.h"
+#include "ecdsa.h"
 #include "privatekey.h"
 #include "publickey.h"
 #include "signature.h"
-#include "ecdsa.h"
-#include "ecdh.h"
 
 secp256k1_context* secp256k1ctx;
 
 NAN_MODULE_INIT(Init) {
-  secp256k1ctx = secp256k1_context_create(
-    SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+  secp256k1ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN |
+                                          SECP256K1_CONTEXT_VERIFY);
 
   // secret key
   Nan::Export(target, "privateKeyVerify", privateKeyVerify);

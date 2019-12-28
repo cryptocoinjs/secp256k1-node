@@ -1,8 +1,8 @@
 #ifndef _SECP256K1_NODE_PRIVATEKEY_
-# define _SECP256K1_NODE_PRIVATEKEY_
+#define _SECP256K1_NODE_PRIVATEKEY_
 
-#include <node.h>
 #include <nan.h>
+#include <node.h>
 
 NAN_METHOD(privateKeyVerify);
 NAN_METHOD(privateKeyExport);
