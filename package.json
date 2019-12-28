@@ -11,6 +11,10 @@
   "bugs": {
     "url": "https://github.com/cryptocoinjs/secp256k1-node/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cryptocoinjs/secp256k1-node.git"
+  },
   "license": "MIT",
   "author": "Martin Becze <mjbecze@gmail.com>",
   "contributors": [
@@ -20,31 +24,12 @@
     "ethers (https://github.com/ethers)",
     "Kirill Fomichev <fanatid@ya.ru> (https://github.com/fanatid)"
   ],
-  "files": [
-    "lib",
-    "src",
-    "API.md",
-    "binding.gyp",
-    "bindings.js",
-    "elliptic.js",
-    "index.js",
-    "js.js",
-    "utils/has_lib.sh"
-  ],
   "main": "./index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cryptocoinjs/secp256k1-node.git"
+  "browser": {
+    "./index.js": "./elliptic.js"
   },
   "scripts": {
-    "coverage": "RANDOM_TESTS_REPEAT=1 nyc tape test/index.js",
-    "coverage-lcov": "npm run coverage && nyc report -r lcov",
-    "install": "npm run rebuild || echo \"Secp256k1 bindings compilation fail. Pure JS implementation will be used.\"",
-    "lint": "standard",
-    "rebuild": "node-gyp rebuild",
-    "test": "npm run lint && npm run unit",
-    "test:browser": "karma start karma.conf.js",
-    "unit": "tape test/index.js"
+    "install": "node-gyp rebuild || exit 0"
   },
   "dependencies": {
     "bindings": "^1.5.0",
@@ -69,17 +54,13 @@
     "node-gyp": "^4.0.0",
     "nyc": "^14.1.0",
     "standard": "^12.0.1",
+    "tap-dot": "^2.0.0",
     "tape": "^4.10.1",
-    "xorshift.js": "^1.0.3"
-  },
-  "engines": {
-    "node": ">=4.0.0"
-  },
-  "gypfile": true,
-  "browser": {
-    "./index.js": "./elliptic.js"
+    "xorshift.js": "^1.0.3",
+    "yargs": "^15.0.2"
   },
   "engines": {
     "node": ">=10.0.0"
-  }
+  },
+  "gypfile": true
 }
