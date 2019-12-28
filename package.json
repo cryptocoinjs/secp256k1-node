@@ -29,16 +29,16 @@
     "./index.js": "./elliptic.js"
   },
   "scripts": {
-    "install": "node-gyp rebuild || exit 0"
+    "install": "node-gyp-build || exit 0"
   },
   "dependencies": {
-    "bindings": "^1.5.0",
     "bip66": "^1.1.5",
     "bn.js": "^4.11.8",
     "create-hash": "^1.2.0",
     "drbg.js": "^1.0.1",
     "elliptic": "^6.5.2",
-    "nan": "^2.14.0",
+    "node-addon-api": "^2.0.0",
+    "node-gyp-build": "^4.2.0",
     "safe-buffer": "^5.1.2"
   },
   "devDependencies": {
@@ -53,6 +53,7 @@
     "karma-tap": "^3.1.1",
     "node-gyp": "^4.0.0",
     "nyc": "^14.1.0",
+    "prebuildify": "^3.0.4",
     "standard": "^14.3.1",
     "tap-dot": "^2.0.0",
     "tape": "^4.10.1",

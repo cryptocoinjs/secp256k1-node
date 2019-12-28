@@ -3,12 +3,12 @@
 	package-pack package-copy test test-browser test-tap
 
 
-node_gyp = ./node_modules/.bin/node-gyp
+prebuildify = ./node_modules/.bin/prebuildify
 
 # hack, otherwise GitHub Actions for Windows:
 #  '.' is not recognized as an internal or external command, operable program or batch file.
 build-addon:
-	$(node_gyp) rebuild
+	$(prebuildify) --target node@10.0.0 --napi --strip && node -p "process.platform"
 
 
 nyc = ./node_modules/.bin/nyc
@@ -60,6 +60,7 @@ package_include_files = \
 	bindings.js \
 	elliptic.js \
 	index.js \
+	js.js \
 	LICENSE \
 	package.json \
 	README.md

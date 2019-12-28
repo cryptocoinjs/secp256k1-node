@@ -1,2 +1,1 @@
-'use strict'
-module.exports = require('bindings')('secp256k1')
+module.exports = require('./lib')(require('node-gyp-build')(__dirname))
