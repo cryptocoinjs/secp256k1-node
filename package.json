@@ -78,5 +78,8 @@
   "gypfile": true,
   "browser": {
     "./index.js": "./elliptic.js"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }
