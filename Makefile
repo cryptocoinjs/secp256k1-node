@@ -1,5 +1,6 @@
 .PHONY: build-addon coverage coverage-lcov format format-cpp lint lint-cpp \
-	lint-cpp-ci lint-js test test-tap
+	lint-cpp-ci lint-js package package-copy-files package-fix-packagejson \
+	package-pack package-copy test test-browser test-tap
 
 
 node_gyp = ./node_modules/.bin/node-gyp
@@ -73,7 +74,7 @@ package-copy-files:
 	cp $(package_include_files) $(package_dir)
 
 package-fix-packagejson:
-	./utils/package-fix-packagejson.js -f $(package_dir)/package.json
+	./util/package-fix-packagejson.js -f $(package_dir)/package.json
 
 package-pack:
 	cd $(package_dir) && npm pack
