@@ -1,14 +1,8 @@
 # secp256k1-node
 
-Version | Mac/Linux | Windows
-------- | --------- | -------
-[![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1) | [![Build Status](https://img.shields.io/travis/cryptocoinjs/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/cryptocoinjs/secp256k1-node) | [![AppVeyor](https://img.shields.io/appveyor/ci/fanatid/secp256k1-node.svg?branch=master&style=flat-square)](https://ci.appveyor.com/project/fanatid/secp256k1-node)
+This module provides native bindings to [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1). In browser [elliptic](https://github.com/indutny/elliptic) will be used as fallback.
 
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-This module provides native bindings to [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1). In browser [elliptic](https://github.com/indutny/elliptic) will be used.
-
-This library is experimental, so use at your own risk. Works on node version 4.0.0 or greater.
+Works on node version 10.0.0 or greater, because use [N-API](https://nodejs.org/api/n-api.html).
 
 ## Installation
 
@@ -50,7 +44,8 @@ Based on:
 
 ## Usage
 
-* [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
+* [API Reference (v4.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
+* [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v3.x/API.md)
 * [API Reference (v2.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v2.x/API.md)
 
 ```js
@@ -72,10 +67,10 @@ do {
 const pubKey = secp256k1.publicKeyCreate(privKey)
 
 // sign the message
-const sigObj = secp256k1.sign(msg, privKey)
+const sigObj = secp256k1.ecdsaSign(msg, privKey)
 
 // verify the signature
-console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
+console.log(secp256k1.ecdsaVerify(sigObj.signature, msg, pubKey))
 // => true
 ```
 
