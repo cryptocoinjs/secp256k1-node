@@ -13,11 +13,11 @@
       'target_name': 'secp256k1',
       'type': 'static_library',
       'sources': [
-        'src/secp256k1-src/src/secp256k1.c',
+        'src/secp256k1/src/secp256k1.c',
       ],
       'include_dirs': [
-        'src/secp256k1-src',
-        'src/secp256k1-src/src',
+        'src/secp256k1',
+        'src/secp256k1/src',
       ],
       'cflags': [
         '-Wno-unused-function',
