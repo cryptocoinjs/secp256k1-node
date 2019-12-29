@@ -17,10 +17,5 @@ function testAPI (secp256k1, description) {
   })
 }
 
-// if (!process.browser && process.platform !== 'win32') require('./bn')
-// require('./ecpoint')
-// require('./ecjpoint')
-
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
 // testAPI(require('../elliptic'), 'elliptic')
-// testAPI(require('../js'), 'pure js')

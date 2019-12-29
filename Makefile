@@ -60,7 +60,6 @@ package_include_files = \
 	bindings.js \
 	elliptic.js \
 	index.js \
-	js.js \
 	LICENSE \
 	package.json \
 	README.md
