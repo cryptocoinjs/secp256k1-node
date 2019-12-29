@@ -1,12 +1,13 @@
-'use strict'
-var test = require('tape')
-var util = require('./util')
+const test = require('tape')
+const util = require('./util')
 
 function testAPI (secp256k1, description) {
-  test(description, function (t) {
+  test(description, (t) => {
     util.setSeed(util.env.seed)
 
+    // TODO: context randomize
     require('./privatekey')(t, secp256k1)
+    // TODO: publicKeyNegate repeat
     require('./publickey')(t, secp256k1)
     require('./signature')(t, secp256k1)
     require('./ecdsa')(t, secp256k1)
@@ -16,10 +17,10 @@ function testAPI (secp256k1, description) {
   })
 }
 
-if (!process.browser && process.platform !== 'win32') require('./bn')
-require('./ecpoint')
-require('./ecjpoint')
+// if (!process.browser && process.platform !== 'win32') require('./bn')
+// require('./ecpoint')
+// require('./ecjpoint')
 
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
-testAPI(require('../elliptic'), 'elliptic')
-testAPI(require('../js'), 'pure js')
+// testAPI(require('../elliptic'), 'elliptic')
+// testAPI(require('../js'), 'pure js')

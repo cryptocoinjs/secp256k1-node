@@ -1,22 +1,20 @@
-'use strict'
-var Buffer = require('safe-buffer').Buffer
-var crypto = require('crypto')
-var BN = require('bn.js')
-var EC = require('elliptic').ec
-var XorShift128Plus = require('xorshift.js').XorShift128Plus
+const crypto = require('crypto')
+const BN = require('bn.js')
+const EC = require('elliptic').ec
+const XorShift128Plus = require('xorshift.js').XorShift128Plus
 
-var ec = new EC('secp256k1')
-var BN_ZERO = new BN(0)
-var BN_ONE = new BN(1)
+const ec = new EC('secp256k1')
+const BN_ZERO = new BN(0)
+const BN_ONE = new BN(1)
 
-var prngs = { privateKey: null, tweak: null, message: null }
+const prngs = { privateKey: null, tweak: null, message: null }
 
 function setSeed (seed) {
   if (Buffer.isBuffer(seed)) seed = seed.toString('hex')
   console.log('Set seed: ' + seed)
 
-  var prng = new XorShift128Plus(seed)
-  for (var i = 0; i < 100; ++i) prng.random()
+  const prng = new XorShift128Plus(seed)
+  for (let i = 0; i < 100; ++i) prng.random()
 
   prngs.privateKey = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
   prngs.tweak = new XorShift128Plus(prng.randomBytes(16).toString('hex'))
@@ -25,14 +23,14 @@ function setSeed (seed) {
 
 function getPrivateKey () {
   while (true) {
-    var privateKey = prngs.privateKey.randomBytes(32)
-    var bn = new BN(privateKey)
+    const privateKey = prngs.privateKey.randomBytes(32)
+    const bn = new BN(privateKey)
     if (bn.cmp(BN_ZERO) === 1 && bn.cmp(ec.curve.n) === -1) return privateKey
   }
 }
 
 function getPublicKey (privateKey) {
-  var publicKey = ec.keyFromPrivate(privateKey).getPublic()
+  const publicKey = ec.keyFromPrivate(privateKey).getPublic()
   return {
     compressed: Buffer.from(publicKey.encode(null, true)),
     uncompressed: Buffer.from(publicKey.encode(null, false))
@@ -45,8 +43,8 @@ function getSignature (message, privateKey) {
 
 function getTweak () {
   while (true) {
-    var tweak = prngs.tweak.randomBytes(32)
-    var bn = new BN(tweak)
+    const tweak = prngs.tweak.randomBytes(32)
+    const bn = new BN(tweak)
     if (bn.cmp(ec.curve.n) === -1) return tweak
   }
 }
@@ -56,18 +54,18 @@ function getMessage () {
 }
 
 function sign (message, privateKey) {
-  var ecSig = ec.sign(message, privateKey, { canonical: false })
+  const ecSig = ec.sign(message, privateKey, { canonical: false })
 
-  var signature = Buffer.concat([
+  const signature = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
-  var recovery = ecSig.recoveryParam
+  let recovery = ecSig.recoveryParam
   if (ecSig.s.cmp(ec.nh) === 1) {
     ecSig.s = ec.n.sub(ecSig.s)
     recovery ^= 1
   }
-  var signatureLowS = Buffer.concat([
+  const signatureLowS = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
@@ -79,44 +77,15 @@ function sign (message, privateKey) {
   }
 }
 
-function ecdh (publicKey, privateKey) {
-  var secret = ec.keyFromPrivate(privateKey)
-  var point = ec.keyFromPublic(publicKey).getPublic()
-  var sharedSecret = Buffer.from(point.mul(secret.priv).encode(null, true))
-  return crypto.createHash('sha256').update(sharedSecret).digest()
-}
-
-function ecdhUnsafe (publicKey, privateKey) {
-  var secret = ec.keyFromPrivate(privateKey)
-  var point = ec.keyFromPublic(publicKey).getPublic()
-  var shared = point.mul(secret.priv)
-  return {
-    compressed: Buffer.from(shared.encode(null, true)),
-    uncompressed: Buffer.from(shared.encode(null, false))
-  }
-}
-
-var env = {
+const env = {
   repeat: parseInt((global.__env__ && global.__env__.RANDOM_TESTS_REPEAT) || process.env.RANDOM_TESTS_REPEAT || 1, 10),
   seed: (global.__env__ && global.__env__.SEED) || process.env.SEED || crypto.randomBytes(32)
 }
 
 function _repeat (test, name, total, fn) {
-  test(name, function (t) {
-    var curr = 0
-    var _end = t.end
-
-    t.end = function () {
-      curr += 1
-      setTimeout(next, 0)
-    }
-
-    function next () {
-      if (curr >= total) return _end.call(t)
-      fn(t)
-    }
-
-    next()
+  test(name, (t) => {
+    for (let i = 0; i < total; ++i) fn(t)
+    t.end()
   })
 }
 
@@ -138,8 +107,6 @@ module.exports = {
   getMessage: getMessage,
 
   sign: sign,
-  ecdh: ecdh,
-  ecdhUnsafe: ecdhUnsafe,
 
   env: env,
   repeat: repeat

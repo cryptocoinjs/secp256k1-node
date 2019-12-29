@@ -1,156 +1,166 @@
-'use strict'
-var Buffer = require('safe-buffer').Buffer
-var messages = require('../lib/messages')
+const util = require('./util')
 
-var util = require('./util')
-
-module.exports = function (t, secp256k1) {
-  t.test('signatureNormalize', function (t) {
-    t.test('signature should be a Buffer', function (t) {
-      t.throws(function () {
+module.exports = (t, secp256k1) => {
+  t.test('signatureNormalize', (t) => {
+    t.test('signature should be a Buffer', (t) => {
+      t.throws(() => {
         secp256k1.signatureNormalize(null)
-      }, new RegExp('^TypeError: ' + messages.ECDSA_SIGNATURE_TYPE_INVALID + '$'))
+      }, /^Error: Expected signature to be an Uint8Array$/)
       t.end()
     })
 
-    t.test('invalid length', function (t) {
-      t.throws(function () {
-        var privateKey = util.getPrivateKey()
-        var message = util.getMessage()
-        var signature = util.getSignature(message, privateKey).slice(1)
+    t.test('invalid length', (t) => {
+      t.throws(() => {
+        const privateKey = util.getPrivateKey()
+        const message = util.getMessage()
+        const signature = util.getSignature(message, privateKey).slice(1)
         secp256k1.signatureNormalize(signature)
-      }, new RegExp('^RangeError: ' + messages.ECDSA_SIGNATURE_LENGTH_INVALID + '$'))
+      }, /^Error: Expected signature to be an Uint8Array with length 64$/)
       t.end()
     })
 
-    t.test('parse fail (r equal N)', function (t) {
-      t.throws(function () {
-        var signature = Buffer.concat([
+    t.test('parse fail (r equal N)', (t) => {
+      t.throws(() => {
+        const signature = Buffer.concat([
           util.ec.curve.n.toArrayLike(Buffer, 'be', 32),
           util.BN_ONE.toArrayLike(Buffer, 'be', 32)
         ])
         secp256k1.signatureNormalize(signature)
-      }, new RegExp('^Error: ' + messages.ECDSA_SIGNATURE_PARSE_FAIL + '$'))
+      }, /^Error: Signature could not be parsed$/)
       t.end()
     })
 
-    t.test('normalize return same signature (s equal n/2)', function (t) {
-      var signature = Buffer.concat([
+    t.test('normalize return same signature (s equal n/2)', (t) => {
+      const signature = Buffer.concat([
         util.BN_ONE.toArrayLike(Buffer, 'be', 32),
         util.ec.nh.toArrayLike(Buffer, 'be', 32)
       ])
-      var result = secp256k1.signatureNormalize(signature)
+      const result = secp256k1.signatureNormalize(Buffer.from(signature))
       t.same(result, signature)
       t.end()
     })
 
-    util.repeat(t, 'random tests', util.env.repeat, function (t) {
-      var message = util.getMessage()
-      var privateKey = util.getPrivateKey()
+    util.repeat(t, 'random tests', util.env.repeat, (t) => {
+      const message = util.getMessage()
+      const privateKey = util.getPrivateKey()
 
-      var sigObj = util.sign(message, privateKey)
-      var result = secp256k1.signatureNormalize(sigObj.signature)
+      const sigObj = util.sign(message, privateKey)
+      const result = secp256k1.signatureNormalize(sigObj.signature, Buffer.alloc)
       t.same(result, sigObj.signatureLowS)
-      t.end()
     })
 
     t.end()
   })
 
-  t.test('signatureExport', function (t) {
-    t.test('signature should be a Buffer', function (t) {
-      t.throws(function () {
+  t.test('signatureExport', (t) => {
+    t.test('signature should be a Buffer', (t) => {
+      t.throws(() => {
         secp256k1.signatureExport(null)
-      }, new RegExp('^TypeError: ' + messages.ECDSA_SIGNATURE_TYPE_INVALID + '$'))
+      }, /^Error: Expected signature to be an Uint8Array$/)
       t.end()
     })
 
-    t.test('invalid length', function (t) {
-      t.throws(function () {
-        var privateKey = util.getPrivateKey()
-        var message = util.getMessage()
-        var signature = util.getSignature(message, privateKey).slice(1)
+    t.test('invalid length', (t) => {
+      t.throws(() => {
+        const privateKey = util.getPrivateKey()
+        const message = util.getMessage()
+        const signature = util.getSignature(message, privateKey).slice(1)
         secp256k1.signatureExport(signature)
-      }, new RegExp('^RangeError: ' + messages.ECDSA_SIGNATURE_LENGTH_INVALID + '$'))
+      }, /^Error: Expected signature to be an Uint8Array with length 64$/)
       t.end()
     })
 
-    t.test('parse fail (r equal N)', function (t) {
-      t.throws(function () {
-        var signature = Buffer.concat([
+    t.test('parse fail (r equal N)', (t) => {
+      t.throws(() => {
+        const signature = Buffer.concat([
           util.ec.n.toArrayLike(Buffer, 'be', 32),
           util.BN_ONE.toArrayLike(Buffer, 'be', 32)
         ])
         secp256k1.signatureExport(signature)
-      }, new RegExp('^Error: ' + messages.ECDSA_SIGNATURE_PARSE_FAIL + '$'))
+      }, /^Error: Signature could not be parsed$/)
+      t.end()
+    })
+
+    t.test('invalid output', (t) => {
+      const privateKey = util.getPrivateKey()
+      const message = util.getMessage()
+      const signature = util.getSignature(message, privateKey)
+
+      t.throws(() => {
+        secp256k1.signatureExport(signature, null)
+      }, /^Error: Expected output to be an Uint8Array$/)
+
+      t.throws(() => {
+        secp256k1.signatureExport(signature, new Uint8Array(71))
+      }, /^Error: Expected output to be an Uint8Array with length 72$/)
+
+      t.end()
+    })
+
+    t.test('output as function', (t) => {
+      t.plan(1)
+
+      const privateKey = util.getPrivateKey()
+      const message = util.getMessage()
+      const signature = util.getSignature(message, privateKey)
+
+      secp256k1.signatureExport(signature, (len) => {
+        t.same(len, 72)
+        return new Uint8Array(72)
+      })
+
       t.end()
     })
 
     t.end()
   })
 
-  t.test('signatureImport', function (t) {
-    t.test('signature should be a Buffer', function (t) {
-      t.throws(function () {
+  t.test('signatureImport', (t) => {
+    t.test('signature should be a Buffer', (t) => {
+      t.throws(() => {
         secp256k1.signatureImport(null)
-      }, new RegExp('^TypeError: ' + messages.ECDSA_SIGNATURE_TYPE_INVALID + '$'))
+      }, /^Error: Expected signature to be an Uint8Array$/)
       t.end()
     })
 
-    t.test('parse fail', function (t) {
-      t.throws(function () {
+    t.test('parse fail', (t) => {
+      t.throws(() => {
         secp256k1.signatureImport(Buffer.alloc(1))
-      }, new RegExp('^Error: ' + messages.ECDSA_SIGNATURE_PARSE_DER_FAIL + '$'))
+      }, /^Error: Signature could not be parsed$/)
       t.end()
     })
 
-    t.test('parse not bip66 signature', function (t) {
-      var signature = Buffer.from('308002204171936738571ff75ec0c56c010f339f1f6d510ba45ad936b0762b1b2162d8020220152670567fa3cc92a5ea1a6ead11741832f8aede5ca176f559e8a46bb858e3f6', 'hex')
-      t.throws(function () {
+    t.test('parse not bip66 signature', (t) => {
+      const signature = Buffer.from('308002204171936738571ff75ec0c56c010f339f1f6d510ba45ad936b0762b1b2162d8020220152670567fa3cc92a5ea1a6ead11741832f8aede5ca176f559e8a46bb858e3f6', 'hex')
+      t.throws(() => {
         secp256k1.signatureImport(signature)
       })
       t.end()
     })
 
-    t.end()
-  })
+    t.test('invalid output', (t) => {
+      const sig = Buffer.from('3006020101020101', 'hex')
 
-  t.test('signatureImportLax', function (t) {
-    t.test('signature should be a Buffer', function (t) {
-      t.throws(function () {
-        secp256k1.signatureImportLax(null)
-      }, new RegExp('^TypeError: ' + messages.ECDSA_SIGNATURE_TYPE_INVALID + '$'))
+      t.throws(() => {
+        secp256k1.signatureImport(sig, null)
+      }, /^Error: Expected output to be an Uint8Array$/)
+
+      t.throws(() => {
+        secp256k1.signatureImport(sig, new Uint8Array(42))
+      }, /^Error: Expected output to be an Uint8Array with length 64$/)
+
       t.end()
     })
 
-    t.test('parse fail', function (t) {
-      t.throws(function () {
-        secp256k1.signatureImportLax(Buffer.alloc(1))
-      }, new RegExp('^Error: ' + messages.ECDSA_SIGNATURE_PARSE_DER_FAIL + '$'))
-      t.end()
-    })
+    t.test('output as function', (t) => {
+      t.plan(1)
 
-    t.test('parse not bip66 signature', function (t) {
-      var signature = Buffer.from('308002204171936738571ff75ec0c56c010f339f1f6d510ba45ad936b0762b1b2162d8020220152670567fa3cc92a5ea1a6ead11741832f8aede5ca176f559e8a46bb858e3f6', 'hex')
-      t.doesNotThrow(function () {
-        secp256k1.signatureImportLax(signature)
+      const sig = Buffer.from('3006020101020101', 'hex')
+      secp256k1.signatureImport(sig, (len) => {
+        t.same(len, 64)
+        return new Uint8Array(64)
       })
-      t.end()
-    })
 
-    t.end()
-  })
-
-  t.test('signatureExport/signatureImport', function (t) {
-    util.repeat(t, 'random tests', util.env.repeat, function (t) {
-      var message = util.getMessage()
-      var privateKey = util.getPrivateKey()
-
-      var signature = util.sign(message, privateKey).signatureLowS
-
-      var der = secp256k1.signatureExport(signature)
-      t.same(secp256k1.signatureImport(der), signature)
-      t.same(secp256k1.signatureImportLax(der), signature)
       t.end()
     })
 

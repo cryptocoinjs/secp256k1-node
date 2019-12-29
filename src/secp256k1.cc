@@ -257,8 +257,6 @@ Napi::Value Secp256k1Addon::SignatureImport(const Napi::CallbackInfo& info) {
 // ECDSA
 // TODO: add custom function & data
 Napi::Value Secp256k1Addon::ECDSASign(const Napi::CallbackInfo& info) {
-  RETURN(0);
-
   auto obj = info[0].As<Napi::Object>();
   auto output = obj.Get("signature").As<Napi::Buffer<unsigned char>>().Data();
   int recid;
