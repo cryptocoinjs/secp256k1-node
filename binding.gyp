@@ -70,6 +70,7 @@
       ],
       'sources': [
         'src/addon.cc',
+        'src/secp256k1.cc',
       ],
       'include_dirs': [
         '<!@(node -p "require(\'node-addon-api\').include")',
