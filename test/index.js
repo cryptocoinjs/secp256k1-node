@@ -7,7 +7,6 @@ function testAPI (secp256k1, description) {
 
     // TODO: context randomize
     require('./privatekey')(t, secp256k1)
-    // TODO: publicKeyNegate repeat
     require('./publickey')(t, secp256k1)
     require('./signature')(t, secp256k1)
     require('./ecdsa')(t, secp256k1)
@@ -18,4 +17,4 @@ function testAPI (secp256k1, description) {
 }
 
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
-// testAPI(require('../elliptic'), 'elliptic')
+testAPI(require('../elliptic'), 'elliptic')

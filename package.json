@@ -32,7 +32,6 @@
     "install": "node-gyp-build || exit 0"
   },
   "dependencies": {
-    "bip66": "^1.1.5",
     "elliptic": "^6.5.2",
     "node-addon-api": "^2.0.0",
     "node-gyp-build": "^4.2.0"

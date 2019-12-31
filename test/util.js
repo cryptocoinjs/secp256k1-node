@@ -1,9 +1,9 @@
 const crypto = require('crypto')
-const BN = require('bn.js')
 const EC = require('elliptic').ec
 const XorShift128Plus = require('xorshift.js').XorShift128Plus
 
 const ec = new EC('secp256k1')
+const BN = ec.curve.n.constructor
 const BN_ZERO = new BN(0)
 const BN_ONE = new BN(1)
 
@@ -30,10 +30,11 @@ function getPrivateKey () {
 }
 
 function getPublicKey (privateKey) {
-  const publicKey = ec.keyFromPrivate(privateKey).getPublic()
+  const point = ec.keyFromPrivate(privateKey).getPublic()
   return {
-    compressed: Buffer.from(publicKey.encode(null, true)),
-    uncompressed: Buffer.from(publicKey.encode(null, false))
+    point,
+    compressed: Buffer.from(point.encode(null, true)),
+    uncompressed: Buffer.from(point.encode(null, false))
   }
 }
 
@@ -95,6 +96,7 @@ repeat.only = function (t, name, total, fn) { _repeat(t.only, name, total, fn) }
 
 module.exports = {
   ec: ec,
+  BN,
   BN_ZERO: BN_ZERO,
   BN_ONE: BN_ONE,
 

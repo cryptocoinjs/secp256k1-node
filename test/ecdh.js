@@ -2,96 +2,74 @@ const util = require('./util')
 
 module.exports = (t, secp256k1) => {
   t.test('ecdh', (t) => {
-    t.test('public key should be an Uint8Array', (t) => {
+    t.test('arg: invalid public key', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const publicKey = null
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Expected public key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected public key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('public key length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const publicKey = util.getPublicKey(privateKey).compressed.slice(1)
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Expected public key to be an Uint8Array with length \[33, 65]$/)
-      t.end()
-    })
+      }, /^Error: Expected public key to be an Uint8Array with length \[33, 65]$/, 'should have length 33 or 65')
 
-    t.test('invalid public key', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const publicKey = util.getPublicKey(privateKey).compressed
-        publicKey[0] = 0x00
+        publicKey[0] = 0x01
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Public Key could not be parsed$/)
+      }, /^Error: Public Key could not be parsed$/, 'should throw on invalid public key: version 0x01')
       t.end()
     })
 
-    t.test('private key should be an Uint8Array', (t) => {
+    t.test('arg: invalid private key', (t) => {
       t.throws(() => {
         const privateKey = null
         const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Expected private key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('private key invalid length', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey().slice(1)
         const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
 
-    t.test('private key equal zero', (t) => {
-      t.throws(() => {
-        const privateKey = util.ec.curve.zero.fromRed().toArrayLike(Buffer, 'be', 32)
-        const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
-        secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Scalar was invalid \(zero or overflow\)$/)
-      t.end()
-    })
-
-    t.test('secret key equal N', (t) => {
       t.throws(() => {
         const privateKey = util.ec.n.toArrayLike(Buffer, 'be', 32)
         const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
         secp256k1.ecdh(publicKey, privateKey)
-      }, /^Error: Scalar was invalid \(zero or overflow\)$/)
+      }, /^Error: Scalar was invalid \(zero or overflow\)$/, 'should throw for overflowed private key')
+
+      t.throws(() => {
+        const privateKey = util.ec.curve.zero.fromRed().toArrayLike(Buffer, 'be', 32)
+        const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
+        secp256k1.ecdh(publicKey, privateKey)
+      }, /^Error: Scalar was invalid \(zero or overflow\)$/, 'should throw for zero private key')
+
       t.end()
     })
 
-    t.test('invalid output', (t) => {
+    t.test('arg: invalid output', (t) => {
       const privateKey = util.getPrivateKey()
-      const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
+      const publicKey = util.getPublicKey(privateKey).compressed
 
       t.throws(() => {
         secp256k1.ecdh(publicKey, privateKey, null)
-      }, /^Error: Expected output to be an Uint8Array$/)
+      }, /^Error: Expected output to be an Uint8Array$/, 'should be an Uint8Array')
 
       t.throws(() => {
         secp256k1.ecdh(publicKey, privateKey, new Uint8Array(42))
-      }, /^Error: Expected output to be an Uint8Array with length 32$/)
-
-      t.end()
-    })
-
-    t.test('output as function', (t) => {
-      const privateKey = util.getPrivateKey()
-      const publicKey = util.getPublicKey(util.getPrivateKey()).compressed
-
-      t.plan(1)
+      }, /^Error: Expected output to be an Uint8Array with length 32$/, 'should have length 32')
 
       secp256k1.ecdh(publicKey, privateKey, (len) => {
-        t.same(len, 32)
-        return new Uint8Array(32)
+        t.same(len, 32, 'compressed form should ask Uint8Array with length 32')
+        return new Uint8Array(len)
       })
 
+      t.plan(3)
       t.end()
     })
 

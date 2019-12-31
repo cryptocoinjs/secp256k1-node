@@ -1,84 +1,77 @@
-const BN = require('bn.js')
 const util = require('./util')
 
 module.exports = (t, secp256k1) => {
   t.test('privateKeyVerify', (t) => {
-    t.test('should be an Uint8Array', (t) => {
+    t.test('arg: invalid private key', (t) => {
       t.throws(() => {
         secp256k1.privateKeyVerify(null)
-      }, /^Error: Expected private key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('invalid length', (t) => {
       t.throws(() => {
-        secp256k1.privateKeyVerify(util.getPrivateKey().slice(1))
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/)
+        const privateKey = util.getPrivateKey().slice(1)
+        secp256k1.privateKeyVerify(privateKey)
+      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
+
       t.end()
     })
 
-    t.test('zero key', (t) => {
-      const privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
-      t.false(secp256k1.privateKeyVerify(privateKey))
-      t.end()
-    })
+    t.test('validate invalid private keys', (t) => {
+      const fixtures = [{
+        privateKey: util.BN_ZERO.toArrayLike(Buffer, 'be', 32),
+        msg: '0 should be invalid private key'
+      }, {
+        privateKey: util.ec.curve.n.toArrayLike(Buffer, 'be', 32),
+        msg: 'N should be invalid private key'
+      }]
 
-    t.test('equal to N', (t) => {
-      const privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
-      t.false(secp256k1.privateKeyVerify(privateKey))
+      for (const { privateKey, msg } of fixtures) {
+        t.false(secp256k1.privateKeyVerify(privateKey), msg)
+      }
+
       t.end()
     })
 
     util.repeat(t, 'random tests', util.env.repeat, (t) => {
       const privateKey = util.getPrivateKey()
-      t.true(secp256k1.privateKeyVerify(privateKey))
+      t.true(secp256k1.privateKeyVerify(privateKey), 'should be a valid private key')
     })
 
     t.end()
   })
 
   t.test('privateKeyNegate', (t) => {
-    t.test('private key should be an Uint8Array', (t) => {
+    t.test('arg: invalid private key', (t) => {
       t.throws(() => {
         secp256k1.privateKeyNegate(null)
-      }, /^Error: Expected private key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('private key length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey().slice(1)
         secp256k1.privateKeyNegate(privateKey)
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/)
-      t.end()
-    })
-
-    t.test('private key is 0', (t) => {
-      const privateKey = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
-
-      const expected = Buffer.alloc(32)
-      const result = secp256k1.privateKeyNegate(privateKey)
-      t.same(result, expected)
+      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
 
       t.end()
     })
 
-    t.test('private key equal to N', (t) => {
-      const privateKey = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
+    t.test('negate valid private keys', (t) => {
+      const fixtures = [{
+        privateKey: util.BN_ZERO.toArrayLike(Buffer, 'be', 32),
+        expected: Buffer.allocUnsafe(32).fill(0x00),
+        msg: 'negate 0 private key'
+      }, {
+        privateKey: util.ec.curve.n.toArrayLike(Buffer, 'be', 32),
+        expected: Buffer.allocUnsafe(32).fill(0x00),
+        msg: 'negate N private key'
+      }, {
+        privateKey: util.ec.curve.n.addn(10).toArrayLike(Buffer, 'be', 32),
+        expected: util.ec.curve.n.subn(10).toArrayLike(Buffer, 'be', 32),
+        msg: 'negate overflowed private key'
+      }]
 
-      const expected = Buffer.alloc(32)
-      const result = secp256k1.privateKeyNegate(privateKey)
-      t.same(result, expected)
-
-      t.end()
-    })
-
-    t.test('private key overflow', (t) => {
-      const privateKey = util.ec.curve.n.addn(10).toArrayLike(Buffer, 'be', 32)
-
-      const expected = util.ec.curve.n.subn(10).toArrayLike(Buffer, 'be', 32)
-      const result = secp256k1.privateKeyNegate(privateKey)
-      t.same(result, expected)
+      for (const { privateKey, expected, msg } of fixtures) {
+        const negated = secp256k1.privateKeyNegate(privateKey)
+        t.same(negated, expected, msg)
+      }
 
       t.end()
     })
@@ -86,8 +79,9 @@ module.exports = (t, secp256k1) => {
     util.repeat(t, 'random tests', util.env.repeat, (t) => {
       const privateKey = util.getPrivateKey()
 
-      const expected = util.ec.curve.n.sub(new BN(privateKey))
+      const expected = util.ec.curve.n.sub(new util.BN(privateKey))
       const result = secp256k1.privateKeyNegate(privateKey)
+
       t.same(result.toString('hex'), expected.toString('hex', 64))
     })
 
@@ -95,50 +89,43 @@ module.exports = (t, secp256k1) => {
   })
 
   t.test('privateKeyTweakAdd', (t) => {
-    t.test('private key should be an Uint8Array', (t) => {
+    t.test('arg: invalid private key', (t) => {
       t.throws(() => {
         const tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(null, tweak)
-      }, /^Error: Expected private key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('private key length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey().slice(1)
         const tweak = util.getTweak()
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/)
+      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
+
       t.end()
     })
 
-    t.test('tweak should be an Uint8Array', (t) => {
+    t.test('arg: invalid tweak', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakAdd(privateKey, null)
-      }, /^Error: Expected tweak to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected tweak to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('tweak length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }, /^Error: Expected tweak to be an Uint8Array with length 32$/)
-      t.end()
-    })
+      }, /^Error: Expected tweak to be an Uint8Array with length 32$/, 'should have length 32')
 
-    t.test('tweak overflow', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.privateKeyTweakAdd(privateKey, tweak)
-      }, /^Error: The tweak was out of range or the resulted private key is invalid$/)
+      }, /^Error: The tweak was out of range or the resulted private key is invalid$/, 'tweak overflow')
+
       t.end()
     })
 
-    t.test('result is zero: (N - 1) + 1', (t) => {
+    t.test('should throw if result is invalid (zero private key: (N - 1) + 1', (t) => {
       t.throws(() => {
         const privateKey = util.ec.curve.n.sub(util.BN_ONE).toArrayLike(Buffer, 'be', 32)
         const tweak = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
@@ -151,14 +138,14 @@ module.exports = (t, secp256k1) => {
       const privateKey = util.getPrivateKey()
       const tweak = util.getTweak()
 
-      const expected = new BN(privateKey).add(new BN(tweak)).mod(util.ec.curve.n)
+      const expected = new util.BN(privateKey).add(new util.BN(tweak)).mod(util.ec.curve.n)
       if (expected.cmp(util.BN_ZERO) === 0) {
         t.throws(() => {
           secp256k1.privateKeyTweakAdd(privateKey, tweak)
         }, /^Error: The tweak was out of range or the resulted private key is invalid$/)
       } else {
         const result = secp256k1.privateKeyTweakAdd(privateKey, tweak)
-        t.same(result.toString('hex'), expected.toString(16, 64))
+        t.same(result, expected.toArrayLike(Buffer, 'be', 32))
       }
     })
 
@@ -166,55 +153,45 @@ module.exports = (t, secp256k1) => {
   })
 
   t.test('privateKeyTweakMul', (t) => {
-    t.test('private key should be an Uint8Array', (t) => {
+    t.test('arg: invalid private key', (t) => {
       t.throws(() => {
         const tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(null, tweak)
-      }, /^Error: Expected private key to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('private key length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey().slice(1)
         const tweak = util.getTweak()
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/)
+      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
+
       t.end()
     })
 
-    t.test('tweak should be an Uint8Array', (t) => {
+    t.test('arg: invalid tweak', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         secp256k1.privateKeyTweakMul(privateKey, null)
-      }, /^Error: Expected tweak to be an Uint8Array$/)
-      t.end()
-    })
+      }, /^Error: Expected tweak to be an Uint8Array$/, 'should be an Uint8Array')
 
-    t.test('tweak length is invalid', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const tweak = util.getTweak().slice(1)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }, /^Error: Expected tweak to be an Uint8Array with length 32$/)
-      t.end()
-    })
+      }, /^Error: Expected tweak to be an Uint8Array with length 32$/, 'should have length 32')
 
-    t.test('tweak equal N', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const tweak = util.ec.curve.n.toArrayLike(Buffer, 'be', 32)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }, /^Error: The tweak was out of range or equal to zero$/)
-      t.end()
-    })
+      }, /^Error: The tweak was out of range or equal to zero$/, 'tweak should be less than N')
 
-    t.test('tweak is 0', (t) => {
       t.throws(() => {
         const privateKey = util.getPrivateKey()
         const tweak = util.BN_ZERO.toArrayLike(Buffer, 'be', 32)
         secp256k1.privateKeyTweakMul(privateKey, tweak)
-      }, /^Error: The tweak was out of range or equal to zero$/)
+      }, /^Error: The tweak was out of range or equal to zero$/, 'tweak should not be equal to 0')
+
       t.end()
     })
 
@@ -222,14 +199,14 @@ module.exports = (t, secp256k1) => {
       const privateKey = util.getPrivateKey()
       const tweak = util.getTweak()
 
-      if (new BN(tweak).cmp(util.BN_ZERO) === 0) {
+      if (new util.BN(tweak).cmp(util.BN_ZERO) === 0) {
         t.throws(() => {
           secp256k1.privateKeyTweakMul(privateKey, tweak)
         }, /^Error: The tweak was out of range or equal to zero$/)
       } else {
-        const expected = new BN(privateKey).mul(new BN(tweak)).mod(util.ec.curve.n)
+        const expected = new util.BN(privateKey).mul(new util.BN(tweak)).mod(util.ec.curve.n)
         const result = secp256k1.privateKeyTweakMul(privateKey, tweak)
-        t.same(result.toString('hex'), expected.toString(16, 64))
+        t.same(result, expected.toArrayLike(Buffer, 'be', 32))
       }
     })
 
