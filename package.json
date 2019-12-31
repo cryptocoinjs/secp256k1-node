@@ -33,8 +33,6 @@
   },
   "dependencies": {
     "bip66": "^1.1.5",
-    "bn.js": "^5.1.1",
-    "create-hash": "^1.2.0",
     "elliptic": "^6.5.2",
     "node-addon-api": "^2.0.0",
     "node-gyp-build": "^4.2.0"
