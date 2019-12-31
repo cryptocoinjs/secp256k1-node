@@ -5,7 +5,7 @@ function testAPI (secp256k1, description) {
   test(description, (t) => {
     util.setSeed(util.env.seed)
 
-    // TODO: context randomize
+    require('./context')(t, secp256k1)
     require('./privatekey')(t, secp256k1)
     require('./publickey')(t, secp256k1)
     require('./signature')(t, secp256k1)
