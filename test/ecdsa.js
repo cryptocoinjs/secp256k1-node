@@ -59,10 +59,6 @@ module.exports = (t, secp256k1) => {
       }, /^Error: Expected options.data to be an Uint8Array$/, 'data should be an Uint8Array')
 
       t.throws(() => {
-        secp256k1.ecdsaSign(message, privateKey, { data: new Uint8Array(42) })
-      }, /^Error: Expected options.data to be an Uint8Array with length 32$/, 'data should have length 32')
-
-      t.throws(() => {
         secp256k1.ecdsaSign(message, privateKey, { noncefn: null })
       }, /^Error: Expected options.noncefn to be a Function$/, 'noncefn should be a Function')
 
@@ -95,14 +91,14 @@ module.exports = (t, secp256k1) => {
       const privateKey = util.getPrivateKey()
       const data = util.getMessage()
 
-      t.test('noncefn called', (t) => {
-        function noncefn (...args) {
-          t.same(args.length, 5)
-          t.same(args[0], message)
-          t.same(args[1], privateKey),
-          t.same(args[2], null)
-          t.same(args[3], data)
-          t.same(args[4], 0)
+      t.test('noncefn call', (t) => {
+        function noncefn () {
+          t.same(arguments.length, 5)
+          t.same(arguments[0], message)
+          t.same(arguments[1], privateKey),
+          t.same(arguments[2], null)
+          t.same(arguments[3], data)
+          t.same(arguments[4], 0)
           return util.getMessage()
         }
         secp256k1.ecdsaSign(message, privateKey, { data, noncefn })

@@ -48,6 +48,8 @@ Based on:
 * [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v3.x/API.md)
 * [API Reference (v2.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v2.x/API.md)
 
+##### Private Key generation, Public Key creation, signature creation, signature verification
+
 ```js
 const { randomBytes } = require('crypto')
 const secp256k1 = require('secp256k1')
@@ -75,6 +77,38 @@ console.log(secp256k1.ecdsaVerify(sigObj.signature, msg, pubKey))
 ```
 
 \* **.verify return false for high signatures**
+
+##### Get X point of ECDH
+
+```js
+const { randomBytes } = require('crypto')
+// const secp256k1 = require('./elliptic')
+const secp256k1 = require('./')
+
+// generate privKey
+function getPrivateKey () {
+  while (true) {
+    const privKey = randomBytes(32)
+    if (secp256k1.privateKeyVerify(privKey)) return privKey
+  }
+}
+
+// generate private and public keys
+const privKey = getPrivateKey()
+const pubKey = secp256k1.publicKeyCreate(getPrivateKey())
+
+// compressed public key from X and Y
+function hashfn (x, y) {
+  const pubKey = new Uint8Array(33)
+  pubKey[0] = (y[31] & 1) === 0 ? 0x02 : 0x03
+  pubKey.set(y, 1)
+  return pubKey
+}
+
+// get X point of ecdh
+const ecdhPointX = secp256k1.ecdh(pubKey, privKey, { hashfn }, Buffer.alloc(33))
+console.log(ecdhPointX.toString('hex'))
+```
 
 ## LICENSE
 

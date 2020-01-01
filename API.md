@@ -17,19 +17,19 @@ const newPrivateKey = secp256k1.privateKeyNegate(Buffer.from(privateKey))
 - [`.privateKeyNegate(privateKey: Uint8Array): Uint8Array`](#privatekeynegateprivatekey-uint8array-uint8array)
 - [`.privateKeyTweakAdd(privateKey: Uint8Array, tweak: Uint8Array): Uint8Array`](#privatekeytweakaddprivatekey-uint8array-tweak-uint8array-uint8array)
 - [`.privateKeyTweakMul(privateKey: Uint8Array, tweak: Uint8Array): Uint8Array`](#privatekeytweakmulprivatekey-uint8array-tweak-uint8array-uint8array)
-- [`.publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeycreateprivatekey-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.publicKeyConvert(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeyconvertpublickey-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.publicKeyNegate(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeynegatepublickey-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.publicKeyCombine(publicKeys: Uint8Array[], compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeycombinepublickeys-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.publicKeyTweakAdd(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeytweakaddpublickey-uint8array-tweak-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.publicKeyTweakMul(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeytweakmulpublickey-uint8array-tweak-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeycreateprivatekey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyConvert(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeyconvertpublickey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyNegate(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeynegatepublickey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyCombine(publicKeys: Uint8Array[], compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeycombinepublickeys-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyTweakAdd(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeytweakaddpublickey-uint8array-tweak-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.publicKeyTweakMul(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeytweakmulpublickey-uint8array-tweak-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
 - [`.signatureNormalize(signature: Uint8Array): Uint8Array`](#signaturenormalizesignature-uint8array-uint8array)
-- [`.signatureExport(signature, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureexportsignature-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.signatureImport(signature, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureimportsignature-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((_: number) => Uint8Array)): { signature: Uint8Array, recid: number }`](#ecdsasignmessage-uint8array-privatekey-uint8array--data-noncefn---data-uint8array-noncefn-message-uint8array-privatekey-uint8array-algo-null-data-uint8array-counter-number--uint8array----output-uint8array--_-number--uint8array--signature-uint8array-recid-number-)
+- [`.signatureExport(signature, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureexportsignature-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.signatureImport(signature, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureimportsignature-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((len: number) => Uint8Array)): { signature: Uint8Array, recid: number }`](#ecdsasignmessage-uint8array-privatekey-uint8array--data-noncefn---data-uint8array-noncefn-message-uint8array-privatekey-uint8array-algo-null-data-uint8array-counter-number--uint8array----output-uint8array--len-number--uint8array--signature-uint8array-recid-number-)
 - [`.ecdsaVerify(signature: Uint8Array, message: Uint8Array, publicKey: Uint8Array): boolean`](#ecdsaverifysignature-uint8array-message-uint8array-publickey-uint8array-boolean)
-- [`.ecdsaRecover(signature: Uint8Array, recid: number, message: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdsarecoversignature-uint8array-recid-number-message-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.ecdh(publicKey: Uint8Array, privateKey: Uint8Array, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdhpublickey-uint8array-privatekey-uint8array-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.ecdsaRecover(signature: Uint8Array, recid: number, message: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdsarecoversignature-uint8array-recid-number-message-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
+- [`.ecdh(publicKey: Uint8Array, privateKey: Uint8Array, { data, xbuf, ybuf, hashfn }: { data?: Uint8Array, xbuf?: Uint8Array, ybuf?: Uint8Array, hashfn?: ((x: Uint8Array, y: Uint8Array, data: Uint8Array) => Uint8Array) } = {}, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdhpublickey-uint8array-privatekey-uint8array--data-xbuf-ybuf-hashfn---data-uint8array-xbuf-uint8array-ybuf-uint8array-hashfn-x-uint8array-y-uint8array-data-uint8array--uint8array----output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
 
 ##### .contextRandomize(seed: Uint8Array): void
 
@@ -51,27 +51,27 @@ Tweak a private key in place by adding tweak to it.
 
 Tweak a private key in place by multiplying it by a tweak.
 
-##### .publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Compute the public key for a secret key.
 
-##### .publicKeyConvert(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyConvert(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Reserialize public key to another format.
 
-##### .publicKeyNegate(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyNegate(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Negates a public key in place.
 
-##### .publicKeyCombine(publicKeys: Uint8Array[], compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyCombine(publicKeys: Uint8Array[], compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Add a number of public keys together.
 
-##### .publicKeyTweakAdd(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyTweakAdd(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Tweak a public key by adding tweak times the generator to it.
 
-##### .publicKeyTweakMul(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .publicKeyTweakMul(publicKey: Uint8Array, tweak: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Tweak a public key by multiplying it by a tweak value.
 
@@ -79,15 +79,15 @@ Tweak a public key by multiplying it by a tweak value.
 
 Convert a signature to a normalized lower-S form in place.
 
-##### .signatureExport(signature, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .signatureExport(signature, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Export an ECDSA signature to DER format.
 
-##### .signatureImport(signature, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .signatureImport(signature, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Parse a DER ECDSA signature.
 
-##### .ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((\_: number) => Uint8Array)): { signature: Uint8Array, recid: number }
+##### .ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((len: number) => Uint8Array)): { signature: Uint8Array, recid: number }
 
 Create an ECDSA signature.
 
@@ -95,10 +95,10 @@ Create an ECDSA signature.
 
 Verify an ECDSA signature.
 
-##### .ecdsaRecover(signature: Uint8Array, recid: number, message: Uint8Array, compressed: boolean = true, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .ecdsaRecover(signature: Uint8Array, recid: number, message: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Recover an ECDSA public key from a signature.
 
-##### .ecdh(publicKey: Uint8Array, privateKey: Uint8Array, output: Uint8Array | ((\_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
+##### .ecdh(publicKey: Uint8Array, privateKey: Uint8Array, { data, xbuf, ybuf, hashfn }: { data?: Uint8Array, xbuf?: Uint8Array, ybuf?: Uint8Array, hashfn?: ((x: Uint8Array, y: Uint8Array, data: Uint8Array) => Uint8Array) } = {}, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 
 Compute an EC Diffie-Hellman secret in constant time.
