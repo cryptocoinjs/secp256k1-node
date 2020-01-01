@@ -1,36 +1,34 @@
-'use strict'
-var benchmark = require('benchmark')
-var ProgressBar = require('progress')
+const benchmark = require('benchmark')
+const ProgressBar = require('progress')
 
-var util = require('../test/util')
-var implementations = {
+const util = require('../test/util')
+const implementations = {
   bindings: require('../bindings'),
-  secp256k1js: require('../js'),
   elliptic: require('../elliptic'),
   ecdsa: require('./ecdsa')
 }
 
-var fixtureIndex = 0
-var fixtures = new Array(1000)
-var getNextFixture = function () {
-  var fixture = fixtures[fixtureIndex++]
+let fixtureIndex = 0
+const fixtures = new Array(1000)
+function getNextFixture () {
+  const fixture = fixtures[fixtureIndex++]
   if (fixtureIndex === fixtures.length) fixtureIndex = 0
 
   return fixture
 }
 
-var progressBar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
+const progressBar = new ProgressBar(':percent (:current/:total), :elapseds elapsed, eta :etas', {
   total: fixtures.length,
   stream: util.progressStream
 })
 
 util.setSeed(util.env.seed)
-for (var i = 0; i < fixtures.length; ++i) {
-  var fixture = {}
+for (let i = 0; i < fixtures.length; ++i) {
+  const fixture = {}
   fixture.privateKey = util.getPrivateKey()
   fixture.publicKey = util.getPublicKey(fixture.privateKey).compressed
   fixture.message = util.getMessage()
-  fixture.sigObj = implementations.secp256k1js.sign(fixture.message, fixture.privateKey)
+  fixture.sigObj = util.sign(fixture.message, fixture.privateKey)
   fixtures[i] = fixture
   progressBar.tick()
 }
@@ -38,68 +36,59 @@ console.log('Create ' + fixtures.length + ' fixtures')
 console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')
 
 function runSuite (suiteName, testFunctionGenerator) {
-  var suite = new benchmark.Suite(suiteName, {
-    onStart: function () {
+  const suite = new benchmark.Suite(suiteName, {
+    onStart () {
       console.log('Benchmarking: ' + suiteName)
       console.log('--------------------------------------------------')
     },
-    onCycle: function (event) {
+    onCycle (event) {
       console.log(String(event.target))
     },
-    onError: function (event) {
+    onError (event) {
       console.error(event.target.error)
     },
-    onComplete: function () {
+    onComplete () {
       console.log('==================================================')
     }
   })
 
-  Object.keys(implementations).forEach(function (name) {
-    if (implementations[name][suiteName] === undefined) return
-    suite.add(name, testFunctionGenerator(implementations[name]), {
-      onStart: function () {
+  for (const [name, impl] of Object.entries(implementations)) {
+    if (impl[suiteName] === undefined) continue
+
+    suite.add(name, testFunctionGenerator(impl), {
+      onStart () {
         fixtureIndex = 0
       },
-      onCycle: function () {
+      onCycle () {
         fixtureIndex = 0
       }
     })
-  })
+  }
 
   suite.run()
 }
 
-runSuite('publicKeyCreate', function (secp256k1) {
-  return function () {
-    var fixture = getNextFixture()
-    secp256k1.publicKeyCreate(fixture.privateKey)
-  }
+runSuite('publicKeyCreate', (secp256k1) => () => {
+  const fixture = getNextFixture()
+  secp256k1.publicKeyCreate(fixture.privateKey)
 })
 
-runSuite('sign', function (secp256k1) {
-  return function () {
-    var fixture = getNextFixture()
-    secp256k1.sign(fixture.message, fixture.privateKey)
-  }
+runSuite('ecdsaSign', (secp256k1) => () => {
+  const fixture = getNextFixture()
+  secp256k1.ecdsaSign(fixture.message, fixture.privateKey)
 })
 
-runSuite('verify', function (secp256k1) {
-  return function () {
-    var fixture = getNextFixture()
-    secp256k1.verify(fixture.message, fixture.sigObj.signature, fixture.publicKey)
-  }
+runSuite('ecdsaVerify', (secp256k1) => () => {
+  const fixture = getNextFixture()
+  secp256k1.ecdsaVerify(fixture.sigObj.signature, fixture.message, fixture.publicKey)
 })
 
-runSuite('recover', function (secp256k1) {
-  return function () {
-    var fixture = getNextFixture()
-    secp256k1.recover(fixture.message, fixture.sigObj.signature, fixture.sigObj.recovery)
-  }
+runSuite('ecdsaRecover', (secp256k1) => () => {
+  const fixture = getNextFixture()
+  secp256k1.ecdsaRecover(fixture.sigObj.signature, fixture.sigObj.recid, fixture.message)
 })
 
-runSuite('ecdh', function (secp256k1) {
-  return function () {
-    var fixture = getNextFixture()
-    secp256k1.ecdh(fixture.publicKey, fixture.privateKey)
-  }
+runSuite('ecdh', (secp256k1) => () => {
+  const fixture = getNextFixture()
+  secp256k1.ecdh(fixture.publicKey, fixture.privateKey)
 })

@@ -61,21 +61,17 @@ function sign (message, privateKey) {
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
-  let recovery = ecSig.recoveryParam
+  let recid = ecSig.recoveryParam
   if (ecSig.s.cmp(ec.nh) === 1) {
     ecSig.s = ec.n.sub(ecSig.s)
-    recovery ^= 1
+    recid ^= 1
   }
   const signatureLowS = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),
     ecSig.s.toArrayLike(Buffer, 'be', 32)
   ])
 
-  return {
-    signature: signature,
-    signatureLowS: signatureLowS,
-    recovery: recovery
-  }
+  return { signature, signatureLowS, recid }
 }
 
 const env = {

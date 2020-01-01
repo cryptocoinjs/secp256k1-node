@@ -284,23 +284,23 @@ module.exports = (t, secp256k1) => {
       const sig = util.sign(message, privateKey)
 
       t.throws(() => {
-        secp256k1.ecdsaRecover(sig.signature, sig.recovery, message, true, null)
+        secp256k1.ecdsaRecover(sig.signature, sig.recid, message, true, null)
       }, /^Error: Expected output to be an Uint8Array$/, 'should be an Uint8Array')
 
       t.throws(() => {
-        secp256k1.ecdsaRecover(sig.signature, sig.recovery, message, true, new Uint8Array(42))
+        secp256k1.ecdsaRecover(sig.signature, sig.recid, message, true, new Uint8Array(42))
       }, /^Error: Expected output to be an Uint8Array with length 33$/, 'should have length 33 if compressed')
 
       t.throws(() => {
-        secp256k1.ecdsaRecover(sig.signature, sig.recovery, message, false, new Uint8Array(42))
+        secp256k1.ecdsaRecover(sig.signature, sig.recid, message, false, new Uint8Array(42))
       }, /^Error: Expected output to be an Uint8Array with length 65$/, 'should have length 65 if uncompressed')
 
-      secp256k1.ecdsaRecover(sig.signature, sig.recovery, message, true, (len) => {
+      secp256k1.ecdsaRecover(sig.signature, sig.recid, message, true, (len) => {
         t.same(len, 33, 'compressed form should ask Uint8Array with length 33')
         return new Uint8Array(len)
       })
 
-      secp256k1.ecdsaRecover(sig.signature, sig.recovery, message, false, (len) => {
+      secp256k1.ecdsaRecover(sig.signature, sig.recid, message, false, (len) => {
         t.same(len, 65, 'uncompressed form should ask Uint8Array with length 65')
         return new Uint8Array(len)
       })
