@@ -37,6 +37,7 @@
     "node-gyp-build": "^4.2.0"
   },
   "devDependencies": {
+    "node-gyp": "^5.0.7",
     "nyc": "^14.1.0",
     "prebuildify": "^3.0.4",
     "standard": "^14.3.1",
