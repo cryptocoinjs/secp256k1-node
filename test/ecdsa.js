@@ -1,4 +1,3 @@
-const { randomBytes } = require('crypto')
 const util = require('./util')
 
 module.exports = (t, secp256k1) => {
@@ -43,24 +42,91 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
-    t.test('arg: invalid output', (t) => {
+    t.test('arg: invalid options', (t) => {
       const message = util.getMessage()
       const privateKey = util.getPrivateKey()
 
       t.throws(() => {
         secp256k1.ecdsaSign(message, privateKey, null)
+      }, /^Error: Expected options to be an Object$/, 'should be an Object')
+
+      t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, new Number(42))
+      }, /^Error: Expected options to be an Object$/, 'should be an Object')
+
+      t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, { data: null })
+      }, /^Error: Expected options.data to be an Uint8Array$/, 'data should be an Uint8Array')
+
+      t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, { data: new Uint8Array(42) })
+      }, /^Error: Expected options.data to be an Uint8Array with length 32$/, 'data should have length 32')
+
+      t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, { noncefn: null })
+      }, /^Error: Expected options.noncefn to be a Function$/, 'noncefn should be a Function')
+
+      t.end()
+    })
+
+    t.test('arg: invalid output', (t) => {
+      const message = util.getMessage()
+      const privateKey = util.getPrivateKey()
+
+      t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, {}, null)
       }, /^Error: Expected output to be an Uint8Array$/, 'should be an Uint8Array')
 
       t.throws(() => {
-        secp256k1.ecdsaSign(message, privateKey, new Uint8Array(42))
+        secp256k1.ecdsaSign(message, privateKey, {}, new Uint8Array(42))
       }, /^Error: Expected output to be an Uint8Array with length 64$/, 'should have length 64')
 
-      secp256k1.ecdsaSign(message, privateKey, (len) => {
+      secp256k1.ecdsaSign(message, privateKey, {}, (len) => {
         t.same(len, 64, 'should ask Uint8Array with length 64')
         return new Uint8Array(len)
       })
 
       t.plan(3)
+      t.end()
+    })
+
+    t.test('noncefn usage', (t) => {
+      const message = util.getMessage()
+      const privateKey = util.getPrivateKey()
+      const data = util.getMessage()
+
+      t.test('noncefn called', (t) => {
+        function noncefn (...args) {
+          t.same(args.length, 5)
+          t.same(args[0], message)
+          t.same(args[1], privateKey),
+          t.same(args[2], null)
+          t.same(args[3], data)
+          t.same(args[4], 0)
+          return util.getMessage()
+        }
+        secp256k1.ecdsaSign(message, privateKey, { data, noncefn })
+
+        t.plan(6)
+        t.end()
+      })
+
+      t.test('invalid nonce', (t) => {
+        t.throws(() => {
+          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => null })
+        }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
+
+        t.throws(() => {
+          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => new Number(42) })
+        }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
+
+        t.throws(() => {
+          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => new Uint8Array(42) })
+        }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
+
+        t.end()
+      })
+
       t.end()
     })
 
@@ -85,7 +151,7 @@ module.exports = (t, secp256k1) => {
         const message = util.getMessage()
         const signature = Buffer.concat([
           util.ec.n.toArrayLike(Buffer, 'be', 32),
-          randomBytes(32)
+          util.getMessage()
         ])
         const publicKey = util.getPublicKey(privateKey).compressed
         secp256k1.ecdsaVerify(signature, message, publicKey)
@@ -162,7 +228,7 @@ module.exports = (t, secp256k1) => {
         const message = util.getMessage()
         const signature = Buffer.concat([
           util.ec.n.toArrayLike(Buffer, 'be', 32),
-          randomBytes(32)
+          util.getMessage()
         ])
         secp256k1.ecdsaRecover(signature, 0, message)
       }, /^Error: Signature could not be parsed$/, 'should throw on invalid signature: r equal to N')
@@ -257,7 +323,7 @@ module.exports = (t, secp256k1) => {
       const publicKey = util.getPublicKey(privateKey)
       const expected = util.sign(message, privateKey)
 
-      const sigObj = secp256k1.ecdsaSign(message, privateKey, Buffer.alloc)
+      const sigObj = secp256k1.ecdsaSign(message, privateKey, {}, Buffer.alloc)
       t.same(sigObj.ecdsaSignature, expected.ecdsaSignatureLowS)
       t.same(sigObj.ecdsaRecovery, expected.ecdsaRecovery)
 

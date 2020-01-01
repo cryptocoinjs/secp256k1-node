@@ -1,4 +1,4 @@
-const { randomBytes } = require('crypto')
+const util = require('./util')
 
 module.exports = (t, secp256k1) => {
   t.test('contextRandomize', (t) => {
@@ -17,7 +17,7 @@ module.exports = (t, secp256k1) => {
 
     t.test('valid seed', (t) => {
       t.doesNotThrow(() => {
-        const seed = randomBytes(32)
+        const seed = util.getMessage()
         secp256k1.contextRandomize(seed)
       }, 'pass random buffer with length 32')
 

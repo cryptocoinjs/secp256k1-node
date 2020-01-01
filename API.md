@@ -26,7 +26,7 @@ const newPrivateKey = secp256k1.privateKeyNegate(Buffer.from(privateKey))
 - [`.signatureNormalize(signature: Uint8Array): Uint8Array`](#signaturenormalizesignature-uint8array-uint8array)
 - [`.signatureExport(signature, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureexportsignature-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
 - [`.signatureImport(signature, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#signatureimportsignature-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
-- [`.ecdsaSign(message: Uint8Array, privateKey: Uint8Array, output: Uint8Array | ((_: number) => Uint8Array)): { signature: Uint8Array, recid: number  = (len) => new Uint8Array(len)}`](#ecdsasignmessage-uint8array-privatekey-uint8array-output-uint8array--_-number--uint8array--signature-uint8array-recid-number---len--new-uint8arraylen)
+- [`.ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((_: number) => Uint8Array)): { signature: Uint8Array, recid: number }`](#ecdsasignmessage-uint8array-privatekey-uint8array--data-noncefn---data-uint8array-noncefn-message-uint8array-privatekey-uint8array-algo-null-data-uint8array-counter-number--uint8array----output-uint8array--_-number--uint8array--signature-uint8array-recid-number-)
 - [`.ecdsaVerify(signature: Uint8Array, message: Uint8Array, publicKey: Uint8Array): boolean`](#ecdsaverifysignature-uint8array-message-uint8array-publickey-uint8array-boolean)
 - [`.ecdsaRecover(signature: Uint8Array, recid: number, message: Uint8Array, compressed: boolean = true, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdsarecoversignature-uint8array-recid-number-message-uint8array-compressed-boolean--true-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
 - [`.ecdh(publicKey: Uint8Array, privateKey: Uint8Array, output: Uint8Array | ((_: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#ecdhpublickey-uint8array-privatekey-uint8array-output-uint8array--_-number--uint8array--len--new-uint8arraylen-uint8array)
@@ -87,7 +87,7 @@ Export an ECDSA signature to DER format.
 
 Parse a DER ECDSA signature.
 
-##### .ecdsaSign(message: Uint8Array, privateKey: Uint8Array, output: Uint8Array | ((\_: number) => Uint8Array)): { signature: Uint8Array, recid: number  = (len) => new Uint8Array(len)}
+##### .ecdsaSign(message: Uint8Array, privateKey: Uint8Array, { data, noncefn }: { data?: Uint8Array, noncefn?: ((message: Uint8Array, privateKey: Uint8Array, algo: null, data: Uint8Array, counter: number) => Uint8Array) } = {}, output: Uint8Array | ((\_: number) => Uint8Array)): { signature: Uint8Array, recid: number }
 
 Create an ECDSA signature.
 

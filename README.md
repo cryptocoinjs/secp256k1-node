@@ -44,7 +44,7 @@ Based on:
 
 ## Usage
 
-* [API Reference (v4.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
+* [API Reference (v4.x)](API.md) (current version)
 * [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v3.x/API.md)
 * [API Reference (v2.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v2.x/API.md)
 

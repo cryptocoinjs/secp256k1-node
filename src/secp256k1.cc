@@ -255,7 +255,24 @@ Napi::Value Secp256k1Addon::SignatureImport(const Napi::CallbackInfo& info) {
 }
 
 // ECDSA
-// TODO: add custom function & data
+int nonce_function(unsigned char *nonce32, const unsigned char *msg32, const unsigned char *key32, const unsigned char *algo16, void *data, unsigned int counter) {
+  auto obj = static_cast<Secp256k1Addon::ECDSASignData*>(data);
+  auto env = Napi::Env(obj->env);
+
+  auto result = obj->fn.Call({
+    obj->msg32,
+    obj->key32,
+    env.Null(),
+    obj->data,
+    Napi::Number::New(env, counter),
+  });
+  if (!result.IsTypedArray()) return 0;
+  if (result.As<Napi::Uint8Array>().ByteLength() != 32) return 0;
+
+  memcpy(nonce32, result.As<Napi::Uint8Array>().Data(), 32);
+  return 1;
+}
+
 Napi::Value Secp256k1Addon::ECDSASign(const Napi::CallbackInfo& info) {
   auto obj = info[0].As<Napi::Object>();
   auto output = obj.Get("signature").As<Napi::Buffer<unsigned char>>().Data();
@@ -263,14 +280,31 @@ Napi::Value Secp256k1Addon::ECDSASign(const Napi::CallbackInfo& info) {
   auto msg32 = info[1].As<Napi::Buffer<unsigned char>>().Data();
   auto seckey = info[2].As<Napi::Buffer<const unsigned char>>().Data();
 
+  void* data = NULL;
+  if (!info[3].IsUndefined()) {
+    data = info[3].As<Napi::Buffer<unsigned char>>().Data();
+  }
+
+  secp256k1_nonce_function noncefn = secp256k1_nonce_function_rfc6979;
+  if (!info[4].IsUndefined()) {
+    this->ecdsa_sign_data.env = info.Env();
+    this->ecdsa_sign_data.fn = info[4].As<Napi::Function>();
+    this->ecdsa_sign_data.msg32 = info[1];
+    this->ecdsa_sign_data.key32 = info[2];
+    this->ecdsa_sign_data.data = info[3].IsUndefined() ? info.Env().Null() : info[3];
+
+    noncefn = nonce_function;
+    data = static_cast<void*>(&this->ecdsa_sign_data);
+  }
+
   secp256k1_ecdsa_recoverable_signature sig;
   RETURN_IF_ZERO(
       secp256k1_ecdsa_sign_recoverable(this->ctx_,
                                        &sig,
                                        msg32,
                                        seckey,
-                                       secp256k1_nonce_function_rfc6979,
-                                       NULL),
+                                       noncefn,
+                                       data),
       1);
 
   RETURN_IF_ZERO(secp256k1_ecdsa_recoverable_signature_serialize_compact(

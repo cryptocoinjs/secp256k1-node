@@ -11,10 +11,19 @@ class Secp256k1Addon : public Napi::ObjectWrap<Secp256k1Addon> {
   Secp256k1Addon(const Napi::CallbackInfo& info);
   void Finalize(Napi::Env env);
 
+  struct ECDSASignData {
+    napi_env env;
+    Napi::Function fn;
+    Napi::Value msg32;
+    Napi::Value key32;
+    Napi::Value data;
+  };
+
  private:
   static Napi::FunctionReference constructor;
   static unsigned int secp256k1_context_flags;
   const secp256k1_context* ctx_;
+  ECDSASignData ecdsa_sign_data;
 
   Napi::Value ContextRandomize(const Napi::CallbackInfo& info);
 
