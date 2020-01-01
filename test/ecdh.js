@@ -61,7 +61,7 @@ module.exports = (t, secp256k1) => {
       }, /^Error: Expected options to be an Object$/, 'should be an Object')
 
       t.throws(() => {
-        secp256k1.ecdh(publicKey, privateKey, new Number(42))
+        secp256k1.ecdh(publicKey, privateKey, Number(42))
       }, /^Error: Expected options to be an Object$/, 'should be an Object')
 
       t.throws(() => {

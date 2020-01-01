@@ -51,7 +51,7 @@ module.exports = (t, secp256k1) => {
       }, /^Error: Expected options to be an Object$/, 'should be an Object')
 
       t.throws(() => {
-        secp256k1.ecdsaSign(message, privateKey, new Number(42))
+        secp256k1.ecdsaSign(message, privateKey, Number(42))
       }, /^Error: Expected options to be an Object$/, 'should be an Object')
 
       t.throws(() => {
@@ -95,7 +95,7 @@ module.exports = (t, secp256k1) => {
         function noncefn () {
           t.same(arguments.length, 5)
           t.same(arguments[0], message)
-          t.same(arguments[1], privateKey),
+          t.same(arguments[1], privateKey)
           t.same(arguments[2], null)
           t.same(arguments[3], data)
           t.same(arguments[4], 0)
@@ -113,7 +113,7 @@ module.exports = (t, secp256k1) => {
         }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
 
         t.throws(() => {
-          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => new Number(42) })
+          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => Number(42) })
         }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
 
         t.throws(() => {

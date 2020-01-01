@@ -255,17 +255,20 @@ Napi::Value Secp256k1Addon::SignatureImport(const Napi::CallbackInfo& info) {
 }
 
 // ECDSA
-int ecdsa_sign_nonce_function(unsigned char *nonce32, const unsigned char *msg32, const unsigned char *key32, const unsigned char *algo16, void *data, unsigned int counter) {
+int ecdsa_sign_nonce_function(unsigned char* nonce32,
+                              const unsigned char* msg32,
+                              const unsigned char* key32,
+                              const unsigned char* algo16,
+                              void* data,
+                              unsigned int counter) {
   auto obj = static_cast<Secp256k1Addon::ECDSASignData*>(data);
   auto env = Napi::Env(obj->env);
 
-  auto result = obj->fn.Call({
-    obj->msg32,
-    obj->key32,
-    env.Null(),
-    obj->data,
-    Napi::Number::New(env, counter),
-  });
+  auto result = obj->fn.Call({obj->msg32,
+                              obj->key32,
+                              env.Null(),
+                              obj->data,
+                              Napi::Number::New(env, counter)});
   if (!result.IsTypedArray()) return 0;
   if (result.As<Napi::Uint8Array>().ByteLength() != 32) return 0;
 
@@ -291,21 +294,17 @@ Napi::Value Secp256k1Addon::ECDSASign(const Napi::CallbackInfo& info) {
     this->ecdsa_sign_data.fn = info[4].As<Napi::Function>();
     this->ecdsa_sign_data.msg32 = info[1];
     this->ecdsa_sign_data.key32 = info[2];
-    this->ecdsa_sign_data.data = info[3].IsUndefined() ? info.Env().Null() : info[3];
+    this->ecdsa_sign_data.data =
+        info[3].IsUndefined() ? info.Env().Null() : info[3];
 
     noncefn = ecdsa_sign_nonce_function;
     data = static_cast<void*>(&this->ecdsa_sign_data);
   }
 
   secp256k1_ecdsa_recoverable_signature sig;
-  RETURN_IF_ZERO(
-      secp256k1_ecdsa_sign_recoverable(this->ctx_,
-                                       &sig,
-                                       msg32,
-                                       seckey,
-                                       noncefn,
-                                       data),
-      1);
+  RETURN_IF_ZERO(secp256k1_ecdsa_sign_recoverable(
+                     this->ctx_, &sig, msg32, seckey, noncefn, data),
+                 1);
 
   RETURN_IF_ZERO(secp256k1_ecdsa_recoverable_signature_serialize_compact(
                      this->ctx_, output, &recid, &sig),
@@ -352,17 +351,16 @@ Napi::Value Secp256k1Addon::ECDSARecover(const Napi::CallbackInfo& info) {
 }
 
 // ECDH
-int ecdh_hash_function(unsigned char *output, const unsigned char *x, const unsigned char *y, void *data) {
+int ecdh_hash_function(unsigned char* output,
+                       const unsigned char* x,
+                       const unsigned char* y,
+                       void* data) {
   auto obj = static_cast<Secp256k1Addon::ECDHData*>(data);
 
   memcpy(obj->xbuf.As<Napi::Uint8Array>().Data(), x, 32);
   memcpy(obj->ybuf.As<Napi::Uint8Array>().Data(), y, 32);
 
-  auto result = obj->fn.Call({
-    obj->xbuf,
-    obj->ybuf,
-    obj->data,
-  });
+  auto result = obj->fn.Call({obj->xbuf, obj->ybuf, obj->data});
   if (!result.IsTypedArray()) return 0;
   if (result.As<Napi::Uint8Array>().ByteLength() != obj->outputlen) return 0;
 
@@ -384,8 +382,10 @@ Napi::Value Secp256k1Addon::ECDH(const Napi::CallbackInfo& info) {
   if (!info[4].IsUndefined()) {
     auto env = info.Env();
     this->ecdh_data.fn = info[4].As<Napi::Function>();
-    this->ecdh_data.xbuf = info[5].IsUndefined() ? Napi::Uint8Array::New(env, 32) : info[5];
-    this->ecdh_data.ybuf = info[6].IsUndefined() ? Napi::Uint8Array::New(env, 32) : info[6];
+    this->ecdh_data.xbuf =
+        info[5].IsUndefined() ? Napi::Uint8Array::New(env, 32) : info[5];
+    this->ecdh_data.ybuf =
+        info[6].IsUndefined() ? Napi::Uint8Array::New(env, 32) : info[6];
     this->ecdh_data.data = info[3].IsUndefined() ? env.Null() : info[3];
     this->ecdh_data.outputlen = output.Length();
 
@@ -397,12 +397,8 @@ Napi::Value Secp256k1Addon::ECDH(const Napi::CallbackInfo& info) {
   RETURN_IF_ZERO(secp256k1_ec_pubkey_parse(
                      this->ctx_, &pubkey, input.Data(), input.Length()),
                  1);
-  RETURN_IF_ZERO(secp256k1_ecdh(this->ctx_,
-                                output.Data(),
-                                &pubkey,
-                                seckey,
-                                hashfn,
-                                data),
-                 2);
+  RETURN_IF_ZERO(
+      secp256k1_ecdh(this->ctx_, output.Data(), &pubkey, seckey, hashfn, data),
+      2);
   RETURN(0);
 }
