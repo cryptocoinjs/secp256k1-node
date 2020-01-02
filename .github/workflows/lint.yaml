@@ -1,8 +1,6 @@
 name: Lint C/C++ and JS code
 
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   cpp:
