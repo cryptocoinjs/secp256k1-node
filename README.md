@@ -101,7 +101,7 @@ const pubKey = secp256k1.publicKeyCreate(getPrivateKey())
 function hashfn (x, y) {
   const pubKey = new Uint8Array(33)
   pubKey[0] = (y[31] & 1) === 0 ? 0x02 : 0x03
-  pubKey.set(y, 1)
+  pubKey.set(x, 1)
   return pubKey
 }
 
