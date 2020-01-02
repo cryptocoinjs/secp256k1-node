@@ -1,6 +1,46 @@
 const util = require('./util')
 
 module.exports = (t, secp256k1) => {
+  t.test('publicKeyVerify', (t) => {
+    t.test('arg: invalid public key', (t) => {
+      t.throws(() => {
+        secp256k1.publicKeyVerify(null)
+      }, /^Error: Expected public key to be an Uint8Array$/, 'should be an Uint8Array')
+
+      t.throws(() => {
+        const privateKey = util.getPrivateKey()
+        const publicKey = util.getPublicKey(privateKey).compressed.slice(1)
+        secp256k1.publicKeyVerify(publicKey)
+      }, /^Error: Expected public key to be an Uint8Array with length \[33, 65]$/, 'should have length 33 or 65')
+
+      t.end()
+    })
+
+    t.test('validate invalid public keys', (t) => {
+      const privateKey = util.getPrivateKey()
+      const publicKey = util.getPublicKey(privateKey)
+
+      const invalidVersion = Buffer.from(publicKey.compressed)
+      invalidVersion[0] = 0x00
+      t.false(secp256k1.publicKeyVerify(invalidVersion), 'invalid version byte')
+
+      const invalidY = Buffer.from(publicKey.uncompressed)
+      invalidY[64] ^= 0x01
+      t.false(secp256k1.publicKeyVerify(invalidY), 'invalid Y')
+
+      t.end()
+    })
+
+    util.repeat(t, 'random tests', util.env.repeat, (t) => {
+      const privateKey = util.getPrivateKey()
+      const publicKey = util.getPublicKey(privateKey)
+      t.true(secp256k1.publicKeyVerify(publicKey.compressed), 'should be a valid public key')
+      t.true(secp256k1.publicKeyVerify(publicKey.uncompressed), 'should be a valid public key')
+    })
+
+    t.end()
+  })
+
   t.test('publicKeyCreate', (t) => {
     t.test('arg: invalid private key', (t) => {
       t.throws(() => {

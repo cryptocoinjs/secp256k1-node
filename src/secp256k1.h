@@ -41,6 +41,7 @@ class Secp256k1Addon : public Napi::ObjectWrap<Secp256k1Addon> {
   Napi::Value PrivateKeyTweakAdd(const Napi::CallbackInfo& info);
   Napi::Value PrivateKeyTweakMul(const Napi::CallbackInfo& info);
 
+  Napi::Value PublicKeyVerify(const Napi::CallbackInfo& info);
   Napi::Value PublicKeyCreate(const Napi::CallbackInfo& info);
   Napi::Value PublicKeyConvert(const Napi::CallbackInfo& info);
   Napi::Value PublicKeyNegate(const Napi::CallbackInfo& info);

@@ -17,6 +17,7 @@ const newPrivateKey = secp256k1.privateKeyNegate(Buffer.from(privateKey))
 - [`.privateKeyNegate(privateKey: Uint8Array): Uint8Array`](#privatekeynegateprivatekey-uint8array-uint8array)
 - [`.privateKeyTweakAdd(privateKey: Uint8Array, tweak: Uint8Array): Uint8Array`](#privatekeytweakaddprivatekey-uint8array-tweak-uint8array-uint8array)
 - [`.privateKeyTweakMul(privateKey: Uint8Array, tweak: Uint8Array): Uint8Array`](#privatekeytweakmulprivatekey-uint8array-tweak-uint8array-uint8array)
+- [`.publicKeyVerify(publicKey: Uint8Array): boolean`](#publickeyverifypublickey-uint8array-boolean)
 - [`.publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeycreateprivatekey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
 - [`.publicKeyConvert(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeyconvertpublickey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
 - [`.publicKeyNegate(publicKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array`](#publickeynegatepublickey-uint8array-compressed-boolean--true-output-uint8array--len-number--uint8array--len--new-uint8arraylen-uint8array)
@@ -50,6 +51,10 @@ Tweak a private key in place by adding tweak to it.
 ##### .privateKeyTweakMul(privateKey: Uint8Array, tweak: Uint8Array): Uint8Array
 
 Tweak a private key in place by multiplying it by a tweak.
+
+##### .publicKeyVerify(publicKey: Uint8Array): boolean
+
+Verify a public key.
 
 ##### .publicKeyCreate(privateKey: Uint8Array, compressed: boolean = true, output: Uint8Array | ((len: number) => Uint8Array) = (len) => new Uint8Array(len)): Uint8Array
 

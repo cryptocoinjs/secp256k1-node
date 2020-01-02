@@ -44,6 +44,7 @@ Napi::Value Secp256k1Addon::Init(Napi::Env env) {
           InstanceMethod("privateKeyTweakMul",
                          &Secp256k1Addon::PrivateKeyTweakMul),
 
+          InstanceMethod("publicKeyVerify", &Secp256k1Addon::PublicKeyVerify),
           InstanceMethod("publicKeyCreate", &Secp256k1Addon::PublicKeyCreate),
           InstanceMethod("publicKeyConvert", &Secp256k1Addon::PublicKeyConvert),
           InstanceMethod("publicKeyNegate", &Secp256k1Addon::PublicKeyNegate),
@@ -125,6 +126,16 @@ Napi::Value Secp256k1Addon::PrivateKeyTweakMul(const Napi::CallbackInfo& info) {
 }
 
 // PublicKey
+Napi::Value Secp256k1Addon::PublicKeyVerify(const Napi::CallbackInfo& info) {
+  auto input = info[0].As<Napi::Buffer<const unsigned char>>();
+
+  secp256k1_pubkey pubkey;
+  RETURN_IF_ZERO(secp256k1_ec_pubkey_parse(
+                     this->ctx_, &pubkey, input.Data(), input.Length()),
+                 1);
+  RETURN(0);
+}
+
 Napi::Value Secp256k1Addon::PublicKeyCreate(const Napi::CallbackInfo& info) {
   auto output = info[0].As<Napi::Buffer<unsigned char>>();
   auto seckey = info[1].As<Napi::Buffer<const unsigned char>>().Data();
