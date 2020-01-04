@@ -14,7 +14,7 @@ build-addon:
 nyc = ./node_modules/.bin/nyc
 
 coverage:
-	RANDOM_TESTS_REPEAT=1 $(nyc) node test/index.js
+	RANDOM_TESTS_REPEAT=1 $(nyc) $(tape) $(test_files)
 
 coverage-lcov: coverage
 	RANDOM_TESTS_REPEAT=1 $(nyc) report -r lcov
