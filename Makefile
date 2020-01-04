@@ -1,6 +1,6 @@
 .PHONY: build-addon coverage coverage-lcov format format-cpp lint lint-cpp \
 	lint-cpp-ci lint-js package package-copy-files package-fix-packagejson \
-	package-pack package-copy test test-browser test-tap
+	package-pack package-copy test test-tap
 
 
 prebuildify = ./node_modules/.bin/prebuildify
@@ -86,13 +86,9 @@ package-copy:
 tape = ./node_modules/.bin/tape
 tap_reporter = ./node_modules/.bin/tap-dot
 test_files = test/index.js
-karma = ./node_modules/.bin/karma
 
 test:
 	$(tape) $(test_files) | $(tap_reporter)
-
-test-browser:
-	$(karma) start karma.conf.js
 
 # See build-addon
 test-tap:
