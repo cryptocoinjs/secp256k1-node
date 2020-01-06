@@ -177,6 +177,38 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
+    t.test('special tests for cover loadPublicKey', (t) => {
+      const p = util.ec.curve.p.toArray('be', 32)
+      const one = util.BN_ONE.toArray('be', 32)
+
+      t.throws(() => {
+        const publicKey = Buffer.from([0x02, ...p])
+        secp256k1.publicKeyConvert(publicKey)
+      }, /^Error: Public Key could not be parsed$/, 'overflowed compressed key')
+
+      t.throws(() => {
+        const publicKey = Buffer.from([0x04, ...p, ...one])
+        secp256k1.publicKeyConvert(publicKey)
+      }, /^Error: Public Key could not be parsed$/, 'overflowed uncompressed key (x part)')
+
+      t.throws(() => {
+        const publicKey = Buffer.from([0x04, ...one, ...p])
+        secp256k1.publicKeyConvert(publicKey)
+      }, /^Error: Public Key could not be parsed$/, 'overflowed uncompressed key (y part)')
+
+      t.throws(() => {
+        const privateKey = util.getPrivateKey()
+        const keys = util.getPublicKey(privateKey)
+
+        const publicKey = keys.uncompressed
+        publicKey[0] = keys.point.y.isEven() ? 0x07 : 0x06
+
+        secp256k1.publicKeyConvert(publicKey)
+      }, /^Error: Public Key could not be parsed$/, 'odd flag for 0x06/0x07')
+
+      t.end()
+    })
+
     util.repeat(t, 'random tests', util.env.repeat, (t) => {
       const privateKey = util.getPrivateKey()
       const expected = util.getPublicKey(privateKey)
@@ -205,7 +237,7 @@ module.exports = (t, secp256k1) => {
 
       t.throws(() => {
         const publicKey = new Uint8Array(33)
-        secp256k1.publicKeyCombine([publicKey])
+        secp256k1.publicKeyNegate(publicKey)
       }, /^Error: Public Key could not be parsed$/, 'should throw for invalid public key')
 
       t.end()

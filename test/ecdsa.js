@@ -204,6 +204,26 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
+    t.test('return true/false', (t) => {
+      const message = util.getMessage()
+      const privateKey = util.getPrivateKey()
+      const publicKey = util.getPublicKey(privateKey)
+      const sigObj = util.sign(message, privateKey)
+
+      t.true(secp256k1.ecdsaVerify(sigObj.signatureLowS, message, publicKey.compressed), 'true for valid data')
+
+      const newMessage = Buffer.from([message[0] ^ 0x01, ...message.slice(1)])
+      t.false(secp256k1.ecdsaVerify(sigObj.signatureLowS, newMessage, publicKey.compressed), 'false for new message')
+
+      const newSignatureR = Buffer.concat([Buffer.alloc(32, 0), sigObj.signatureLowS.slice(32, 64)])
+      t.false(secp256k1.ecdsaVerify(newSignatureR, message, publicKey.compressed), 'false for invalid signature (zero r)')
+
+      const newSignatureS = Buffer.concat([sigObj.signatureLowS.slice(0, 32), Buffer.alloc(32, 0)])
+      t.false(secp256k1.ecdsaVerify(newSignatureS, message, publicKey.compressed), 'false for invalid signature (zero s)')
+
+      t.end()
+    })
+
     t.end()
   })
 
@@ -233,19 +253,17 @@ module.exports = (t, secp256k1) => {
     })
 
     t.test('arg: invalid recovery', (t) => {
+      const privateKey = util.getPrivateKey()
+      const message = util.getMessage()
+      const sigObj = util.sign(message, privateKey)
+
       t.throws(() => {
-        const privateKey = util.getPrivateKey()
-        const message = util.getMessage()
-        const signature = util.getSignature(message, privateKey)
-        secp256k1.ecdsaRecover(signature, null, message)
+        secp256k1.ecdsaRecover(sigObj.signature, null, message)
       }, /^Error: Expected recovery id to be a Number within interval \[0, 3]$/, 'should be a Number')
 
       t.throws(() => {
-        const privateKey = util.getPrivateKey()
-        const message = util.getMessage()
-        const signature = util.getSignature(privateKey, message)
-        secp256k1.ecdsaRecover(signature, 4, message)
-      }, /^Error: Expected recovery id to be a Number within interval \[0, 3]$/, 'should throw for invalid value')
+        secp256k1.ecdsaRecover(sigObj.signature, 4, message)
+      }, /^Error: Expected recovery id to be a Number within interval \[0, 3]$/, 'should throw for recovery outside interval')
 
       t.end()
     })
@@ -309,6 +327,28 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
+    t.test('can not be recovered', (t) => {
+      const privateKey = util.getPrivateKey()
+      const message = util.getMessage()
+      const sigObj = util.sign(message, privateKey)
+
+      t.throws(() => {
+        const newSignatureR = Buffer.concat([Buffer.alloc(32, 0), sigObj.signatureLowS.slice(32, 64)])
+        secp256k1.ecdsaRecover(newSignatureR, sigObj.recid, message)
+      }, /^Error: Public key could not be recover$/, 'invalid signature (zero r)')
+
+      t.throws(() => {
+        const newSignatureS = Buffer.concat([sigObj.signatureLowS.slice(0, 32), Buffer.alloc(32, 0)])
+        secp256k1.ecdsaRecover(newSignatureS, sigObj.recid, message)
+      }, /^Error: Public key could not be recover$/, 'invalid signature (zero s)')
+
+      t.throws(() => {
+        secp256k1.ecdsaRecover(sigObj.signature, sigObj.recid ^ 0x02, message)
+      }, /^Error: Public key could not be recover$/, 'invalid recovery id')
+
+      t.end()
+    })
+
     t.end()
   })
 
@@ -320,8 +360,8 @@ module.exports = (t, secp256k1) => {
       const expected = util.sign(message, privateKey)
 
       const sigObj = secp256k1.ecdsaSign(message, privateKey, {}, Buffer.alloc)
-      t.same(sigObj.ecdsaSignature, expected.ecdsaSignatureLowS)
-      t.same(sigObj.ecdsaRecovery, expected.ecdsaRecovery)
+      t.same(sigObj.signature, expected.signatureLowS)
+      t.same(sigObj.recid, expected.recid)
 
       const isValid = secp256k1.ecdsaVerify(sigObj.signature, message, publicKey.compressed)
       t.true(isValid)

@@ -35,6 +35,17 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
+    t.test('normalize signature (s equal to N/2 + 1)', (t) => {
+      const signature = Buffer.concat([
+        util.BN_ONE.toArrayLike(Buffer, 'be', 32),
+        util.ec.nh.toArrayLike(Buffer, 'be', 32)
+      ])
+      const signature1 = new util.BN(signature).iaddn(1).toArrayLike(Buffer, 'be', 64)
+      const result = secp256k1.signatureNormalize(signature1)
+      t.same(result, signature)
+      t.end()
+    })
+
     util.repeat(t, 'random tests', util.env.repeat, (t) => {
       const message = util.getMessage()
       const privateKey = util.getPrivateKey()

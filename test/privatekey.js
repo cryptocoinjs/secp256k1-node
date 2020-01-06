@@ -134,6 +134,14 @@ module.exports = (t, secp256k1) => {
       t.end()
     })
 
+    t.test('should be OK without overflow', (t) => {
+      const privateKey = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
+      const tweak = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
+      const result = secp256k1.privateKeyTweakAdd(privateKey, tweak, Buffer.alloc)
+      t.same(result, new util.BN(2).toArrayLike(Buffer, 'be', 32))
+      t.end()
+    })
+
     util.repeat(t, 'random tests', util.env.repeat, (t) => {
       const privateKey = util.getPrivateKey()
       const tweak = util.getTweak()
@@ -192,6 +200,14 @@ module.exports = (t, secp256k1) => {
         secp256k1.privateKeyTweakMul(privateKey, tweak)
       }, /^Error: The tweak was out of range or equal to zero$/, 'tweak should not be equal to 0')
 
+      t.end()
+    })
+
+    t.test('should be OK without overflow', (t) => {
+      const privateKey = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
+      const tweak = util.BN_ONE.toArrayLike(Buffer, 'be', 32)
+      const result = secp256k1.privateKeyTweakMul(privateKey, tweak, Buffer.alloc)
+      t.same(result, util.BN_ONE.toArrayLike(Buffer, 'be', 32))
       t.end()
     })
 
