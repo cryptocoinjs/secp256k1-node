@@ -2,7 +2,9 @@
 coverage
 build
 node_modules
+prebuilds
 
 npm-debug.log
 package-lock.json
+yarn-error.log
 yarn.lock

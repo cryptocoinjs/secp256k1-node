@@ -1,14 +1,8 @@
 # secp256k1-node
 
-Version | Mac/Linux | Windows
-------- | --------- | -------
-[![NPM Package](https://img.shields.io/npm/v/secp256k1.svg?style=flat-square)](https://www.npmjs.org/package/secp256k1) | [![Build Status](https://img.shields.io/travis/cryptocoinjs/secp256k1-node.svg?branch=master&style=flat-square)](https://travis-ci.org/cryptocoinjs/secp256k1-node) | [![AppVeyor](https://img.shields.io/appveyor/ci/fanatid/secp256k1-node.svg?branch=master&style=flat-square)](https://ci.appveyor.com/project/fanatid/secp256k1-node)
+This module provides native bindings to [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1). In browser [elliptic](https://github.com/indutny/elliptic) will be used as fallback.
 
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-This module provides native bindings to [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1). In browser [elliptic](https://github.com/indutny/elliptic) will be used.
-
-This library is experimental, so use at your own risk. Works on node version 4.0.0 or greater.
+Works on node version 10.0.0 or greater, because use [N-API](https://nodejs.org/api/n-api.html).
 
 ## Installation
 
@@ -50,8 +44,11 @@ Based on:
 
 ## Usage
 
-* [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/master/API.md)
+* [API Reference (v4.x)](API.md) (current version)
+* [API Reference (v3.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v3.x/API.md)
 * [API Reference (v2.x)](https://github.com/cryptocoinjs/secp256k1-node/blob/v2.x/API.md)
+
+##### Private Key generation, Public Key creation, signature creation, signature verification
 
 ```js
 const { randomBytes } = require('crypto')
@@ -72,18 +69,46 @@ do {
 const pubKey = secp256k1.publicKeyCreate(privKey)
 
 // sign the message
-const sigObj = secp256k1.sign(msg, privKey)
+const sigObj = secp256k1.ecdsaSign(msg, privKey)
 
 // verify the signature
-console.log(secp256k1.verify(msg, sigObj.signature, pubKey))
+console.log(secp256k1.ecdsaVerify(sigObj.signature, msg, pubKey))
 // => true
 ```
 
 \* **.verify return false for high signatures**
 
-## Second pure js implementation
+##### Get X point of ECDH
 
-Project has yet one secp256k1 implementation based on [elliptic](http://github.com/indutny/elliptic) and [bn.js](http://github.com/indutny/bn.js). The main purpose of this smaller size, high performance and easy code audit. This implementation is super experimental, use it at your own risk.
+```js
+const { randomBytes } = require('crypto')
+// const secp256k1 = require('./elliptic')
+const secp256k1 = require('./')
+
+// generate privKey
+function getPrivateKey () {
+  while (true) {
+    const privKey = randomBytes(32)
+    if (secp256k1.privateKeyVerify(privKey)) return privKey
+  }
+}
+
+// generate private and public keys
+const privKey = getPrivateKey()
+const pubKey = secp256k1.publicKeyCreate(getPrivateKey())
+
+// compressed public key from X and Y
+function hashfn (x, y) {
+  const pubKey = new Uint8Array(33)
+  pubKey[0] = (y[31] & 1) === 0 ? 0x02 : 0x03
+  pubKey.set(x, 1)
+  return pubKey
+}
+
+// get X point of ecdh
+const ecdhPointX = secp256k1.ecdh(pubKey, privKey, { hashfn }, Buffer.alloc(33))
+console.log(ecdhPointX.toString('hex'))
+```
 
 ## LICENSE
 

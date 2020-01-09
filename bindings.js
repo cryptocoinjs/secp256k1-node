@@ -1,2 +1,2 @@
-'use strict'
-module.exports = require('bindings')('secp256k1')
+const addon = require('node-gyp-build')(__dirname)
+module.exports = require('./lib')(new addon.Secp256k1())
