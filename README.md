@@ -57,6 +57,8 @@ const secp256k1 = require('secp256k1')
 //   if you want to use pure js implementation in node
 
 // generate message to sign
+// message should have 32-byte length, if you have some other length you can hash message
+// for example `msg = sha256(rawMessage)`
 const msg = randomBytes(32)
 
 // generate privKey
