@@ -28,6 +28,10 @@ module.exports = (t, secp256k1) => {
       invalidY[64] ^= 0x01
       t.false(secp256k1.publicKeyVerify(invalidY), 'invalid Y')
 
+      const invalidLength = Buffer.from(publicKey.uncompressed)
+      invalidLength[0] = publicKey.compressed[0]
+      t.false(secp256k1.publicKeyVerify(invalidLength), 'invalid length')
+
       t.end()
     })
 
