@@ -4,7 +4,14 @@
 
 - Custom type for data output. It's possible pass Buffer or Object which inherits Uint8Array to function for data output. Of course length should match, or you can pass function which accept number of bytes and return instance with specified length.
 
-- In place operations. Some functions doing in place operations. This done for less allocations, if you need new instance this can be easily done with creating it before pass to functions. For example:
+- In place operations (follow [bitcoin-core/secp256k1](https://github.com/bitcoin-core/secp256k1) API):
+
+  - `privateKeyNegate`
+  - `privateKeyTweakAdd`
+  - `privateKeyTweakMul`
+  - `signatureNormalize`
+
+If you need new instance this can be easily done with creating it before pass to functions. For example:
 
 ```js
 const newPrivateKey = secp256k1.privateKeyNegate(Buffer.from(privateKey))
