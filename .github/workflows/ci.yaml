@@ -25,7 +25,12 @@ jobs:
         run: yarn install --ignore-scripts
 
       - name: Build addon
+        if: runner.os != 'Linux'
         run: make build-addon
+
+      - name: Build addon
+        if: runner.os == 'Linux'
+        run: make build-addon-linux
 
       - name: Get minimal Node.js version from package.json (Linux & macOS)
         id: node-version-nix
