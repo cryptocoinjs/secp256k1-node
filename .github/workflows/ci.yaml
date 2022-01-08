@@ -10,6 +10,7 @@ jobs:
     name: Build addon and run tests
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - macos-latest
