@@ -1,7 +1,9 @@
 #include <secp256k1.h>
 #include <secp256k1/include/secp256k1_ecdh.h>
+#include <secp256k1/include/secp256k1_extrakeys.h>
 #include <secp256k1/include/secp256k1_preallocated.h>
 #include <secp256k1/include/secp256k1_recovery.h>
+#include <secp256k1/include/secp256k1_schnorrsig.h>
 
 // Local helpers
 #define RETURN(result) return Napi::Number::New(info.Env(), result)
@@ -64,6 +66,9 @@ Napi::Value Secp256k1Addon::Init(Napi::Env env) {
           InstanceMethod("ecdsaRecover", &Secp256k1Addon::ECDSARecover),
 
           InstanceMethod("ecdh", &Secp256k1Addon::ECDH),
+
+          InstanceMethod("schnorrSign", &Secp256k1Addon::SchnorrSign),
+          InstanceMethod("schnorrVerify", &Secp256k1Addon::SchnorrVerify),
       });
 
   constructor = Napi::Persistent(func);
@@ -411,5 +416,54 @@ Napi::Value Secp256k1Addon::ECDH(const Napi::CallbackInfo& info) {
   RETURN_IF_ZERO(
       secp256k1_ecdh(this->ctx_, output.Data(), &pubkey, seckey, hashfn, data),
       2);
+  RETURN(0);
+}
+
+Napi::Value Secp256k1Addon::SchnorrSign(const Napi::CallbackInfo& info) {
+  auto output = info[0].As<Napi::Object>();
+  auto output_sig = output.Get("signature").As<Napi::Buffer<unsigned char>>().Data();
+  auto msg32 = info[1].As<Napi::Buffer<unsigned char>>().Data();
+  auto seckey = info[2].As<Napi::Buffer<const unsigned char>>().Data();
+  
+  secp256k1_keypair keypair;
+  RETURN_IF_ZERO(secp256k1_keypair_create(
+                     this->ctx_, &keypair, seckey),
+                 1);
+
+  const unsigned char* noncedata = NULL;
+  if (!info[3].IsUndefined()) {
+    noncedata = info[3].As<Napi::Buffer<unsigned char>>().Data();
+  }
+
+  RETURN_IF_ZERO(secp256k1_schnorrsig_sign(
+                     this->ctx_, output_sig, msg32, &keypair, noncedata),
+                 1);
+
+  RETURN(0);
+}
+
+Napi::Value Secp256k1Addon::SchnorrVerify(const Napi::CallbackInfo& info) {
+  auto sig = info[0].As<Napi::Buffer<const unsigned char>>().Data();
+  auto msg32 = info[1].As<Napi::Buffer<const unsigned char>>();
+  auto input = info[2].As<Napi::Buffer<const unsigned char>>();
+
+  secp256k1_xonly_pubkey pubkeyX;
+  if (input.Length() == 32) {
+    RETURN_IF_ZERO(secp256k1_xonly_pubkey_parse(this->ctx_, &pubkeyX, input.Data()), 1);
+  } else {
+    printf("else");
+    secp256k1_pubkey pubkey;
+    RETURN_IF_ZERO(secp256k1_ec_pubkey_parse(
+                      this->ctx_, &pubkey, input.Data(), input.Length()),
+                  1);
+
+    int pk_parity;
+    RETURN_IF_ZERO(secp256k1_xonly_pubkey_from_pubkey(
+                      this->ctx_, &pubkeyX, &pk_parity, &pubkey),
+                  1); 
+  }
+
+  RETURN_IF_ZERO(secp256k1_schnorrsig_verify(this->ctx_, sig, msg32.Data(), msg32.Length(), &pubkeyX), 2);
+
   RETURN(0);
 }

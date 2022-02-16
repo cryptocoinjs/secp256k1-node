@@ -40,6 +40,8 @@
         # Activate modules
         'ENABLE_MODULE_ECDH=1',
         'ENABLE_MODULE_RECOVERY=1',
+        'ENABLE_MODULE_EXTRAKEYS=1',
+        'ENABLE_MODULE_SCHNORRSIG=1',
         #
         'USE_ENDOMORPHISM=1',
         # Ignore GMP, dynamic linking, so will be hard to use with prebuilds
