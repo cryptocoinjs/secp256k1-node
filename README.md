@@ -97,7 +97,7 @@ function getPrivateKey () {
 
 // generate private and public keys
 const privKey = getPrivateKey()
-const pubKey = secp256k1.publicKeyCreate(getPrivateKey())
+const pubKey = secp256k1.publicKeyCreate(privKey)
 
 // compressed public key from X and Y
 function hashfn (x, y) {
