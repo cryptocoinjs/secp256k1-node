@@ -15,12 +15,34 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
-          - windows-latest
+          - windows-2019
     steps:
       - name: Fetch code
         uses: actions/checkout@v1
         with:
           submodules: true
+
+      - name: Get minimal Node.js version from package.json (Linux & macOS)
+        id: node-version-nix
+        if: runner.os != 'Windows'
+        run: echo "::set-output name=version::$(node -p 'require("./package.json").engines.node.match(/(\d+)\..*$/)[1]')"
+
+      - name: Use Node.js ${{ steps.node-version-nix.outputs.version }} (Linux & macOS)
+        if: runner.os != 'Windows'
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ steps.node-version-nix.outputs.version }}
+
+      - name: Get minimal Node.js version from package.json (Windows)
+        id: node-version-win
+        if: runner.os == 'Windows'
+        run: echo "::set-output name=version::$(node -p 'require(\"./package.json\").engines.node.match(/(\d+)\..*$/)[1]')"
+
+      - name: Use Node.js ${{ steps.node-version-win.outputs.version }} (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ steps.node-version-win.outputs.version }}
 
       - name: Install dependencies
         run: yarn install --ignore-scripts
@@ -32,28 +54,6 @@ jobs:
       - name: Build addon
         if: runner.os == 'Linux'
         run: make build-addon-linux
-
-      - name: Get minimal Node.js version from package.json (Linux & macOS)
-        id: node-version-nix
-        if: runner.os != 'Windows'
-        run: echo "::set-output name=version::$(node -p 'require("./package.json").engines.node.match(/(\d.*)$/)[0]')"
-
-      - name: Use Node.js ${{ steps.node-version-nix.outputs.version }} (Linux & macOS)
-        if: runner.os != 'Windows'
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ steps.node-version-nix.outputs.version }}
-
-      - name: Get minimal Node.js version from package.json (Windows)
-        id: node-version-win
-        if: runner.os == 'Windows'
-        run: echo "::set-output name=version::$(node -p 'require(\"./package.json\").engines.node.match(/(\d.*)$/)[0]')"
-
-      - name: Use Node.js ${{ steps.node-version-win.outputs.version }} (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ steps.node-version-win.outputs.version }}
 
       - name: Run tests for addon
         run: make test-tap
