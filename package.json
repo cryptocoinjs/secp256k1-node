@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "elliptic": "^6.5.4",
-    "node-addon-api": "^2.0.0",
+    "node-addon-api": "^5.0.0",
     "node-gyp-build": "^4.2.0"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "yargs": "^15.0.2"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=14.0.0"
   },
   "gypfile": true
 }
