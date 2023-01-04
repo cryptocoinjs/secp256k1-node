@@ -41,32 +41,45 @@ module.exports = (t, secp256k1) => {
 
   t.test('privateKeyNegate', (t) => {
     t.test('arg: invalid private key', (t) => {
-      t.throws(() => {
-        secp256k1.privateKeyNegate(null)
-      }, /^Error: Expected private key to be an Uint8Array$/, 'should be an Uint8Array')
-
-      t.throws(() => {
-        const privateKey = util.getPrivateKey().slice(1)
-        secp256k1.privateKeyNegate(privateKey)
-      }, /^Error: Expected private key to be an Uint8Array with length 32$/, 'should have length 32')
-
+      const fixtures = [
+        {
+          privateKey: null,
+          expected: /^Error: Expected private key to be an Uint8Array$/,
+          msg: 'should be an Uint8Array'
+        },
+        {
+          privateKey: util.getPrivateKey().slice(1),
+          expected: /^Error: Expected private key to be an Uint8Array with length 32$/,
+          msg: 'should have length 32'
+        },
+        {
+          privateKey: util.BN_ZERO.toArrayLike(Buffer, 'be', 32),
+          expected: /^Error: Private Key is invalid$/,
+          msg: 'should be invalid private key'
+        },
+        {
+          privateKey: util.ec.curve.n.toArrayLike(Buffer, 'be', 32),
+          expected: /^Error: Private Key is invalid$/,
+          msg: 'should be invalid private key'
+        },
+        {
+          privateKey: util.ec.curve.n.addn(10).toArrayLike(Buffer, 'be', 32),
+          expected: /^Error: Private Key is invalid$/,
+          msg: 'should be invalid private key'
+        }
+      ]
+      for (const { privateKey, expected, msg } of fixtures) {
+        t.throws(() => {
+          console.log(privateKey)
+          console.log(secp256k1.privateKeyNegate(privateKey))
+        }, expected, msg)
+      }
       t.end()
     })
 
     t.test('negate valid private keys', (t) => {
-      const fixtures = [{
-        privateKey: util.BN_ZERO.toArrayLike(Buffer, 'be', 32),
-        expected: Buffer.allocUnsafe(32).fill(0x00),
-        msg: 'negate 0 private key'
-      }, {
-        privateKey: util.ec.curve.n.toArrayLike(Buffer, 'be', 32),
-        expected: Buffer.allocUnsafe(32).fill(0x00),
-        msg: 'negate N private key'
-      }, {
-        privateKey: util.ec.curve.n.addn(10).toArrayLike(Buffer, 'be', 32),
-        expected: util.ec.curve.n.subn(10).toArrayLike(Buffer, 'be', 32),
-        msg: 'negate overflowed private key'
-      }]
+      const fixtures = [
+      ]
 
       for (const { privateKey, expected, msg } of fixtures) {
         const negated = secp256k1.privateKeyNegate(privateKey)
