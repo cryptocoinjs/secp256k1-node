@@ -18,3 +18,4 @@ function testAPI (secp256k1, description) {
 
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
 testAPI(require('../elliptic'), 'elliptic')
+testAPI(require('../bitcoinerlab'), 'bitcoinerlab')
