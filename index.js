@@ -1,5 +1,9 @@
 try {
   module.exports = require('./bindings')
 } catch (err) {
-  module.exports = require('./elliptic')
+  try {
+    module.exports = require('./bitcoinerlab')
+  } catch (e) {
+    module.exports = require('./elliptic')
+  }
 }
