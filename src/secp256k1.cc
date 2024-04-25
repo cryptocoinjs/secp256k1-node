@@ -107,7 +107,7 @@ Napi::Value Secp256k1Addon::PrivateKeyVerify(const Napi::CallbackInfo& info) {
 Napi::Value Secp256k1Addon::PrivateKeyNegate(const Napi::CallbackInfo& info) {
   auto seckey = info[0].As<Napi::Buffer<unsigned char>>().Data();
 
-  RETURN_IF_ZERO(secp256k1_ec_privkey_negate(this->ctx_, seckey), 1);
+  RETURN_IF_ZERO(secp256k1_ec_seckey_negate(this->ctx_, seckey), 1);
   RETURN(0);
 }
 
@@ -115,14 +115,14 @@ Napi::Value Secp256k1Addon::PrivateKeyTweakAdd(const Napi::CallbackInfo& info) {
   auto seckey = info[0].As<Napi::Buffer<unsigned char>>().Data();
   auto tweak = info[1].As<Napi::Buffer<const unsigned char>>().Data();
 
-  RETURN_INVERTED(secp256k1_ec_privkey_tweak_add(this->ctx_, seckey, tweak));
+  RETURN_INVERTED(secp256k1_ec_seckey_tweak_add(this->ctx_, seckey, tweak));
 }
 
 Napi::Value Secp256k1Addon::PrivateKeyTweakMul(const Napi::CallbackInfo& info) {
   auto seckey = info[0].As<Napi::Buffer<unsigned char>>().Data();
   auto tweak = info[1].As<Napi::Buffer<const unsigned char>>().Data();
 
-  RETURN_INVERTED(secp256k1_ec_privkey_tweak_mul(this->ctx_, seckey, tweak));
+  RETURN_INVERTED(secp256k1_ec_seckey_tweak_mul(this->ctx_, seckey, tweak));
 }
 
 // PublicKey

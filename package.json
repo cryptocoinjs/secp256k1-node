@@ -33,14 +33,14 @@
   },
   "dependencies": {
     "elliptic": "^6.5.4",
-    "node-addon-api": "^5.0.0",
-    "node-gyp-build": "^4.2.0"
+    "node-addon-api": "^8.0.0",
+    "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
-    "node-gyp": "^5.0.7",
+    "node-gyp": "^10.1.0",
     "nyc": "^15.0.0",
-    "prebuildify": "^5.0.0",
-    "prebuildify-cross": "^4.0.2",
+    "prebuildify": "^6.0.1",
+    "prebuildify-cross": "^5.1.0",
     "standard": "^14.3.1",
     "tap-dot": "^2.0.0",
     "tape": "^4.10.1",
@@ -48,7 +48,7 @@
     "yargs": "^15.0.2"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "gypfile": true
 }
