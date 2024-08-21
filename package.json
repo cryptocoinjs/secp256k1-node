@@ -39,8 +39,8 @@
   "devDependencies": {
     "node-gyp": "^5.0.7",
     "nyc": "^15.0.0",
-    "prebuildify": "^5.0.0",
-    "prebuildify-cross": "^4.0.2",
+    "prebuildify": "^6.0.1",
+    "prebuildify-cross": "^5.1.0",
     "standard": "^14.3.1",
     "tap-dot": "^2.0.0",
     "tape": "^4.10.1",
