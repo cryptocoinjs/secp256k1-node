@@ -78,17 +78,17 @@ jobs:
         run: yarn install --ignore-scripts
 
       - name: Download macOS addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: addon-macOS
 
       - name: Download Linux addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: addon-Linux
 
       - name: Download Windows addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: addon-Windows
 
