@@ -18,34 +18,21 @@ jobs:
           - windows-2019
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Get minimal Node.js version from package.json (Linux & macOS)
-        id: node-version-nix
-        if: runner.os != 'Windows'
+      - name: Get minimal Node.js version from package.json
+        id: node-version
         run: echo "::set-output name=version::$(node -p 'require("./package.json").engines.node.match(/(\d+)\..*$/)[1]')"
 
-      - name: Use Node.js ${{ steps.node-version-nix.outputs.version }} (Linux & macOS)
-        if: runner.os != 'Windows'
-        uses: actions/setup-node@v1
+      - name: Use Node.js ${{ steps.node-version.outputs.version }}
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.node-version-nix.outputs.version }}
-
-      - name: Get minimal Node.js version from package.json (Windows)
-        id: node-version-win
-        if: runner.os == 'Windows'
-        run: echo "::set-output name=version::$(node -p 'require(\"./package.json\").engines.node.match(/(\d+)\..*$/)[1]')"
-
-      - name: Use Node.js ${{ steps.node-version-win.outputs.version }} (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ steps.node-version-win.outputs.version }}
+          node-version: ${{ steps.node-version.outputs.version }}
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Build addon
         if: runner.os != 'Linux'
@@ -59,7 +46,7 @@ jobs:
         run: make test-tap
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: addon-${{ runner.os }}
           path: prebuilds
@@ -70,30 +57,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Download macOS addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-macOS
 
       - name: Download Linux addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-Linux
 
       - name: Download Windows addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-Windows
 
       - name: Move addons to one folder
-        run: mkdir prebuilds && mv ./addon-*/* ./prebuilds/
+        run: |
+          mkdir prebuilds
+          mv darwin-arm64 prebuilds
+          mv linux-x64 prebuilds
+          mv win32-x64 prebuilds
 
       - name: Build package
         run: make package
@@ -103,7 +94,7 @@ jobs:
         run: echo "::set-output name=version::$(node -p 'require("./package.json").version')"
 
       - name: Upload package
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: secp256k1-${{ steps.pkg-version.outputs.version }}.tgz
@@ -113,11 +104,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         id: cache
         with:
           path: clang
@@ -137,12 +128,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Run lint command
         run: make lint-js
