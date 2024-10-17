@@ -45,7 +45,7 @@ jobs:
           node-version: ${{ steps.node-version-win.outputs.version }}
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Build addon
         if: runner.os != 'Linux'
@@ -75,7 +75,7 @@ jobs:
           submodules: true
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Download macOS addon
         uses: actions/download-artifact@v1
@@ -142,7 +142,7 @@ jobs:
           fetch-depth: 1
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Run lint command
         run: make lint-js
