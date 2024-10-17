@@ -37,7 +37,7 @@
     "node-gyp-build": "^4.2.0"
   },
   "devDependencies": {
-    "node-gyp": "^5.0.7",
+    "node-gyp": "=10.1.0",
     "nyc": "^15.0.0",
     "prebuildify": "^6.0.1",
     "prebuildify-cross": "github:fanatid/prebuildify-cross#9f7af67698f06e07d42304d9813a6f19aee5812c",
