@@ -22,27 +22,14 @@ jobs:
         with:
           submodules: true
 
-      - name: Get minimal Node.js version from package.json (Linux & macOS)
-        id: node-version-nix
-        if: runner.os != 'Windows'
+      - name: Get minimal Node.js version from package.json
+        id: node-version
         run: echo "::set-output name=version::$(node -p 'require("./package.json").engines.node.match(/(\d+)\..*$/)[1]')"
 
-      - name: Use Node.js ${{ steps.node-version-nix.outputs.version }} (Linux & macOS)
-        if: runner.os != 'Windows'
+      - name: Use Node.js ${{ steps.node-version.outputs.version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ steps.node-version-nix.outputs.version }}
-
-      - name: Get minimal Node.js version from package.json (Windows)
-        id: node-version-win
-        if: runner.os == 'Windows'
-        run: echo "::set-output name=version::$(node -p 'require("./package.json").engines.node.match(/(\d+)\..*$/)[1]')"
-
-      - name: Use Node.js ${{ steps.node-version-win.outputs.version }} (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ steps.node-version-win.outputs.version }}
+          node-version: ${{ steps.node-version.outputs.version }}
 
       - name: Install dependencies
         run: npm install --ignore-scripts
