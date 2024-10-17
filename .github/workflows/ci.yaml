@@ -18,7 +18,7 @@ jobs:
           - windows-2019
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -59,7 +59,7 @@ jobs:
         run: make test-tap
 
       - name: Upload prebuilds
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: addon-${{ runner.os }}
           path: prebuilds
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -78,17 +78,17 @@ jobs:
         run: npm install --ignore-scripts
 
       - name: Download macOS addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-macOS
 
       - name: Download Linux addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-Linux
 
       - name: Download Windows addon
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: addon-Windows
 
@@ -103,7 +103,7 @@ jobs:
         run: echo "::set-output name=version::$(node -p 'require("./package.json").version')"
 
       - name: Upload package
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: secp256k1-${{ steps.pkg-version.outputs.version }}.tgz
@@ -113,11 +113,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         id: cache
         with:
           path: clang
@@ -137,9 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch code
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         run: npm install --ignore-scripts
