@@ -80,7 +80,11 @@ jobs:
           name: addon-Windows
 
       - name: Move addons to one folder
-        run: mkdir prebuilds && mv ./addon-*/* ./prebuilds/
+        run: |
+          mkdir prebuilds
+          mv darwin-arm64 prebuilds
+          mv linux-x64 prebuilds
+          mv win32-x64 prebuilds
 
       - name: Build package
         run: make package
