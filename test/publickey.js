@@ -32,6 +32,12 @@ module.exports = (t, secp256k1) => {
       invalidLength[0] = publicKey.compressed[0]
       t.false(secp256k1.publicKeyVerify(invalidLength), 'invalid length')
 
+      const zeroUncompressed = Buffer.concat([Buffer.from([0x04]), Buffer.alloc(64)])
+      t.false(secp256k1.publicKeyVerify(zeroUncompressed), 'zero uncompressed')
+
+      const zeroCompressed = Buffer.concat([Buffer.from([0x02]), Buffer.alloc(32)])
+      t.false(secp256k1.publicKeyVerify(zeroCompressed), 'zero compressed')
+
       t.end()
     })
 
