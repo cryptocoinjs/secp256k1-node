@@ -171,6 +171,16 @@ module.exports = function (t, secp256k1) {
       t.end()
     })
 
+    t.test('zero key', function (t) {
+      const zeroUncompressed = Buffer.concat([Buffer.from([0x04]), Buffer.alloc(64)])
+      t.false(secp256k1.publicKeyVerify(zeroUncompressed), 'zero uncompressed')
+
+      const zeroCompressed = Buffer.concat([Buffer.from([0x02]), Buffer.alloc(32)])
+      t.false(secp256k1.publicKeyVerify(zeroCompressed), 'zero compressed')
+
+      t.end();
+    })
+
     util.repeat(t, 'random tests', util.env.repeat, function (t) {
       var privateKey = util.getPrivateKey()
       var publicKey = util.getPublicKey(privateKey)
