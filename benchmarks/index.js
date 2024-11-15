@@ -5,6 +5,7 @@ const util = require('../test/util')
 const implementations = {
   bindings: require('../bindings'),
   elliptic: require('../elliptic'),
+  noble: require('../noble'),
   ecdsa: require('./ecdsa')
 }
 

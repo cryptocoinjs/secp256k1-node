@@ -17,4 +17,5 @@ function testAPI (secp256k1, description) {
 }
 
 if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
+testAPI(require('../noble'), 'noble')
 testAPI(require('../elliptic'), 'elliptic')
