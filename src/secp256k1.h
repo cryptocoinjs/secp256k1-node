@@ -57,6 +57,9 @@ class Secp256k1Addon : public Napi::ObjectWrap<Secp256k1Addon> {
   Napi::Value ECDSARecover(const Napi::CallbackInfo& info);
 
   Napi::Value ECDH(const Napi::CallbackInfo& info);
+
+  Napi::Value SchnorrSign(const Napi::CallbackInfo& info);
+  Napi::Value SchnorrVerify(const Napi::CallbackInfo& info);
 };
 
 #endif  // ADDON_SECP256K1
