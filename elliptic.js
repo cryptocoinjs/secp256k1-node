@@ -1,1 +1,1 @@
-module.exports = require('./lib')(require('./lib/elliptic'))
+module.exports = require('./lib')(require('./lib/noble'))
