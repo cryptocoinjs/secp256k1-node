@@ -15,7 +15,7 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
-          - windows-latest
+          - windows-2022
     steps:
       - name: Fetch code
         uses: actions/checkout@v4
@@ -50,6 +50,32 @@ jobs:
         with:
           name: addon-${{ runner.os }}
           path: prebuilds
+
+  test-modern-node:
+    name: Test growable buffers on Node.js 24
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Verify growable SharedArrayBuffer support
+        run: node -e "if (typeof SharedArrayBuffer.prototype.grow !== 'function') throw new Error('growable SharedArrayBuffer is unavailable')"
+
+      - name: Build addon
+        run: ./node_modules/.bin/node-gyp rebuild
+
+      - name: Run tests for addon
+        run: make test-tap
 
   package:
     name: Build package

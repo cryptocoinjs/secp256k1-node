@@ -135,6 +135,102 @@ module.exports = (t, secp256k1) => {
         t.end()
       })
 
+      t.test('options are read once', (t) => {
+        const reads = { data: 0, hashfn: 0, xbuf: 0, ybuf: 0 }
+        const hashfn = () => result
+        const options = {
+          get data () {
+            reads.data += 1
+            return data
+          },
+          get hashfn () {
+            reads.hashfn += 1
+            return hashfn
+          },
+          get xbuf () {
+            reads.xbuf += 1
+            return xbuf
+          },
+          get ybuf () {
+            reads.ybuf += 1
+            return ybuf
+          }
+        }
+
+        const hash = secp256k1.ecdh(
+          publicKey,
+          privateKey,
+          options,
+          Buffer.alloc(result.length)
+        )
+
+        t.same(hash, result, 'the captured options are used for ecdh')
+        t.same(
+          reads,
+          { data: 1, hashfn: 1, xbuf: 1, ybuf: 1 },
+          'each option is captured exactly once'
+        )
+        t.end()
+      })
+
+      t.test('zero-length custom output', (t) => {
+        const output = new Uint8Array(0)
+        const hash = secp256k1.ecdh(
+          publicKey,
+          privateKey,
+          { hashfn: () => new Uint8Array(0) },
+          output
+        )
+
+        t.equal(hash, output, 'returns the caller-provided empty output')
+        t.equal(hash.byteLength, 0, 'accepts an empty hash result')
+        t.end()
+      })
+
+      t.test('custom output and hash results use real byte lengths', (t) => {
+        const spoofedResult = new Uint8Array(result)
+        const expected = new Uint8Array(result)
+        Object.defineProperty(spoofedResult, 'length', {
+          value: 1e6,
+          configurable: true
+        })
+        const output = new Uint8Array(result.byteLength)
+        Object.defineProperty(output, 'length', {
+          value: 1e6,
+          configurable: true
+        })
+        const hash = secp256k1.ecdh(
+          publicKey,
+          privateKey,
+          { hashfn: () => spoofedResult },
+          output
+        )
+
+        t.equal(hash, output, 'returns the caller-provided output')
+        t.same(
+          hash,
+          expected,
+          'a spoofed hash length does not change the copied result'
+        )
+
+        const undersizedResult = new Uint8Array(1)
+        Object.defineProperty(undersizedResult, 'length', {
+          value: output.byteLength,
+          configurable: true
+        })
+        t.throws(
+          () => secp256k1.ecdh(
+            publicKey,
+            privateKey,
+            { hashfn: () => undersizedResult },
+            new Uint8Array(output.byteLength)
+          ),
+          /^Error: Scalar was invalid \(zero or overflow\)$/,
+          'an undersized hash result cannot masquerade as the output size'
+        )
+        t.end()
+      })
+
       t.test('invalid hash', (t) => {
         t.throws(() => {
           secp256k1.ecdh(publicKey, privateKey, { hashfn: () => null })
@@ -143,6 +239,10 @@ module.exports = (t, secp256k1) => {
         t.throws(() => {
           secp256k1.ecdh(publicKey, privateKey, { hashfn: () => new Uint8Array(2) }, new Uint8Array(1))
         }, /^Error: Scalar was invalid \(zero or overflow\)$/, 'result of hashfn should be Uint8Array with same length as output')
+
+        t.throws(() => {
+          secp256k1.ecdh(publicKey, privateKey, { hashfn: () => new Uint16Array(16) }, new Uint8Array(32))
+        }, /^Error: Scalar was invalid \(zero or overflow\)$/, 'result of hashfn should not be another typed-array kind')
 
         t.end()
       })

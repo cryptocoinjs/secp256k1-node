@@ -59,6 +59,10 @@ module.exports = (t, secp256k1) => {
       }, /^Error: Expected options.data to be an Uint8Array$/, 'data should be an Uint8Array')
 
       t.throws(() => {
+        secp256k1.ecdsaSign(message, privateKey, { data: new Uint8Array(33) })
+      }, /^Error: Expected options.data to be an Uint8Array with length 32$/, 'default nonce data should have length 32')
+
+      t.throws(() => {
         secp256k1.ecdsaSign(message, privateKey, { noncefn: null })
       }, /^Error: Expected options.noncefn to be a Function$/, 'noncefn should be a Function')
 
@@ -89,7 +93,7 @@ module.exports = (t, secp256k1) => {
     t.test('noncefn usage', (t) => {
       const message = util.getMessage()
       const privateKey = util.getPrivateKey()
-      const data = util.getMessage()
+      const data = new Uint8Array(42)
 
       t.test('noncefn call', (t) => {
         function noncefn () {
@@ -107,6 +111,85 @@ module.exports = (t, secp256k1) => {
         t.end()
       })
 
+      t.test('options are read once', (t) => {
+        const reads = { data: 0, noncefn: 0 }
+        const nonce = new Uint8Array(32)
+        nonce[31] = 2
+        let receivedData = null
+        const noncefn = function () {
+          receivedData = arguments[3]
+          return nonce
+        }
+        const options = {
+          get data () {
+            reads.data += 1
+            return data
+          },
+          get noncefn () {
+            reads.noncefn += 1
+            return noncefn
+          }
+        }
+
+        secp256k1.ecdsaSign(message, privateKey, options)
+
+        t.equal(receivedData, data, 'the captured data is passed to noncefn')
+        t.same(
+          reads,
+          { data: 1, noncefn: 1 },
+          'each option is captured exactly once'
+        )
+        t.end()
+      })
+
+      t.test('noncefn result uses its real byte length', (t) => {
+        const honestNonce = new Uint8Array(32)
+        honestNonce[31] = 2
+        const spoofedNonce = new Uint8Array(honestNonce)
+        Object.defineProperty(spoofedNonce, 'length', {
+          value: 1e6,
+          configurable: true
+        })
+
+        const honest = secp256k1.ecdsaSign(
+          message,
+          privateKey,
+          { noncefn: () => honestNonce }
+        )
+        const spoofed = secp256k1.ecdsaSign(
+          message,
+          privateKey,
+          { noncefn: () => spoofedNonce }
+        )
+
+        t.same(
+          spoofed.signature,
+          honest.signature,
+          'a spoofed nonce length does not change the signature'
+        )
+        t.equal(
+          spoofed.recid,
+          honest.recid,
+          'a spoofed nonce length does not change the recovery id'
+        )
+
+        const undersizedNonce = new Uint8Array([2])
+        Object.defineProperty(undersizedNonce, 'length', {
+          value: 32,
+          configurable: true
+        })
+        t.throws(
+          () => secp256k1.ecdsaSign(
+            message,
+            privateKey,
+            { noncefn: () => undersizedNonce }
+          ),
+          /^Error: The nonce generation function failed, or the private key was invalid$/,
+          'an undersized nonce cannot masquerade as 32 bytes'
+        )
+        t.end()
+      })
+
       t.test('invalid nonce', (t) => {
         t.throws(() => {
           secp256k1.ecdsaSign(message, privateKey, { noncefn: () => null })
@@ -120,8 +203,39 @@ module.exports = (t, secp256k1) => {
           secp256k1.ecdsaSign(message, privateKey, { noncefn: () => new Uint8Array(42) })
         }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should be an Uint8Array')
 
+        const nonce = new Uint16Array(16)
+        nonce.fill(1)
+        t.throws(() => {
+          secp256k1.ecdsaSign(message, privateKey, { noncefn: () => nonce })
+        }, /^Error: The nonce generation function failed, or the private key was invalid$/, 'nonce should not be another typed-array kind')
+
         t.end()
       })
+
+      t.end()
+    })
+
+    t.test('options.data mixes into the default nonce', (t) => {
+      // The rejection path (data must be 32 bytes) is covered above; this is the
+      // accepted path. A 32-byte `data` is folded into rfc6979 as the
+      // personalization string, so it must change the produced nonce — and thus
+      // the signature — while still yielding a valid, deterministic signature
+      // that matches an independent reference. If the length rule wrongly
+      // rejected a correct `data`, or the value were silently dropped, one of
+      // these assertions fails. Runs on both backends, so it also pins the two to
+      // the same result for the data path.
+      const message = util.getMessage()
+      const privateKey = util.getPrivateKey()
+      const publicKey = util.getPublicKey(privateKey).compressed
+      const data = util.getMessage()
+
+      const withoutData = secp256k1.ecdsaSign(message, privateKey, {}, Buffer.alloc).signature
+      const withData = secp256k1.ecdsaSign(message, privateKey, { data }, Buffer.alloc).signature
+
+      t.notSame(withData, withoutData, 'a 32-byte data changes the signature')
+      t.same(withData, util.sign(message, privateKey, data).signatureLowS, 'the signature matches rfc6979 with data as the personalization string')
+      t.true(secp256k1.ecdsaVerify(withData, message, publicKey), 'the data-derived signature still verifies')
+      t.same(secp256k1.ecdsaSign(message, privateKey, { data }, Buffer.alloc).signature, withData, 'signing is deterministic in data')
 
       t.end()
     })

@@ -54,8 +54,13 @@ function getMessage () {
   return prngs.message.randomBytes(32)
 }
 
-function sign (message, privateKey) {
-  const ecSig = ec.sign(message, privateKey, { canonical: false })
+function sign (message, privateKey, data) {
+  // `data`, when given, is the rfc6979 personalization string — the same role
+  // secp256k1's `options.data` plays for the default nonce function, so this
+  // stays a faithful reference for signatures produced with `options.data`.
+  const options = { canonical: false }
+  if (data !== undefined) options.pers = data
+  const ecSig = ec.sign(message, privateKey, options)
 
   const signature = Buffer.concat([
     ecSig.r.toArrayLike(Buffer, 'be', 32),

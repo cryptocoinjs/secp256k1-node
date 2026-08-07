@@ -11,10 +11,14 @@ function testAPI (secp256k1, description) {
     require('./signature')(t, secp256k1)
     require('./ecdsa')(t, secp256k1)
     require('./ecdh')(t, secp256k1)
+    require('./spoofed-length')(t, secp256k1)
 
     t.end()
   })
 }
 
-if (!process.browser) testAPI(require('../bindings'), 'secp256k1 bindings')
+if (!process.browser) {
+  testAPI(require('../bindings'), 'secp256k1 bindings')
+  require('./native-validation')(test)
+}
 testAPI(require('../elliptic'), 'elliptic')

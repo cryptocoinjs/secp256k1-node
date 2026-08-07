@@ -103,6 +103,10 @@ Parse a DER ECDSA signature.
 
 Create an ECDSA signature.
 
+When using the default nonce function, `data` must be a 32-byte Uint8Array and
+is used as extra entropy. With a custom `noncefn`, `data` may have any length
+and is passed through to the callback unchanged.
+
 ##### .ecdsaVerify(signature: Uint8Array, message: Uint8Array, publicKey: Uint8Array): boolean
 
 Verify an ECDSA signature.
