@@ -11,8 +11,11 @@ prebuildify-cross = ./node_modules/.bin/prebuildify-cross
 build-addon:
 	$(prebuildify) --target node@18.0.0 --napi --strip && node -p "process.platform"
 
+# linux-arm64-lts pins an old glibc (2.27) for the same reason
+# centos7-devtoolset7 does for x64: a prebuild built on a recent distro would
+# require a glibc newer than many arm64 targets ship.
 build-addon-linux:
-	$(prebuildify-cross) -i centos7-devtoolset7 -i alpine --target node@18.0.0 --napi --strip
+	$(prebuildify-cross) -i centos7-devtoolset7 -i alpine -i linux-arm64-lts --target node@18.0.0 --napi --strip
 
 
 nyc = ./node_modules/.bin/nyc

@@ -110,6 +110,7 @@ jobs:
           mkdir prebuilds
           mv darwin-arm64 prebuilds
           mv linux-x64 prebuilds
+          mv linux-arm64 prebuilds
           mv win32-x64 prebuilds
 
       - name: Build package
